@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAYER STUDIOS — 견적 산출기</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-logo">
+                <span class="logo-mark">—</span>
+                <span class="logo-text">LAYER STUDIOS</span>
+            </div>
+            <p class="header-sub">통합 견적 산출기</p>
+        </header>
+
+        <!-- Main Card -->
+        <main class="main-card">
+            <!-- Step 1: Studio -->
+            <section class="form-section">
+                <div class="step-label"><span class="step-number">01</span>지점 선택</div>
+                <div class="studio-grid" id="studio-grid">
+                    <button class="studio-btn selected" data-studio="HANNAM" id="btn-HANNAM">한남</button>
+                    <button class="studio-btn" data-studio="LAYER7" id="btn-LAYER7">레이어 7</button>
+                    <button class="studio-btn" data-studio="LAYER20" id="btn-LAYER20">레이어 20</button>
+                    <button class="studio-btn" data-studio="LAYER11" id="btn-LAYER11">레이어 11</button>
+                    <button class="studio-btn" data-studio="LAYER27" id="btn-LAYER27">레이어 27</button>
+                    <button class="studio-btn" data-studio="LAYER26" id="btn-LAYER26">레이어 26</button>
+                    <button class="studio-btn" data-studio="LAYER41" id="btn-LAYER41">레이어 41</button>
+                    <button class="studio-btn" data-studio="HONGDAE" id="btn-HONGDAE">홍대</button>
+                </div>
+            </section>
+
+            <div class="divider"></div>
+
+            <!-- Step 2: Part Selection -->
+            <section class="form-section" id="section-part">
+                <div class="step-label"><span class="step-number">02</span>파트 선택</div>
+                <div class="part-grid" id="part-grid"></div>
+            </section>
+
+            <div class="divider" id="divider-part"></div>
+
+            <!-- Step 3: Type (Photo/Video) — hidden for Hongdae small -->
+            <section class="form-section" id="section-type">
+                <div class="step-label"><span class="step-number">03</span>촬영 종류</div>
+                <div class="toggle-group" id="type-toggle">
+                    <button class="toggle-btn selected" data-value="photo" id="type-photo">📷 사진</button>
+                    <button class="toggle-btn" data-value="video" id="type-video">🎬 영상</button>
+                </div>
+            </section>
+
+            <div class="divider" id="divider-type"></div>
+
+            <!-- Step 4: Personnel -->
+            <section class="form-section">
+                <div class="step-label">
+                    <span class="step-number">04</span>
+                    촬영 인원
+                    <span class="value-badge" id="personnel-badge">10명</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="personnel" class="range-slider" min="1" max="80" value="10" step="1">
+                    <div class="slider-track-fill" id="personnel-fill"></div>
+                    <div class="slider-labels">
+                        <span>1명</span>
+                        <span id="personnel-label-max">80명</span>
+                    </div>
+                </div>
+            </section>
+
+            <div class="divider"></div>
+
+            <!-- Step 5: Time Mode (Day/Half) or Hourly for Hongdae small -->
+            <section class="form-section" id="section-time">
+                <div class="step-label"><span class="step-number">05</span>이용 시간</div>
+
+                <!-- Day / Half buttons (default) -->
+                <div id="time-dayhalf" class="toggle-group">
+                    <button class="toggle-btn selected" data-value="day" id="time-day">☀️ Day (9h)</button>
+                    <button class="toggle-btn" data-value="half" id="time-half">🌤 Half (4h)</button>
+                </div>
+
+                <!-- Hourly slider (Hongdae small only) -->
+                <div id="time-hourly" style="display:none;">
+                    <div class="slider-container" style="margin-top:1rem;">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                            <span class="slider-hint">이용 시간</span>
+                            <span class="value-badge" id="hours-badge">1시간</span>
+                        </div>
+                        <input type="range" id="hours" class="range-slider" min="1" max="12" value="1" step="1">
+                        <div class="slider-track-fill" id="hours-fill"></div>
+                        <div class="slider-labels"><span>1h</span><span>12h</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="divider"></div>
+
+            <!-- Step 6: Extra Hours -->
+            <section class="form-section" id="section-extra">
+                <div class="step-label">
+                    <span class="step-number">06</span>
+                    연장 시간
+                    <span class="value-badge" id="extra-badge">0시간</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="extraHours" class="range-slider" min="0" max="6" value="0" step="1">
+                    <div class="slider-track-fill" id="extra-fill"></div>
+                    <div class="slider-labels"><span>0h</span><span>6h</span></div>
+                </div>
+                <p class="hint-text">💡 연장료: 풀데이 기본요금의 10% / 시간</p>
+            </section>
+
+            <div class="divider" id="divider-extra"></div>
+
+            <!-- Step 7: Options (Hongdae only) -->
+            <section class="form-section" id="section-options" style="display:none;">
+                <div class="step-label"><span class="step-number">07</span>추가 옵션 <span class="optional-tag">홍대 전용</span>
+                </div>
+                <div class="options-grid">
+                    <label class="option-card" id="opt-greenhouse">
+                        <input type="checkbox" value="GREENHOUSE" class="option-check">
+                        <span class="option-icon">🌿</span>
+                        <span class="option-name">그린하우스</span>
+                        <span class="option-price" id="greenhouse-price">+5만원/h</span>
+                    </label>
+                    <label class="option-card" id="opt-backgarden">
+                        <input type="checkbox" value="BACKGARDEN" class="option-check">
+                        <span class="option-icon">🌸</span>
+                        <span class="option-name">백가든</span>
+                        <span class="option-price" id="backgarden-price">+5만원/h</span>
+                    </label>
+                </div>
+            </section>
+        </main>
+
+        <!-- Result Card -->
+        <div class="result-card" id="result-card">
+            <div class="result-inner">
+                <div class="result-studio-tag" id="result-studio-tag">한남</div>
+                <div class="result-label">예상 견적</div>
+                <div class="result-amount">
+                    <span class="result-number" id="result-number">0</span>
+                    <span class="result-unit">만원</span>
+                </div>
+                <div class="result-detail" id="result-detail">기본 요금</div>
+            </div>
+            <div class="result-glow"></div>
+        </div>
+
+        <!-- Disclaimer -->
+        <p class="disclaimer">※ 본 견적은 참고용이며 실제 요금과 다를 수 있습니다. 정확한 금액은 지점에 문의하세요.</p>
+    </div>
+
+    <script src="engine.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
