@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" role="img" aria-label="LAYER STUDIOS">
+    <style>
+        :root {
+            --bg: #14120f;
+            --fg: #fbfaf7;
+        }
+
+        /* 어두운 탭 바에서 검은 사각형이 묻히지 않도록 반전한다 */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #fbfaf7;
+                --fg: #14120f;
+            }
+        }
+    </style>
+    <rect width="16" height="16" fill="var(--bg)" />
+    <g fill="var(--fg)">
+        <rect x="3" y="4" width="10" height="2" />
+        <rect x="3" y="7" width="10" height="2" />
+        <rect x="3" y="10" width="6" height="2" />
+    </g>
+</svg>
