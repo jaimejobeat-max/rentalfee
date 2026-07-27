@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>폰트 고르기 — LAYER STUDIOS</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- 후보 폰트 전부 미리 불러둔다 -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&family=Nanum+Gothic+Coding:wght@400;700&family=Roboto+Mono:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Gothic+A1:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <!-- Pretendard는 저장소에 자체 호스팅된 것을 쓴다 (family: 'Pretendard Variable') -->
+    <link rel="stylesheet" href="fonts/pretendard.css">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* ── 실험실 바 ─────────────────────────── */
+        body {
+            padding-top: 92px;
+        }
+
+        .lab {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            background: #14120f;
+            color: #fbfaf7;
+            padding: 0.55rem 0.9rem 0.7rem;
+            font-family: system-ui, sans-serif;
+        }
+
+        .lab-t {
+            font-size: 0.58rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            opacity: 0.5;
+            margin-bottom: 0.45rem;
+        }
+
+        .lab-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            align-items: center;
+        }
+
+        .lab button {
+            font-family: inherit;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.4rem 0.65rem;
+            background: transparent;
+            color: #fbfaf7;
+            border: 1px solid rgba(251, 250, 247, 0.35);
+            cursor: pointer;
+        }
+
+        .lab button:hover {
+            border-color: #fbfaf7;
+        }
+
+        .lab button.on {
+            background: #fbfaf7;
+            color: #14120f;
+        }
+
+        .lab .sep {
+            width: 1px;
+            height: 22px;
+            background: rgba(251, 250, 247, 0.3);
+            margin: 0 0.35rem;
+        }
+
+        .lab-note {
+            font-size: 0.62rem;
+            opacity: 0.65;
+            margin-top: 0.4rem;
+            line-height: 1.5;
+        }
+
+        /* ── 보정 이전 조판 ─────────────────────
+           보정값이 style.css에 반영됐으므로, 이제 이 클래스는 반대로
+           '보정 전'(작고·자간 넓고·흐린) 상태를 재현한다. 비교용. */
+        body.tight {
+            --ink-2: #6b655c;
+            --ink-3: #9a9389;
+        }
+
+        body.tight .mh-sub {
+            font-size: 0.58rem;
+            letter-spacing: 0.16em;
+        }
+
+        body.tight .row-h {
+            font-size: 0.6rem;
+            letter-spacing: 0.22em;
+        }
+
+        body.tight .row-h em {
+            font-size: 0.78rem;
+        }
+
+        body.tight .grp {
+            font-size: 0.58rem;
+            letter-spacing: 0.14em;
+        }
+
+        body.tight .opts button {
+            font-size: 0.74rem;
+        }
+
+        body.tight .scale {
+            font-size: 0.56rem;
+            letter-spacing: 0.16em;
+        }
+
+        body.tight .note {
+            font-size: 0.6rem;
+        }
+
+        body.tight .paper-in {
+            font-size: 0.74rem;
+        }
+
+        body.tight .rc-title {
+            font-size: 0.72rem;
+            letter-spacing: 0.3em;
+        }
+
+        body.tight .rc-meta {
+            font-size: 0.58rem;
+            letter-spacing: 0.1em;
+        }
+
+        body.tight .li span:first-child {
+            font-size: 0.7rem;
+        }
+
+        body.tight .rc-total-k {
+            font-size: 0.64rem;
+            letter-spacing: 0.24em;
+        }
+
+        body.tight .rc-foot {
+            font-size: 0.56rem;
+        }
+
+        body.tight .peek-k,
+        body.tight .peek-cue {
+            font-size: 0.59rem;
+            letter-spacing: 0.2em;
+            opacity: 0.6;
+        }
+
+        @media (min-width: 900px) {
+            .dock {
+                top: 7rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="lab">
+        <div class="lab-t">폰트 고르기 — 실제 화면에 바로 적용됨</div>
+        <div class="lab-row" id="lab-fonts"></div>
+        <div class="lab-row" style="margin-top:0.45rem">
+            <button id="btn-boost">보정 전 조판으로 보기 ○</button>
+            <span class="sep"></span>
+            <span class="lab-note" id="lab-desc"></span>
+        </div>
+    </div>
+
+    <header class="masthead">
+        <span class="mh-logo">LAYER STUDIOS</span>
+        <span class="mh-sub">Quotation / 견적 산출</span>
+    </header>
+
+    <main class="workbench">
+        <section class="controls">
+            <div class="row">
+                <div class="row-h"><span class="row-n">01</span>Studio<em id="v-studio">한남</em></div>
+                <div class="opts" id="opts-studio">
+                    <button data-set="studio" data-v="HANNAM" class="on">한남</button>
+                    <button data-set="studio" data-v="LAYER7">레이어 7</button>
+                    <button data-set="studio" data-v="LAYER20">레이어 20</button>
+                    <button data-set="studio" data-v="LAYER11">레이어 11</button>
+                    <button data-set="studio" data-v="LAYER27">레이어 27</button>
+                    <button data-set="studio" data-v="LAYER26">레이어 26</button>
+                    <button data-set="studio" data-v="LAYER41">레이어 41</button>
+                    <button data-set="studio" data-v="HONGDAE">홍대</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="row-h"><span class="row-n">02</span>Part<em id="v-part">1F</em></div>
+                <div class="opts" id="opts-part"></div>
+            </div>
+
+            <div class="row" id="row-type">
+                <div class="row-h"><span class="row-n">03</span>Type<em id="v-type">사진</em></div>
+                <div class="opts">
+                    <button data-set="type" data-v="photo" class="on">사진 PHOTO</button>
+                    <button data-set="type" data-v="video">영상 VIDEO</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="row-h"><span class="row-n">04</span>Personnel<em id="v-personnel">10명</em></div>
+                <div class="slider">
+                    <input type="range" data-rng="personnel" id="rng-personnel" min="1" max="80" value="10" step="1"
+                        aria-label="촬영 인원">
+                    <div class="scale"><span>01</span><span>80</span></div>
+                </div>
+            </div>
+
+            <div class="row" id="row-time">
+                <div class="row-h"><span class="row-n">05</span>Time<em id="v-time">Day 9h</em></div>
+                <div class="opts" id="time-dayhalf">
+                    <button data-set="time" data-v="day" class="on">DAY 9H</button>
+                    <button data-set="time" data-v="half">HALF 4H</button>
+                </div>
+                <div class="slider" id="time-hourly" hidden>
+                    <input type="range" data-rng="hours" id="rng-hours" min="1" max="12" value="1" step="1"
+                        aria-label="이용 시간">
+                    <div class="scale"><span>1H</span><span>12H</span></div>
+                </div>
+            </div>
+
+            <div class="row" id="row-extra">
+                <div class="row-h"><span class="row-n">06</span>Extra<em id="v-extra">0시간</em></div>
+                <div class="slider">
+                    <input type="range" data-rng="extraHours" id="rng-extra" min="0" max="6" value="0" step="1"
+                        aria-label="연장 시간">
+                    <div class="scale"><span>0H</span><span>6H</span></div>
+                </div>
+                <p class="note">연장료 = 풀데이 기본요금의 10% / 시간</p>
+            </div>
+
+            <div class="row" id="row-options" hidden>
+                <div class="row-h"><span class="row-n">07</span>Options<em class="tag">홍대 전용</em></div>
+                <div class="opts opts-check">
+                    <button data-opt="GREENHOUSE">그린하우스 <b id="p-greenhouse">+5만원/h</b></button>
+                    <button data-opt="BACKGARDEN">백가든 <b id="p-backgarden">+5만원/h</b></button>
+                </div>
+            </div>
+        </section>
+
+        <aside class="dock" id="dock">
+            <button class="peek" id="peek" aria-expanded="false" aria-controls="paper">
+                <span class="peek-k">Total</span>
+                <span class="peek-v" id="peek-v">120만원</span>
+                <span class="peek-cue" id="peek-cue">견적서</span>
+            </button>
+            <div class="paper" id="paper">
+                <div class="paper-in">
+                    <div class="rc-title">LAYER STUDIOS</div>
+                    <div class="rc-meta" id="rc-meta">QUOTATION · 참고용</div>
+                    <div id="rc-spec"></div>
+                    <div class="rc-rule"></div>
+                    <div id="rc-charges"></div>
+                    <div id="rc-total"></div>
+                    <div id="rc-stamp"></div>
+                    <p class="rc-foot">본 견적은 참고용이며 실제 요금과 다를 수 있습니다.<br>정확한 금액은 지점에 문의하세요.</p>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <div class="dock-scrim" id="dock-scrim"></div>
+
+    <script src="engine.js"></script>
+    <script src="app.js"></script>
+    <script>
+        /* 후보 조합. mono = 숫자·라틴 라벨, kr = 한글 본문 */
+        const PAIRS = [
+            {
+                id: 1, name: '1 · Plex 통일',
+                mono: "'IBM Plex Mono'", kr: "'IBM Plex Sans KR'",
+                desc: '지금 쓰는 Plex Mono에 같은 가족의 한글(IBM Plex Sans KR)을 붙였다. 폴백이 사라져 라틴과 한글의 인상이 처음으로 일치한다. 영수증 톤 유지에 가장 안전한 선택.'
+            },
+            {
+                id: 2, name: '2 · 한글도 모노',
+                mono: "'Nanum Gothic Coding'", kr: "'Nanum Gothic Coding'",
+                desc: '한글까지 고정폭인 진짜 모노스페이스. 실제 영수증·전표에 가장 가깝다. 대신 한글 획이 가늘어 작은 크기에서 불리하다 — 조판 보정을 같이 켜고 봐야 한다.'
+            },
+            {
+                id: 3, name: '3 · Pretendard + Plex Mono',
+                mono: "'IBM Plex Mono'", kr: "'Pretendard Variable'",
+                desc: '한글 UI에서 가장 널리 쓰이는 Pretendard로 본문을, 숫자와 라틴 라벨은 Plex Mono로. 가독성은 최상이고 영수증 느낌도 숫자에 남는다. 실무적으로 가장 무난한 절충.'
+            },
+            {
+                id: 4, name: '4 · Noto + Roboto Mono',
+                mono: "'Roboto Mono'", kr: "'Noto Sans KR'",
+                desc: 'Roboto Mono는 Plex보다 자족이 크고 획이 두꺼워 작은 크기에서 또렷하다. 개성은 가장 옅지만 안정적이다.'
+            },
+            {
+                id: 5, name: '5 · Gothic A1 + Space Mono',
+                mono: "'Space Mono'", kr: "'Gothic A1'",
+                desc: 'Space Mono는 세리프가 튀어 전표·타자기 인상이 가장 강하다. 개성은 최고지만 소문자 가독성은 가장 낮다 — 큰 숫자에만 쓰는 편이 낫다.'
+            },
+            {
+                id: 6, name: '6 · Pretendard 단독',
+                mono: "'Pretendard Variable'", kr: "'Pretendard Variable'",
+                desc: '모노를 완전히 포기하고 가독성만 취한 안. 가장 잘 읽히지만 영수증 컨셉의 성격도 같이 사라진다. 기준선으로 보기 좋다.'
+            },
+        ];
+
+        const wrap = document.getElementById('lab-fonts');
+        const desc = document.getElementById('lab-desc');
+        const boostBtn = document.getElementById('btn-boost');
+
+        function apply(p) {
+            document.documentElement.style.setProperty('--font-ui', p.mono);
+            document.documentElement.style.setProperty('--font-body', p.kr);
+            desc.textContent = p.desc;
+            wrap.querySelectorAll('button').forEach(b =>
+                b.classList.toggle('on', +b.dataset.id === p.id));
+        }
+
+        PAIRS.forEach(p => {
+            const b = document.createElement('button');
+            b.textContent = p.name;
+            b.dataset.id = p.id;
+            b.addEventListener('click', () => apply(p));
+            wrap.appendChild(b);
+        });
+
+        boostBtn.addEventListener('click', () => {
+            const on = document.body.classList.toggle('tight');
+            boostBtn.textContent = on ? '보정 전 조판으로 보기 ●' : '보정 전 조판으로 보기 ○';
+            boostBtn.classList.toggle('on', on);
+        });
+
+        // 6번(Pretendard 단독)이 채택안이므로 기본값으로 연다
+        apply(PAIRS[5]);
+    </script>
+</body>
+
+</html>

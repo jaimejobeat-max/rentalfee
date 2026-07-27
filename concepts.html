@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAYER STUDIOS — 디자인 컨셉 3안</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@200;300;400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ══ 컨셉 스위처 ══════════════════════════════ */
+        .switcher {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.9rem;
+            background: rgba(255, 255, 255, 0.86);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+        }
+
+        .switcher-title {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #888;
+            margin-right: auto;
+        }
+
+        .switcher button {
+            font-family: inherit;
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            padding: 0.4rem 0.8rem;
+            border: 1px solid #111;
+            background: transparent;
+            color: #111;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .switcher button.on {
+            background: #111;
+            color: #fff;
+        }
+
+        #stage {
+            padding-top: 44px;
+            min-height: 100vh;
+        }
+
+        /* ════════════════════════════════════════════
+           CONCEPT A — SENTENCE / 타이포그래피가 인터페이스
+           ════════════════════════════════════════════ */
+        .cA {
+            background: #f2f0ed;
+            color: #0d0d0d;
+            min-height: calc(100vh - 44px);
+            padding: 3.5rem 1.5rem 46vh;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .cA-kicker {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: #a09a92;
+            margin-bottom: 3rem;
+        }
+
+        .cA-sentence {
+            font-size: clamp(1.9rem, 6.4vw, 3.6rem);
+            font-weight: 300;
+            line-height: 1.42;
+            letter-spacing: -0.02em;
+            word-break: keep-all;
+        }
+
+        .cA-tok {
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: 700;
+            color: #0d0d0d;
+            background: none;
+            border: none;
+            border-bottom: 3px solid #0d0d0d;
+            padding: 0 0.05em 0.04em;
+            cursor: pointer;
+            transition: background 0.16s, color 0.16s;
+            line-height: inherit;
+        }
+
+        .cA-tok:hover,
+        .cA-tok.act {
+            background: #0d0d0d;
+            color: #f2f0ed;
+        }
+
+        .cA-total {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 1.4rem 1.5rem 1.6rem;
+            background: #f2f0ed;
+            border-top: 2px solid #0d0d0d;
+            pointer-events: none;
+        }
+
+        .cA-total-in {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .cA-num {
+            font-size: clamp(4rem, 19vw, 11rem);
+            font-weight: 900;
+            line-height: 0.82;
+            letter-spacing: -0.055em;
+            display: block;
+        }
+
+        .cA-num small {
+            font-size: 0.2em;
+            font-weight: 600;
+            letter-spacing: 0;
+            margin-left: 0.15em;
+        }
+
+        .cA-err {
+            font-size: clamp(0.95rem, 3.4vw, 1.4rem);
+            font-weight: 600;
+            line-height: 1.4;
+            color: #0d0d0d;
+            word-break: keep-all;
+        }
+
+        /* 바텀시트 피커 */
+        .sheet {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 500;
+            background: #0d0d0d;
+            color: #fff;
+            padding: 1.5rem 1.5rem 2rem;
+            transform: translateY(101%);
+            transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+            max-height: 74vh;
+            overflow-y: auto;
+        }
+
+        .sheet.open {
+            transform: translateY(0);
+        }
+
+        .sheet-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.45);
+            margin-bottom: 1.1rem;
+        }
+
+        .sheet-opts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            max-width: 900px;
+        }
+
+        .sheet-opts button {
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 0.65rem 1.1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: transparent;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.14s;
+        }
+
+        .sheet-opts button:hover:not(:disabled) {
+            border-color: #fff;
+        }
+
+        .sheet-opts button.on {
+            background: #fff;
+            color: #0d0d0d;
+            font-weight: 700;
+            border-color: #fff;
+        }
+
+        .sheet-opts button:disabled {
+            opacity: 0.25;
+            text-decoration: line-through;
+            cursor: not-allowed;
+        }
+
+        .sheet-group {
+            width: 100%;
+            font-size: 0.62rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 0.9rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .sheet-group:first-child {
+            margin-top: 0;
+        }
+
+        .sheet input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+            margin-top: 1.4rem;
+        }
+
+        .sheet input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 26px;
+            height: 26px;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .sheet-val {
+            font-size: 2.6rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .sheet-done {
+            display: block;
+            width: 100%;
+            margin-top: 1.6rem;
+            padding: 0.9rem;
+            background: #fff;
+            color: #0d0d0d;
+            border: none;
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .scrim {
+            position: fixed;
+            inset: 0;
+            z-index: 400;
+            background: rgba(0, 0, 0, 0.35);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .scrim.on {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* ════════════════════════════════════════════
+           CONCEPT B — RECEIPT / 브루탈리스트 견적서
+           ════════════════════════════════════════════ */
+        .cB {
+            background: #d9d6cf;
+            min-height: calc(100vh - 44px);
+            padding: 2rem 1.25rem 4rem;
+            font-family: 'IBM Plex Mono', monospace;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 380px);
+            gap: 1.75rem;
+            align-items: start;
+            max-width: 1080px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 820px) {
+            .cB {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        .cB-panel {
+            background: #12100e;
+            color: #e8e4dc;
+            padding: 1.5rem 1.4rem 1.75rem;
+        }
+
+        .cB-h {
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: #8a8378;
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.85rem;
+            border-bottom: 1px dashed #4a453d;
+        }
+
+        .cB-row {
+            margin-bottom: 1.6rem;
+        }
+
+        .cB-opts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+        }
+
+        .cB-opts button {
+            font-family: inherit;
+            font-size: 0.72rem;
+            font-weight: 500;
+            padding: 0.45rem 0.7rem;
+            background: transparent;
+            color: #e8e4dc;
+            border: 1px solid #4a453d;
+            cursor: pointer;
+            transition: none;
+        }
+
+        .cB-opts button:hover:not(:disabled) {
+            background: #2a2621;
+        }
+
+        .cB-opts button.on {
+            background: #e8e4dc;
+            color: #12100e;
+            border-color: #e8e4dc;
+            font-weight: 700;
+        }
+
+        .cB-opts button:disabled {
+            opacity: 0.22;
+            text-decoration: line-through;
+            cursor: not-allowed;
+        }
+
+        .cB-grp {
+            width: 100%;
+            font-size: 0.58rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #8a8378;
+            margin-top: 0.6rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .cB-grp:first-child {
+            margin-top: 0;
+        }
+
+        .cB-slider {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+        }
+
+        .cB-slider input {
+            -webkit-appearance: none;
+            appearance: none;
+            flex: 1;
+            height: 14px;
+            background: repeating-linear-gradient(90deg, #4a453d 0 1px, transparent 1px 7px);
+            outline: none;
+        }
+
+        .cB-slider input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 24px;
+            background: #e8e4dc;
+            cursor: pointer;
+        }
+
+        .cB-slider output {
+            font-size: 1.05rem;
+            font-weight: 700;
+            min-width: 4.2ch;
+            text-align: right;
+        }
+
+        /* 영수증 */
+        .cB-receipt {
+            background: #fbfaf7;
+            color: #12100e;
+            padding: 1.9rem 1.5rem 1.6rem;
+            position: relative;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.22);
+            font-size: 0.76rem;
+            line-height: 1.85;
+        }
+
+        .cB-receipt::before,
+        .cB-receipt::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 9px;
+            background: radial-gradient(circle at 5px -1px, transparent 5px, #fbfaf7 5px);
+            background-size: 14px 9px;
+        }
+
+        .cB-receipt::before {
+            top: -8px;
+            transform: scaleY(-1);
+        }
+
+        .cB-receipt::after {
+            bottom: -8px;
+        }
+
+        .cB-rc-h {
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: 0.3em;
+            font-size: 0.7rem;
+            padding-bottom: 0.9rem;
+            margin-bottom: 0.5rem;
+            border-bottom: 2px solid #12100e;
+        }
+
+        .cB-rc-meta {
+            font-size: 0.62rem;
+            color: #6d675e;
+            text-align: center;
+            margin-bottom: 1.1rem;
+            letter-spacing: 0.08em;
+        }
+
+        .cB-li {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            animation: printIn 0.26s ease-out;
+        }
+
+        @keyframes printIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .cB-li span:first-child {
+            color: #6d675e;
+        }
+
+        .cB-li span:last-child {
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .cB-rule {
+            border-top: 1px dashed #b3ada2;
+            margin: 0.85rem 0;
+        }
+
+        .cB-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-top: 2px solid #12100e;
+            border-bottom: 2px solid #12100e;
+            padding: 0.7rem 0;
+            margin-top: 0.3rem;
+        }
+
+        .cB-total span:first-child {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.22em;
+        }
+
+        .cB-total b {
+            font-size: 1.9rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .cB-stamp {
+            margin-top: 1.3rem;
+            border: 2px solid #b03024;
+            color: #b03024;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-align: center;
+            padding: 0.4rem;
+            transform: rotate(-2.5deg);
+            opacity: 0.85;
+        }
+
+        .cB-stamp.err {
+            border-color: #12100e;
+            color: #12100e;
+        }
+
+        .cB-foot {
+            margin-top: 1.2rem;
+            font-size: 0.56rem;
+            color: #8a8378;
+            text-align: center;
+            letter-spacing: 0.05em;
+            line-height: 1.7;
+        }
+
+        /* ════════════════════════════════════════════
+           CONCEPT C — BLUEPRINT / 다크 · 설계도
+           ════════════════════════════════════════════ */
+        .cC {
+            background: #08090a;
+            color: #e6e6e4;
+            min-height: calc(100vh - 44px);
+            padding: 3rem 1.5rem 5rem;
+            max-width: 780px;
+            margin: 0 auto;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+            background-size: 34px 34px;
+        }
+
+        .cC-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding-bottom: 1.1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+            margin-bottom: 2.6rem;
+        }
+
+        .cC-logo {
+            font-size: 0.72rem;
+            font-weight: 200;
+            letter-spacing: 0.46em;
+            text-transform: uppercase;
+        }
+
+        .cC-ref {
+            font-size: 0.56rem;
+            letter-spacing: 0.2em;
+            color: rgba(255, 255, 255, 0.32);
+            text-transform: uppercase;
+        }
+
+        .cC-row {
+            margin-bottom: 2.4rem;
+        }
+
+        .cC-h {
+            display: flex;
+            align-items: baseline;
+            gap: 0.9rem;
+            font-size: 0.56rem;
+            font-weight: 400;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.34);
+            margin-bottom: 1rem;
+        }
+
+        .cC-h em {
+            margin-left: auto;
+            font-style: normal;
+            font-size: 0.8rem;
+            letter-spacing: 0.06em;
+            color: #e6e6e4;
+            font-weight: 300;
+        }
+
+        .cC-opts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0;
+            border-left: 1px solid rgba(255, 255, 255, 0.16);
+        }
+
+        .cC-opts button {
+            font-family: inherit;
+            font-size: 0.72rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            padding: 0.7rem 1.05rem;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-left: none;
+            cursor: pointer;
+            transition: color 0.2s, background 0.2s;
+        }
+
+        .cC-opts button:hover:not(:disabled) {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .cC-opts button.on {
+            background: #e6e6e4;
+            color: #08090a;
+            font-weight: 500;
+        }
+
+        .cC-opts button:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+        }
+
+        /* 평면도 */
+        .cC-plan {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            position: relative;
+        }
+
+        .cC-plan::before {
+            content: 'PLAN — 개념도';
+            position: absolute;
+            top: -0.52rem;
+            left: 12px;
+            background: #08090a;
+            padding: 0 0.4rem;
+            font-size: 0.48rem;
+            letter-spacing: 0.2em;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .cC-zone {
+            font-family: inherit;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 0.68rem;
+            font-weight: 300;
+            letter-spacing: 0.08em;
+            padding: 1.5rem 0.6rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            min-height: 74px;
+        }
+
+        .cC-zone:hover:not(:disabled) {
+            border-color: rgba(255, 255, 255, 0.55);
+            color: #fff;
+        }
+
+        .cC-zone.on {
+            background: repeating-linear-gradient(45deg, rgba(230, 230, 228, 0.14) 0 4px, transparent 4px 9px);
+            border-color: #e6e6e4;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .cC-zone:disabled {
+            opacity: 0.16;
+            cursor: not-allowed;
+        }
+
+        .cC-range {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+        }
+
+        .cC-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 1px;
+            height: 30px;
+            background: #e6e6e4;
+            cursor: pointer;
+            box-shadow: 0 0 0 0.5px #e6e6e4;
+        }
+
+        .cC-scale {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.7rem;
+            font-size: 0.52rem;
+            letter-spacing: 0.16em;
+            color: rgba(255, 255, 255, 0.28);
+        }
+
+        .cC-total {
+            margin-top: 3.5rem;
+            padding-top: 1.6rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.16);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 1.5rem;
+        }
+
+        .cC-tl {
+            font-size: 0.56rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.34);
+            margin-bottom: 0.7rem;
+        }
+
+        .cC-td {
+            font-size: 0.66rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            color: rgba(255, 255, 255, 0.55);
+            line-height: 1.7;
+            word-break: keep-all;
+        }
+
+        .cC-num {
+            font-size: clamp(3rem, 11vw, 5.2rem);
+            font-weight: 200;
+            letter-spacing: -0.03em;
+            line-height: 0.85;
+            white-space: nowrap;
+        }
+
+        .cC-num small {
+            font-size: 0.2em;
+            font-weight: 300;
+            letter-spacing: 0.16em;
+            margin-left: 0.4em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="switcher">
+        <span class="switcher-title">LAYER · 컨셉 비교 · 같은 상태 / 같은 엔진</span>
+        <button data-c="a" class="on">A 문장</button>
+        <button data-c="b">B 영수증</button>
+        <button data-c="c">C 설계도</button>
+    </div>
+
+    <div id="stage"></div>
+    <div class="scrim" id="scrim"></div>
+    <div class="sheet" id="sheet"></div>
+
+    <script src="engine.js"></script>
+    <script>
+        /* 프로토타입용 — app.js의 제한 규칙을 그대로 옮겨온 사본.
+           채택되는 안이 정해지면 공용 모듈로 빼야 한다. */
+        const RESTRICT = {
+            HANNAM: (p, x) => p >= 31 && x !== 'ALL' ? '31인 이상은 ALL 파트만 이용 가능합니다' : null,
+            LAYER7: (p, x) => p >= 20 && x !== 'ABC' ? '20인 이상은 ABC 파트만 이용 가능합니다'
+                : p >= 15 && ['A', 'BC'].includes(x) ? '15인 이상 해당 파트 이용 불가합니다'
+                    : p > 10 && x === 'C' ? '10인 초과 시 C 파트 이용 불가합니다' : null,
+            LAYER20: (p, x) => p >= 31 && x === '3F' ? '31인 이상 3F 대관 불가합니다' : null,
+            LAYER11: (p, x) => p >= 41 && ['A', 'B'].includes(x) ? '41인 이상은 AB+B카페 / AB+카페만 이용 가능합니다' : null,
+            LAYER27: (p, x) => p >= 31 && x !== 'ALL' ? '31인 이상은 ALL 파트만 이용 가능합니다' : null,
+            LAYER26: (p, x) => p >= 31 && x !== 'AB' ? '31인 이상은 AB 파트만 이용 가능합니다' : null,
+            LAYER41: (p, x) => p >= 40 && !['AB', 'ABC'].includes(x) ? '40인 이상은 AB / ABC 파트만 이용 가능합니다' : null,
+            HONGDAE: (p, x) => p >= 8 && ['A', 'B', 'D'].includes(x) ? '8인 이상은 복합 파트를 선택해주세요 (A+B / B+D / A+B+D)' : null,
+        };
+
+        const NAMES = {
+            HANNAM: '한남', LAYER7: '레이어 7', LAYER20: '레이어 20', LAYER11: '레이어 11',
+            LAYER27: '레이어 27', LAYER26: '레이어 26', LAYER41: '레이어 41', HONGDAE: '홍대'
+        };
+        const HD_GROUPS = [
+            { label: '단독 룸 (최대 7명 · 시간제)', parts: ['A', 'B', 'D'] },
+            { label: '복합 룸 (최대 15명 · 시간제)', parts: ['A+B', 'B+D'] },
+            { label: '전체 공간 (16명+)', parts: ['A+B+D'] },
+        ];
+
+        const S = { concept: 'a', studio: 'HANNAM', part: '1F', type: 'photo', time: 'day', personnel: 10, hours: 1, extraHours: 0 };
+
+        const partsOf = st => Object.keys(LAYER_MASTER_ENGINE.studios[st].parts);
+        const isHD = () => S.studio === 'HONGDAE';
+        const hdSmall = () => isHD() && S.personnel <= 15;
+        const partBlocked = k => { const r = RESTRICT[S.studio]; return r ? !!r(S.personnel, k) : false; };
+
+        /* 견적 계산 — 제한 규칙 먼저, 그다음 엔진 */
+        function quote() {
+            const r = RESTRICT[S.studio];
+            const warn = r ? r(S.personnel, S.part) : null;
+            if (warn) return { err: warn };
+            const out = LAYER_MASTER_ENGINE.calculate({
+                studio: S.studio, part: S.part, type: S.type, time: S.time,
+                personnel: S.personnel, hours: S.hours, extraHours: S.extraHours, options: []
+            });
+            if (typeof out === 'string') return { err: out };
+            return { val: out };
+        }
+
+        const fmt = n => Number.isInteger(n) ? n.toLocaleString() : n.toFixed(1);
+
+        function summary() {
+            if (hdSmall()) return `시간제 · ${S.hours}시간 · ${S.personnel}명 · ${S.part}`;
+            const t = S.time === 'day' ? 'Day 9시간' : 'Half 4시간';
+            const ty = isHD() ? '' : (S.type === 'photo' ? '사진 · ' : '영상 · ');
+            return `${ty}${t} · ${S.personnel}명 · ${S.part}`;
+        }
+
+        /* 지점이 바뀌면 파트를 그 지점의 것으로 되돌린다 */
+        function setStudio(v) {
+            S.studio = v;
+            if (!partsOf(v).includes(S.part)) S.part = partsOf(v)[0];
+            render();
+        }
+
+        /* ══════════ A — SENTENCE ══════════ */
+        let sheetOn = null;
+
+        function viewA() {
+            const q = quote();
+            const tok = (id, txt) => `<button class="cA-tok ${sheetOn === id ? 'act' : ''}" data-tok="${id}">${txt}</button>`;
+            const timeTok = hdSmall()
+                ? `${tok('hours', S.hours + '시간')} 동안`
+                : `${tok('time', S.time === 'day' ? 'Day 9시간' : 'Half 4시간')} 동안`;
+            const typeTok = isHD() ? '' : `${tok('type', S.type === 'photo' ? '사진' : '영상')}을 `;
+
+            return `<div class="cA">
+        <div class="cA-kicker">Layer Studios — 견적</div>
+        <div class="cA-sentence">
+          ${tok('studio', NAMES[S.studio])}의 ${tok('part', S.part)}에서<br>
+          ${tok('personnel', S.personnel + '명')}이 ${typeTok}<br>
+          ${timeTok} 촬영하면
+        </div>
+      </div>
+      <div class="cA-total"><div class="cA-total-in">
+        ${q.err
+                    ? `<div class="cA-err">${q.err}</div>`
+                    : `<span class="cA-num">${fmt(q.val)}<small>만원</small></span>`}
+      </div></div>`;
+        }
+
+        /* 바텀시트 — 토큰별 선택지 */
+        function openSheet(id) {
+            sheetOn = id;
+            const sheet = document.getElementById('sheet');
+            const btn = (v, label, on, dis) =>
+                `<button data-set="${id}" data-v="${v}" class="${on ? 'on' : ''}" ${dis ? 'disabled' : ''}>${label}</button>`;
+            let title = '', body = '';
+
+            if (id === 'studio') {
+                title = '지점';
+                body = Object.keys(NAMES).map(k => btn(k, NAMES[k], S.studio === k)).join('');
+            } else if (id === 'part') {
+                title = '파트';
+                if (isHD()) {
+                    body = HD_GROUPS.map(g => `<div class="sheet-group">${g.label}</div>` +
+                        g.parts.filter(p => partsOf('HONGDAE').includes(p))
+                            .map(p => btn(p, p, S.part === p, partBlocked(p) && S.part !== p)).join('')).join('');
+                } else {
+                    body = partsOf(S.studio).map(p => btn(p, p, S.part === p, partBlocked(p) && S.part !== p)).join('');
+                }
+            } else if (id === 'type') {
+                title = '촬영 종류';
+                body = btn('photo', '사진', S.type === 'photo') + btn('video', '영상', S.type === 'video');
+            } else if (id === 'time') {
+                title = '이용 시간';
+                body = btn('day', 'Day 9시간', S.time === 'day') + btn('half', 'Half 4시간', S.time === 'half');
+            } else if (id === 'personnel') {
+                title = '촬영 인원';
+                body = `<div style="width:100%"><div class="sheet-val" id="sv">${S.personnel}명</div>
+          <input type="range" id="sr" min="1" max="80" value="${S.personnel}"></div>`;
+            } else if (id === 'hours') {
+                title = '이용 시간';
+                body = `<div style="width:100%"><div class="sheet-val" id="sv">${S.hours}시간</div>
+          <input type="range" id="sr" min="1" max="12" value="${S.hours}"></div>`;
+            }
+
+            sheet.innerHTML = `<div class="sheet-label">${title}</div>
+        <div class="sheet-opts">${body}</div>
+        <button class="sheet-done" id="sheet-done">확인</button>`;
+            sheet.classList.add('open');
+            document.getElementById('scrim').classList.add('on');
+
+            const sr = document.getElementById('sr');
+            if (sr) sr.addEventListener('input', () => {
+                const v = +sr.value;
+                if (id === 'personnel') S.personnel = v; else S.hours = v;
+                document.getElementById('sv').textContent = v + (id === 'personnel' ? '명' : '시간');
+                render(true);
+            });
+        }
+
+        function closeSheet() {
+            sheetOn = null;
+            document.getElementById('sheet').classList.remove('open');
+            document.getElementById('scrim').classList.remove('on');
+            render(true);
+        }
+
+        /* ══════════ 공용 컨트롤 (B · C 사용) ══════════ */
+        function controls(cls) {
+            const b = (set, v, label, on, dis) =>
+                `<button data-set="${set}" data-v="${v}" class="${on ? 'on' : ''}" ${dis ? 'disabled' : ''}>${label}</button>`;
+            const parts = isHD()
+                ? HD_GROUPS.map(g => `<div class="${cls}-grp">${g.label}</div>` +
+                    g.parts.filter(p => partsOf('HONGDAE').includes(p))
+                        .map(p => b('part', p, p, S.part === p, partBlocked(p) && S.part !== p)).join('')).join('')
+                : partsOf(S.studio).map(p => b('part', p, p, S.part === p, partBlocked(p) && S.part !== p)).join('');
+
+            return { b, parts };
+        }
+
+        /* ══════════ B — RECEIPT ══════════ */
+        function viewB() {
+            const { b, parts } = controls('cB');
+            const q = quote();
+
+            const timeCtl = hdSmall()
+                ? `<div class="cB-slider"><input type="range" data-rng="hours" min="1" max="12" value="${S.hours}"><output>${S.hours}h</output></div>`
+                : b('time', 'day', 'DAY 9H', S.time === 'day') + b('time', 'half', 'HALF 4H', S.time === 'half');
+
+            const lines = [];
+            lines.push(['지점', NAMES[S.studio]]);
+            lines.push(['파트', S.part]);
+            if (!isHD()) lines.push(['종류', S.type === 'photo' ? 'PHOTO' : 'VIDEO']);
+            lines.push(['인원', S.personnel + '명']);
+            lines.push(['시간', hdSmall() ? S.hours + '시간 (시간제)' : (S.time === 'day' ? 'DAY 9H' : 'HALF 4H')]);
+            if (!hdSmall() && S.extraHours > 0) lines.push(['연장', S.extraHours + '시간']);
+
+            return `<div class="cB">
+        <div class="cB-panel">
+          <div class="cB-row"><div class="cB-h">01 / Studio</div>
+            <div class="cB-opts">${Object.keys(NAMES).map(k => b('studio', k, NAMES[k], S.studio === k)).join('')}</div></div>
+
+          <div class="cB-row"><div class="cB-h">02 / Part</div>
+            <div class="cB-opts">${parts}</div></div>
+
+          ${isHD() ? '' : `<div class="cB-row"><div class="cB-h">03 / Type</div>
+            <div class="cB-opts">${b('type', 'photo', 'PHOTO', S.type === 'photo')}${b('type', 'video', 'VIDEO', S.type === 'video')}</div></div>`}
+
+          <div class="cB-row"><div class="cB-h">04 / Personnel</div>
+            <div class="cB-slider"><input type="range" data-rng="personnel" min="1" max="80" value="${S.personnel}"><output>${S.personnel}명</output></div></div>
+
+          <div class="cB-row"><div class="cB-h">05 / Time</div>
+            <div class="cB-opts">${timeCtl}</div></div>
+
+          ${hdSmall() ? '' : `<div class="cB-row" style="margin-bottom:0"><div class="cB-h">06 / Extra</div>
+            <div class="cB-slider"><input type="range" data-rng="extraHours" min="0" max="6" value="${S.extraHours}"><output>${S.extraHours}h</output></div></div>`}
+        </div>
+
+        <div class="cB-receipt">
+          <div class="cB-rc-h">LAYER STUDIOS</div>
+          <div class="cB-rc-meta">QUOTATION / 견적서 · 참고용</div>
+          ${lines.map(l => `<div class="cB-li"><span>${l[0]}</span><span>${l[1]}</span></div>`).join('')}
+          <div class="cB-rule"></div>
+          ${q.err
+                    ? `<div class="cB-li"><span>상태</span><span>산출 불가</span></div>
+                 <div class="cB-stamp err">${q.err}</div>`
+                    : `<div class="cB-total"><span>TOTAL</span><b>${fmt(q.val)}만원</b></div>
+                 <div class="cB-stamp">참 고 용 · 확 정 아 님</div>`}
+          <div class="cB-foot">본 견적은 참고용이며 실제 요금과 다를 수 있습니다.<br>정확한 금액은 지점에 문의하세요.</div>
+        </div>
+      </div>`;
+        }
+
+        /* ══════════ C — BLUEPRINT ══════════ */
+        function viewC() {
+            const q = quote();
+            const b = (set, v, label, on, dis) =>
+                `<button data-set="${set}" data-v="${v}" class="${on ? 'on' : ''}" ${dis ? 'disabled' : ''}>${label}</button>`;
+
+            /* 파트 키의 구성 요소 수로 면적을 흉내낸 개념도.
+               실제 도면 좌표가 있으면 이 자리에 진짜 평면도가 들어간다. */
+            const zone = p => {
+                const w = p.split(/[+]/).length + (p.length > 4 ? 1 : 0);
+                const dis = partBlocked(p) && S.part !== p;
+                return `<button class="cC-zone ${S.part === p ? 'on' : ''}" data-set="part" data-v="${p}"
+          style="flex:${w} 1 ${w * 58}px" ${dis ? 'disabled' : ''}>${p}</button>`;
+            };
+            const plan = isHD()
+                ? HD_GROUPS.map(g => g.parts.filter(p => partsOf('HONGDAE').includes(p)).map(zone).join('')).join('')
+                : partsOf(S.studio).map(zone).join('');
+
+            const timeRow = hdSmall()
+                ? `<div class="cC-row"><div class="cC-h">05 — Duration <em>${S.hours}시간</em></div>
+             <input class="cC-range" type="range" data-rng="hours" min="1" max="12" value="${S.hours}">
+             <div class="cC-scale"><span>1H</span><span>12H</span></div></div>`
+                : `<div class="cC-row"><div class="cC-h">05 — Duration</div>
+             <div class="cC-opts">${b('time', 'day', 'DAY 9H', S.time === 'day')}${b('time', 'half', 'HALF 4H', S.time === 'half')}</div></div>`;
+
+            return `<div class="cC">
+        <div class="cC-top">
+          <div class="cC-logo">Layer Studios</div>
+          <div class="cC-ref">Est. — ${NAMES[S.studio]}</div>
+        </div>
+
+        <div class="cC-row"><div class="cC-h">01 — Location</div>
+          <div class="cC-opts">${Object.keys(NAMES).map(k => b('studio', k, NAMES[k], S.studio === k)).join('')}</div></div>
+
+        <div class="cC-row"><div class="cC-h">02 — Zone <em>${S.part}</em></div>
+          <div class="cC-plan">${plan}</div></div>
+
+        ${isHD() ? '' : `<div class="cC-row"><div class="cC-h">03 — Medium</div>
+          <div class="cC-opts">${b('type', 'photo', 'PHOTOGRAPHY', S.type === 'photo')}${b('type', 'video', 'FILM', S.type === 'video')}</div></div>`}
+
+        <div class="cC-row"><div class="cC-h">04 — Crew <em>${S.personnel}명</em></div>
+          <input class="cC-range" type="range" data-rng="personnel" min="1" max="80" value="${S.personnel}">
+          <div class="cC-scale"><span>01</span><span>80</span></div></div>
+
+        ${timeRow}
+
+        <div class="cC-total">
+          <div><div class="cC-tl">Estimate</div><div class="cC-td">${q.err ? q.err : summary()}</div></div>
+          ${q.err ? '' : `<div class="cC-num">${fmt(q.val)}<small>만원</small></div>`}
+        </div>
+      </div>`;
+        }
+
+        /* ══════════ 렌더 · 이벤트 ══════════ */
+        function render(keepSheet) {
+            document.getElementById('stage').innerHTML =
+                S.concept === 'a' ? viewA() : S.concept === 'b' ? viewB() : viewC();
+            if (!keepSheet && sheetOn) closeSheet();
+        }
+
+        /* 위임 — stage가 매번 새로 그려지므로 document에 한 번만 건다 */
+        document.addEventListener('click', e => {
+            const sw = e.target.closest('.switcher button[data-c]');
+            if (sw) {
+                S.concept = sw.dataset.c;
+                document.querySelectorAll('.switcher button[data-c]').forEach(x => x.classList.toggle('on', x === sw));
+                render();
+                return;
+            }
+            if (e.target.id === 'sheet-done' || e.target.id === 'scrim') { closeSheet(); return; }
+
+            const tk = e.target.closest('[data-tok]');
+            if (tk) { openSheet(tk.dataset.tok); render(true); return; }
+
+            const st = e.target.closest('[data-set]');
+            if (st && !st.disabled) {
+                const { set, v } = st.dataset;
+                if (set === 'studio') { setStudio(v); if (sheetOn) closeSheet(); return; }
+                S[set] = v;
+                render(sheetOn ? true : false);
+                if (sheetOn) openSheet(sheetOn);
+            }
+        });
+
+        document.addEventListener('input', e => {
+            const r = e.target.closest('[data-rng]');
+            if (!r) return;
+            S[r.dataset.rng] = +r.value;
+            render(true);
+            /* 슬라이더가 다시 그려지므로 포커스를 되돌려 드래그를 유지한다 */
+            const again = document.querySelector(`[data-rng="${r.dataset.rng}"]`);
+            if (again) again.focus();
+        });
+
+        render();
+    </script>
+</body>
+
+</html>
