@@ -29,7 +29,7 @@ const PART_RESTRICTIONS = {
     },
     LAYER11: (p, part) => {
         if (p >= 41 && ['A', 'B'].includes(part))
-            return '41인 이상은 AB+B카페 / AB+카페만 이용 가능합니다';
+            return '41인 이상은 A+B / B+카페 / A+B+카페만 이용 가능합니다';
         return null;
     },
     LAYER27: (p, part) => {
