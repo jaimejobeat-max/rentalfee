@@ -19,8 +19,15 @@
 
 <body>
     <header class="masthead">
-        <span class="mh-logo">LAYER STUDIOS</span>
-        <span class="mh-sub">Quotation / 견적 산출</span>
+        <!-- 본문(.workbench)과 같은 폭·여백으로 맞춘다 -->
+        <div class="mh-in">
+            <span class="mh-logo">LAYER STUDIOS</span>
+            <!-- 계산기 ↔ 요금표 전환. 요금표는 같은 지점·선택을 공유한다 -->
+            <nav class="mh-nav" aria-label="화면 전환">
+                <button data-view="calc" class="on" aria-pressed="true">견적 산출</button>
+                <button data-view="sheet" aria-pressed="false">요금표</button>
+            </nav>
+        </div>
     </header>
 
     <main class="workbench">
@@ -49,8 +56,8 @@
             <div class="row" id="row-type">
                 <div class="row-h"><span class="row-n">03</span>Type<em id="v-type">사진</em></div>
                 <div class="opts">
-                    <button data-set="type" data-v="photo" class="on">사진 PHOTO</button>
-                    <button data-set="type" data-v="video">영상 VIDEO</button>
+                    <button data-set="type" data-v="photo" class="on">사진</button>
+                    <button data-set="type" data-v="video">영상</button>
                 </div>
             </div>
 
@@ -93,6 +100,18 @@
                     <button data-opt="BACKGARDEN">백가든 <b id="p-backgarden">+5만원/h</b></button>
                 </div>
             </div>
+        </section>
+
+        <!-- ── 요금표 ───────────────────────────────── -->
+        <!-- 엔진 데이터로 표를 그리고, 현재 선택된 칸을 강조한다.
+             칸을 누르면 그 조건이 계산기에 그대로 반영된다.
+             아래에는 도면이 들어간 원본 요금표 이미지를 붙인다. -->
+        <section class="sheet" id="sheet-view" hidden>
+            <div class="row">
+                <div class="row-h"><span class="row-n">01</span>Studio<em id="v-studio-sheet">한남</em></div>
+                <div class="opts" id="opts-studio-sheet"></div>
+            </div>
+            <div class="sh" id="sheet-body"></div>
         </section>
 
         <!-- ── 견적서 ───────────────────────────────── -->

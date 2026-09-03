@@ -57,12 +57,17 @@ body {
 
 /* ─── Masthead ─────────────────────────────── */
 .masthead {
+    border-bottom: 2px solid var(--ink);
+}
+
+.mh-in {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 1.4rem 1.25rem 1rem;
-    border-bottom: 2px solid var(--ink);
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 1.1rem 1.25rem;
 }
 
 .mh-logo {
@@ -71,13 +76,40 @@ body {
     letter-spacing: 0.24em;
 }
 
-.mh-sub {
-    font-size: 0.64rem;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--ink-2);
-    text-align: right;
+/* 계산기 ↔ 요금표 전환 — 옵션 버튼과 같은 어법, 조금 더 작게 */
+.mh-nav {
+    display: flex;
+    gap: 0.3rem;
+}
+
+.mh-nav button {
+    font-family: var(--font-ui);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    padding: 0.38rem 0.7rem;
+    min-height: 32px;
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--rule-2);
+    cursor: pointer;
+    transition: none;
+}
+
+.mh-nav button:hover:not(.on) {
+    background: var(--bg-2);
+    border-color: var(--ink);
+}
+
+.mh-nav button.on {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+}
+
+.mh-nav button:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
 }
 
 /* ─── Workbench ────────────────────────────── */
@@ -277,6 +309,202 @@ body {
     font-family: var(--font-body);
     color: var(--ink-2);
     letter-spacing: 0;
+}
+
+/* ═══════════════════════════════════════════
+   요금표 — 이미지 요금표와 같은 구성을 표로 다시 그린다
+   ═══════════════════════════════════════════ */
+.sheet {
+    padding: 0.5rem 1.25rem 2rem;
+}
+
+.sh-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.3rem 1rem;
+    margin-top: 1.7rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 2px solid var(--ink);
+}
+
+.sh-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+}
+
+.sh-ver {
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+}
+
+/* 강조 범례 */
+.sh-key {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0.7rem 0 0.2rem;
+    font-size: 0.66rem;
+    font-family: var(--font-body);
+    color: var(--ink-2);
+}
+
+.sh-key i {
+    width: 10px;
+    height: 10px;
+    background: var(--ink);
+    flex-shrink: 0;
+}
+
+/* 사진 | 영상 한 표(.sh-desk)는 넓은 화면에서, 따로 쌓은 표(.sh-mob)는 좁은 화면에서 */
+.sh-desk {
+    display: none;
+}
+
+.sh-mob .sh-wrap+.sh-wrap {
+    margin-top: 0.8rem;
+}
+
+.sh-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+}
+
+/* 표 — 원본처럼 가로 줄은 위·아래·머리 아래 세 줄뿐. 세로 줄은 파트 열 뒤와 그룹 사이. */
+.sh-t {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    line-height: 1.3;
+}
+
+.sh-t th,
+.sh-t td {
+    padding: 0.5rem 0.25rem;
+    text-align: center;
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.sh-t tbody tr:first-child th,
+.sh-t tbody tr:first-child td {
+    padding-top: 0.8rem;
+}
+
+.sh-t tbody tr:last-child th,
+.sh-t tbody tr:last-child td {
+    padding-bottom: 0.8rem;
+}
+
+/* 그룹 머리 (사진 | 영상) — 행 머리와 같은 작은 대문자 어법 */
+.sh-t thead th.sh-g {
+    padding: 0.55rem 0.5rem 0.1rem;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--ink-2);
+}
+
+/* 인원 구간 머리 */
+.sh-t thead tr:last-child th {
+    padding-bottom: 0.55rem;
+    font-size: 0.66rem;
+    font-weight: 500;
+    color: var(--ink-3);
+    border-bottom: 1px solid var(--ink);
+}
+
+/* 왼쪽 파트 열 — 표를 가로로 밀어도 남아 있게 */
+.sh-t th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--bg);
+    text-align: left;
+    padding-left: 0.15rem;
+    padding-right: 0.6rem;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--ink);
+    border-right: 1px solid var(--rule-2);
+}
+
+/* 두 그룹이 한 표에 있을 때 — 사이에 세로 실선 */
+.sh-t th.sh-g+th.sh-g,
+.sh-t .sh-sep {
+    border-left: 1px solid var(--rule-2);
+}
+
+.sh-t td[data-row] {
+    cursor: pointer;
+}
+
+.sh-t td[data-row]:hover {
+    background: var(--bg-2);
+}
+
+.sh-t td.dead {
+    color: var(--ink-3);
+}
+
+.sh-na {
+    color: var(--rule-2);
+}
+
+/* 현재 선택 — 잉크로 찍은 칸. 행·열 머리는 잉크색·굵기로만 */
+.sh-t td.hit {
+    background: var(--ink);
+    color: var(--paper);
+    font-weight: 700;
+}
+
+.sh-t th.hit {
+    color: var(--ink);
+    font-weight: 700;
+}
+
+/* 행사 12h — 두 칸짜리 */
+.sh-t-event th:first-child {
+    width: 46%;
+}
+
+.sh-t-event td {
+    font-weight: 600;
+}
+
+/* 주석 묶음 — 항목은 한 줄에 이어지되, 줄바꿈은 항목 단위로만 */
+.sh-notes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.15rem 1.2rem;
+}
+
+.sh .row:last-child {
+    border-bottom: none;
+}
+
+/* 원본 요금표 이미지 — 흰 종이 한 장처럼 */
+.sh-img {
+    display: block;
+    background: #fff;
+    border: 1px solid var(--rule);
+    box-shadow: 0 10px 30px rgba(20, 18, 15, 0.12);
+}
+
+.sh-img img {
+    display: block;
+    width: 100%;
+    height: auto;
 }
 
 /* ═══════════════════════════════════════════
@@ -499,8 +727,8 @@ body {
         padding-bottom: 0;
     }
 
-    .masthead {
-        padding: 1.6rem 2rem 1.1rem;
+    .mh-in {
+        padding: 1.25rem 2rem;
     }
 
     .workbench {
@@ -511,8 +739,21 @@ body {
         padding: 0 2rem 4rem;
     }
 
-    .controls {
+    .controls,
+    .sheet {
         padding: 0.5rem 0 0;
+    }
+
+    .sh-desk {
+        display: block;
+    }
+
+    .sh-mob {
+        display: none;
+    }
+
+    .sh-title {
+        font-size: 1.5rem;
     }
 
     /* 손잡이·시트 동작을 전부 해제하고 평범한 종이로 되돌린다 */
@@ -562,15 +803,18 @@ body {
     }
 }
 
-/* 넓은 화면에서는 조작 패널을 2열로 흘린다 */
+/* 넓은 화면에서는 조작 패널을 2열 격자로. 같은 줄의 행은 높이가 맞아 점선이 나란히 떨어진다.
+   지점 행은 버튼이 많으니 두 칸을 다 쓴다. */
 @media (min-width: 1180px) {
     .controls {
-        column-count: 2;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         column-gap: 2.5rem;
+        align-items: stretch;
     }
 
-    .row {
-        break-inside: avoid;
+    .controls .row:first-child {
+        grid-column: 1 / -1;
     }
 }
 
