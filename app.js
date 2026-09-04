@@ -3,57 +3,150 @@
  * 계산은 전부 engine.js에 맡기고, 여기서는 상태·표시만 다룬다.
  */
 
+// ─── 언어 ───────────────────────────────────────────────
+// 화면 문구는 전부 여기서 나온다. 요금 데이터(engine.js)는 언어와 무관하다.
+const I18N = {
+    ko: {
+        title: 'LAYER STUDIOS — 견적 산출기',
+        lang_btn: 'English',
+        nav_calc: '견적 산출', nav_sheet: '요금표',
+        note_part: '가구 촬영 혹은 차량 내부 진입 시 별도 금액 협의',
+        type_photo: '사진', type_video: '영상',
+        note_extra: '연장료 = 풀데이 기본요금의 10% / 시간',
+        tag_hongdae: '홍대 전용', opt_greenhouse: '그린하우스', opt_backgarden: '백가든',
+        rc_foot: '본 견적은 참고용이며 실제 요금과 다를 수 있습니다.<br>정확한 금액은 지점에 문의하세요.',
+        peek_cue: '견적서', peek_why: '사유', na: '산출 불가',
+        studio: { HANNAM: '한남', LAYER7: '레이어 7', LAYER20: '레이어 20', LAYER11: '레이어 11',
+                  LAYER27: '레이어 27', LAYER26: '레이어 26', LAYER41: '레이어 41', HONGDAE: '홍대' },
+        hongdae_groups: ['단독 룸 (최대 7명 · 시간제)', '복합 룸 (최대 15명 · 시간제)', '전체 공간 (16명+ 가능)'],
+        restrict: {
+            hannam: '31인 이상은 ALL 파트만 이용 가능합니다',
+            l7_abc: '20인 이상은 ABC 파트만 이용 가능합니다', l7_15: '15인 이상 해당 파트 이용 불가합니다', l7_c: '10인 초과 시 C 파트 이용 불가합니다',
+            l20: '31인 이상 3F 대관 불가합니다',
+            l11: '41인 이상은 A+B / B+카페 / A+B+카페만 이용 가능합니다',
+            l27: '31인 이상은 ALL 파트만 이용 가능합니다', l26: '31인 이상은 AB 파트만 이용 가능합니다',
+            l41: '40인 이상은 AB / ABC 파트만 이용 가능합니다',
+            hongdae: '8인 이상은 복합 파트를 선택해주세요 (A+B / B+D / A+B+D)',
+        },
+        hours: h => `${h}시간`, people: p => `${p}명`, day9: 'Day 9h', half4: 'Half 4h',
+        spec_studio: '지점', spec_part: '파트', spec_type: '종류', spec_people: '인원', spec_time: '시간',
+        spec_hourly: h => `${h}시간 (시간제)`, spec_day: 'Day 9시간', spec_half: 'Half 4시간',
+        status: '상태', sum: '합계', base: '기본 요금', overtime: h => `연장 ${h}시간`, options: n => `옵션 ${n}`,
+        won: n => `${fmt(n)}만원`,
+        // 요금표
+        sh_key: '현재 선택 · 칸을 누르면 견적에 반영됩니다',
+        sec_day: 'Day 9h · 사진 / 영상', sec_half: 'Half 4h · 사진 / 영상', sec_event: 'Event 12h · 행사',
+        sec_plan: 'Floor plan · 도면 · 원본 요금표', sec_hourly: '시간제 · 15인 이하', sec_whole: '전관 A+B+D · 16인 이상',
+        unit: '단위 만 원', unit_h: '단위 만 원 / 시간', g_photo: '사진', g_video: '영상', g_hourly: '시간당',
+        n_over: '*추가 시간 당 렌탈 비용의 10% (Day견적으로 적용)', n_furn: '*가구 촬영 혹은 차량 내부 진입 시 별도 금액 협의',
+        n_exh: '*전시 및 장기 대관 시 할인 적용 별도 협의', n_change: '*상세 협의 시 일부 견적이 변경될 수 있습니다.',
+        n_contact: '일정 및 세부 문의는 <b>contact@plusjun.com</b> 메일로 부탁드립니다.',
+        n_image: '이미지를 누르면 크게 볼 수 있습니다.', img_alt: '원본 요금표 (도면 포함)',
+        n_h_single: '*단독 룸(A·B·D)은 최대 7명', n_h_combo: '*8인 이상은 복합 파트(A+B / B+D / A+B+D)',
+        n_h_opt: '*그린하우스·백가든 옵션 각 +5만원/시간', n_h_over: '*추가 시간 당 Day 요금의 10%',
+        n_h_opt2: '*그린하우스·백가든 옵션 각 +30만원(30인 이하) / +60만원(31인 이상)',
+        band: ([lo, hi], i, n) => (i === 0 && lo === 1) ? `~${hi}인` : (i === n - 1 && hi >= PERSONNEL_MAX) ? `${lo}인~` : lo === hi ? `${lo}인` : `${lo}~${hi}인`,
+        partName: k => k,
+    },
+    en: {
+        title: 'LAYER STUDIOS — Rental Quote',
+        lang_btn: '한국어',
+        nav_calc: 'Quote', nav_sheet: 'Rates',
+        note_part: 'Furniture shoots or vehicle access are priced separately',
+        type_photo: 'Photo', type_video: 'Video',
+        note_extra: 'Overtime = 10% of the full-day base rate per hour',
+        tag_hongdae: 'Hongdae only', opt_greenhouse: 'Greenhouse', opt_backgarden: 'Back garden',
+        rc_foot: 'This quote is for reference and may differ from the actual fee.<br>Contact the studio for an exact price.',
+        peek_cue: 'Quote', peek_why: 'Why', na: 'Unavailable',
+        studio: { HANNAM: 'Hannam', LAYER7: 'Layer 7', LAYER20: 'Layer 20', LAYER11: 'Layer 11',
+                  LAYER27: 'Layer 27', LAYER26: 'Layer 26', LAYER41: 'Layer 41', HONGDAE: 'Hongdae' },
+        hongdae_groups: ['Single room (up to 7 · hourly)', 'Combined rooms (up to 15 · hourly)', 'Whole space (16+)'],
+        restrict: {
+            hannam: 'Groups of 31 or more can only book ALL',
+            l7_abc: 'Groups of 20 or more can only book ABC', l7_15: 'Not available for 15 or more', l7_c: 'C is not available for more than 10',
+            l20: '3F is not available for 31 or more',
+            l11: 'Groups of 41 or more can only book A+B, B+CAFE or A+B+CAFE',
+            l27: 'Groups of 31 or more can only book ALL', l26: 'Groups of 31 or more can only book AB',
+            l41: 'Groups of 40 or more can only book AB or ABC',
+            hongdae: 'For 8 or more, choose a combined part (A+B / B+D / A+B+D)',
+        },
+        hours: h => `${h}h`, people: p => `${p} ppl`, day9: 'Day 9h', half4: 'Half 4h',
+        spec_studio: 'Studio', spec_part: 'Part', spec_type: 'Type', spec_people: 'People', spec_time: 'Time',
+        spec_hourly: h => `${h}h (hourly)`, spec_day: 'Day · 9h', spec_half: 'Half · 4h',
+        status: 'Status', sum: 'Total', base: 'Base rate', overtime: h => `Overtime ${h}h`, options: n => `Options ${n}`,
+        won: n => `₩${Math.round(n * 10000).toLocaleString('en-US')}`,
+        sh_key: 'Current selection · tap a cell to apply it to the quote',
+        sec_day: 'Day 9h · Photo / Video', sec_half: 'Half 4h · Photo / Video', sec_event: 'Event 12h',
+        sec_plan: 'Floor plan · Original rate sheet', sec_hourly: 'Hourly · up to 15 people', sec_whole: 'Whole space A+B+D · 16 or more',
+        unit: 'Unit ₩10,000', unit_h: 'Unit ₩10,000 / hour', g_photo: 'Photo', g_video: 'Video', g_hourly: 'Hourly',
+        n_over: '*Overtime: 10% of the rental fee per hour (based on the Day rate)', n_furn: '*Furniture shoots or vehicle access are priced separately',
+        n_exh: '*Discounts for exhibitions and long-term rentals are negotiated separately', n_change: '*Quotes may change after detailed consultation.',
+        n_contact: 'For scheduling and details, email <b>contact@plusjun.com</b>.',
+        n_image: 'Tap the image to view it full size.', img_alt: 'original rate sheet (with floor plan)',
+        n_h_single: '*Single rooms (A·B·D): up to 7 people', n_h_combo: '*8 or more: combined parts (A+B / B+D / A+B+D)',
+        n_h_opt: '*Greenhouse / Back garden option: +₩50,000 per hour each', n_h_over: '*Overtime: 10% of the Day rate per hour',
+        n_h_opt2: '*Greenhouse / Back garden option: +₩300,000 (up to 30) / +₩600,000 (31 or more) each',
+        band: ([lo, hi], i, n) => (i === 0 && lo === 1) ? `≤${hi}` : (i === n - 1 && hi >= PERSONNEL_MAX) ? `${lo}+` : lo === hi ? `${lo}` : `${lo}–${hi}`,
+        // 엔진의 파트 이름에 섞인 한국어를 영어로
+        partName: k => k.replace('카페', 'CAFE').replace('+가든', '+Garden').replace('1F+철제난간', '1F + railing').replace('2F오피스 포함', 'incl. 2F office'),
+    },
+};
+const t = k => I18N[state.lang][k];
+const studioName = k => t('studio')[k];
+const partName = k => t('partName')(k);
+
 // ─── 홍대 파트 그룹 정의 ──────────────────────────────────
 const HONGDAE_GROUPS = [
-    { label: '단독 룸 (최대 7명 · 시간제)', parts: ['A', 'B', 'D'] },
-    { label: '복합 룸 (최대 15명 · 시간제)', parts: ['A+B', 'B+D'] },
-    { label: '전체 공간 (16명+ 가능)', parts: ['A+B+D'] },
+    { parts: ['A', 'B', 'D'] },
+    { parts: ['A+B', 'B+D'] },
+    { parts: ['A+B+D'] },
 ];
 
 // ─── 파트별 인원 제한 규칙 ────────────────────────────────
 // 반환값: null(정상) 또는 경고 문자열(인원 초과)
 const PART_RESTRICTIONS = {
     HANNAM: (p, part) => {
-        if (p >= 31 && part !== 'ALL') return '31인 이상은 ALL 파트만 이용 가능합니다';
+        if (p >= 31 && part !== 'ALL') return t('restrict').hannam;
         return null;
     },
     LAYER7: (p, part) => {
-        if (p >= 20 && part !== 'ABC') return '20인 이상은 ABC 파트만 이용 가능합니다';
-        if (p >= 15 && ['A', 'BC'].includes(part)) return '15인 이상 해당 파트 이용 불가합니다';
-        if (p > 10 && part === 'C') return '10인 초과 시 C 파트 이용 불가합니다';
+        if (p >= 20 && part !== 'ABC') return t('restrict').l7_abc;
+        if (p >= 15 && ['A', 'BC'].includes(part)) return t('restrict').l7_15;
+        if (p > 10 && part === 'C') return t('restrict').l7_c;
         return null;
     },
     LAYER20: (p, part) => {
-        if (p >= 31 && part === '3F') return '31인 이상 3F 대관 불가합니다';
+        if (p >= 31 && part === '3F') return t('restrict').l20;
         return null;
     },
     LAYER11: (p, part) => {
         if (p >= 41 && ['A', 'B'].includes(part))
-            return '41인 이상은 A+B / B+카페 / A+B+카페만 이용 가능합니다';
+            return t('restrict').l11;
         return null;
     },
     LAYER27: (p, part) => {
-        if (p >= 31 && part !== 'ALL') return '31인 이상은 ALL 파트만 이용 가능합니다';
+        if (p >= 31 && part !== 'ALL') return t('restrict').l27;
         return null;
     },
     LAYER26: (p, part) => {
-        if (p >= 31 && part !== 'AB') return '31인 이상은 AB 파트만 이용 가능합니다';
+        if (p >= 31 && part !== 'AB') return t('restrict').l26;
         return null;
     },
     LAYER41: (p, part) => {
         if (p >= 40 && !['AB', 'ABC'].includes(part))
-            return '40인 이상은 AB / ABC 파트만 이용 가능합니다';
+            return t('restrict').l41;
         return null;
     },
     HONGDAE: (p, part) => {
         if (p >= 8 && ['A', 'B', 'D'].includes(part))
-            return '8인 이상은 복합 파트를 선택해주세요 (A+B / B+D / A+B+D)';
+            return t('restrict').hongdae;
         return null;
     },
 };
 
 // ─── 상태 ───────────────────────────────────────────────
 const state = {
+    lang: 'ko',            // 'ko' | 'en'
     view: 'calc',          // 'calc' | 'sheet'
     studio: 'HANNAM',
     part: '1F',
@@ -63,12 +156,6 @@ const state = {
     hours: 1,
     extraHours: 0,
     options: []
-};
-
-const studioNames = {
-    HANNAM: '한남', LAYER7: '레이어 7', LAYER20: '레이어 20',
-    LAYER11: '레이어 11', LAYER27: '레이어 27', LAYER26: '레이어 26',
-    LAYER41: '레이어 41', HONGDAE: '홍대'
 };
 
 const els = {
@@ -147,7 +234,7 @@ function compute() {
 }
 
 const fmt = n => Number.isInteger(n) ? n.toLocaleString() : n.toFixed(1);
-const won = n => fmt(n) + '만원';
+const won = n => t('won')(n);
 
 // ─── 파트 버튼 ───────────────────────────────────────────
 function renderParts() {
@@ -158,15 +245,15 @@ function renderParts() {
         const b = document.createElement('button');
         b.dataset.set = 'part';
         b.dataset.v = key;
-        b.textContent = key;
+        b.textContent = partName(key);
         els.optsPart.appendChild(b);
     };
 
     if (isHongdae()) {
-        HONGDAE_GROUPS.forEach(g => {
+        HONGDAE_GROUPS.forEach((g, i) => {
             const label = document.createElement('div');
             label.className = 'grp';
-            label.textContent = g.label;
+            label.textContent = t('hongdae_groups')[i];
             els.optsPart.appendChild(label);
             g.parts.filter(p => keys.includes(p)).forEach(addBtn);
         });
@@ -213,7 +300,7 @@ function syncMode() {
         els.rowExtra.hidden = small;
         els.rowOptions.hidden = false;
 
-        const fee = small ? '+5만원/h' : `+${state.personnel <= 30 ? 30 : 60}만원`;
+        const fee = small ? `+${won(5)}/h` : `+${won(state.personnel <= 30 ? 30 : 60)}`;
         els.priceGreenhouse.textContent = fee;
         els.priceBackgarden.textContent = fee;
     } else {
@@ -226,7 +313,7 @@ function syncMode() {
 }
 
 // ─── 견적서 ─────────────────────────────────────────────
-const optionNames = { GREENHOUSE: '그린하우스', BACKGARDEN: '백가든' };
+const optionName = o => t(o === 'GREENHOUSE' ? 'opt_greenhouse' : 'opt_backgarden');
 
 function li(k, v, charge) {
     // 금액 줄은 점선 리더로 좌우를 잇는다
@@ -239,44 +326,45 @@ function paint() {
     const hd = isHongdae(), small = isHongdaeSmall();
 
     // 행 머리의 현재값
-    els.vStudio.textContent = studioNames[state.studio];
-    els.vPart.textContent = state.part;
-    els.vType.textContent = state.type === 'photo' ? '사진' : '영상';
-    els.vTime.textContent = small ? `${state.hours}시간` : (state.time === 'day' ? 'Day 9h' : 'Half 4h');
+    const typeName = t(state.type === 'photo' ? 'type_photo' : 'type_video');
+    els.vStudio.textContent = studioName(state.studio);
+    els.vPart.textContent = partName(state.part);
+    els.vType.textContent = typeName;
+    els.vTime.textContent = small ? t('hours')(state.hours) : t(state.time === 'day' ? 'day9' : 'half4');
     // 슬라이더 끝(80명)은 눈금 표기와 맞춰 MAX로 보여준다. 견적서에는 실제 인원을 적는다.
-    els.vPersonnel.textContent = state.personnel >= PERSONNEL_MAX ? 'MAX' : `${state.personnel}명`;
-    els.vExtra.textContent = `${state.extraHours}시간`;
+    els.vPersonnel.textContent = state.personnel >= PERSONNEL_MAX ? 'MAX' : t('people')(state.personnel);
+    els.vExtra.textContent = t('hours')(state.extraHours);
 
     els.rcMeta.textContent = `QUOTATION · NO. ${state.studio}-${state.part}-${state.personnel}P`;
 
     // 사양
-    let spec = li('지점', studioNames[state.studio]) + li('파트', state.part);
-    if (!hd) spec += li('종류', state.type === 'photo' ? '사진' : '영상');
-    spec += li('인원', `${state.personnel}명`);
-    spec += li('시간', small ? `${state.hours}시간 (시간제)` : (state.time === 'day' ? 'Day 9시간' : 'Half 4시간'));
+    let spec = li(t('spec_studio'), studioName(state.studio)) + li(t('spec_part'), partName(state.part));
+    if (!hd) spec += li(t('spec_type'), typeName);
+    spec += li(t('spec_people'), t('people')(state.personnel));
+    spec += li(t('spec_time'), small ? t('spec_hourly')(state.hours) : t(state.time === 'day' ? 'spec_day' : 'spec_half'));
     els.rcSpec.innerHTML = spec;
 
     if (r.err) {
-        els.rcCharges.innerHTML = li('상태', '산출 불가');
+        els.rcCharges.innerHTML = li(t('status'), t('na'));
         els.rcTotal.innerHTML = '';
         els.rcStamp.className = 'rc-stamp';
         els.rcStamp.textContent = r.err;
         els.peek.classList.add('err');
-        els.peekV.textContent = '산출 불가';
-        els.peekCue.textContent = '사유';
+        els.peekV.textContent = t('na');
+        els.peekCue.textContent = t('peek_why');
         return;
     }
 
     // 금액
     let charges = '';
     if (r.base === undefined) {
-        charges = li('합계', won(r.total), true);
+        charges = li(t('sum'), won(r.total), true);
     } else {
-        charges = li('기본 요금', won(r.base), true);
-        if (r.extraFee > 0) charges += li(`연장 ${state.extraHours}시간`, '+' + won(r.extraFee), true);
+        charges = li(t('base'), won(r.base), true);
+        if (r.extraFee > 0) charges += li(t('overtime')(state.extraHours), '+' + won(r.extraFee), true);
         if (r.optionFee > 0) {
-            const names = state.options.map(o => optionNames[o]).join(' · ');
-            charges += li(`옵션 ${names}`, '+' + won(r.optionFee), true);
+            const names = state.options.map(optionName).join(' · ');
+            charges += li(t('options')(names), '+' + won(r.optionFee), true);
         }
     }
     els.rcCharges.innerHTML = charges;
@@ -287,7 +375,7 @@ function paint() {
 
     els.peek.classList.remove('err');
     els.peekV.textContent = won(r.total);
-    els.peekCue.textContent = '견적서';
+    els.peekCue.textContent = t('peek_cue');
 }
 
 function render() {
@@ -306,11 +394,7 @@ const esc = str => String(str).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&l
 
 // [최소, 최대] → '~10인' / '11~20인' / '41인~' (슬라이더 최대까지 열린 구간)
 const PERSONNEL_MAX = 80;
-function bandLabel([lo, hi], i, bands) {
-    if (i === 0 && lo === 1) return `~${hi}인`;
-    if (i === bands.length - 1 && hi >= PERSONNEL_MAX) return `${lo}인~`;
-    return lo === hi ? `${lo}인` : `${lo}~${hi}인`;
-}
+const bandLabel = (b, i, bands) => t('band')(b, i, bands.length);
 const bandIndex = (bands, p) => bands.findIndex(([lo, hi]) => p >= lo && p <= hi);
 const cell = v => (v === null || v === 0) ? '<span class="sh-na">–</span>' : fmt(v);
 
@@ -332,7 +416,7 @@ function table(bands, rows, groups, attrs) {
             const data = dead ? '' : ` data-row="${esc(r.key)}" data-col="${i}"${g.attrs || ''}`;
             return `<td class="${on ? 'hit' : ''}${dead ? ' dead' : ''}${sep(gi, i)}"${data}>${cell(v)}</td>`;
         }).join('')).join('');
-        return `<tr><th class="${rowHit ? 'hit' : ''}">${esc(r.label)}</th>${tds}</tr>`;
+        return `<tr><th class="${rowHit ? 'hit' : ''}">${esc(partName(r.label))}</th>${tds}</tr>`;
     }).join('');
     return `<div class="sh-wrap"><table class="sh-t sh-g${groups.length}"${attrs || ''}>
     <thead><tr><th class="sh-corner" rowspan="2"></th>${gHead}</tr><tr>${bHead}</tr></thead>
@@ -348,33 +432,33 @@ function section(n, label, tag, body) {
 function sheetHead(meta) {
     const ver = meta.version ? `<span class="sh-ver">${meta.version} ver.</span>` : '';
     return `<div class="sh-head"><h2 class="sh-title">${esc(meta.title)}</h2>${ver}</div>
-    <p class="sh-key"><i></i>현재 선택 · 칸을 누르면 견적에 반영됩니다</p>`;
+    <p class="sh-key"><i></i>${t('sh_key')}</p>`;
 }
 
 // 주석 여러 개 — 항목 단위로만 줄바꿈된다
 const notes = (...items) => `<p class="note sh-notes">${items.map(t => `<span>${t}</span>`).join('')}</p>`;
-const SHEET_FOOT = notes('*전시 및 장기 대관 시 할인 적용 별도 협의', '*상세 협의 시 일부 견적이 변경될 수 있습니다.');
+const sheetFoot = () => notes(t('n_exh'), t('n_change'));
 
 function eventTable(meta) {
-    const rows = meta.event.map(([k, v]) => `<tr><th>${esc(k)}</th><td>${fmt(v)}</td></tr>`).join('');
+    const rows = meta.event.map(([k, v]) => `<tr><th>${esc(partName(k))}</th><td>${fmt(v)}</td></tr>`).join('');
     return `<div class="sh-wrap"><table class="sh-t sh-t-event"><tbody>${rows}</tbody></table></div>
-    <p class="note">일정 및 세부 문의는 <b>contact@plusjun.com</b> 메일로 부탁드립니다.</p>`;
+    <p class="note">${t('n_contact')}</p>`;
 }
 
 function imageBlock(meta) {
     return `<a class="sh-img" href="${meta.image}" target="_blank" rel="noopener">
-        <img src="${meta.image}" loading="lazy" alt="${esc(meta.title)} 원본 요금표 (도면 포함)">
+        <img src="${meta.image}" loading="lazy" alt="${esc(meta.title)} ${t('img_alt')}">
     </a>
-    <p class="note">이미지를 누르면 크게 볼 수 있습니다.</p>`;
+    <p class="note">${t('n_image')}</p>`;
 }
 
 // 공통 꼬리: 행사 · 도면. 구역 번호는 앞 구역 수에 이어 붙인다.
 // 꼬리 주석(전시·장기 대관, 변경 가능)은 행사 구역에 붙이고, 행사가 없는 지점은 따로 둔다.
 function sheetTail(meta, n) {
     let out = '';
-    if (meta.event.length) out += section(pad(n++), 'Event 12h · 행사', '단위 만 원', eventTable(meta) + SHEET_FOOT);
-    else out += `<div class="row">${SHEET_FOOT}</div>`;
-    if (meta.image) out += section(pad(n++), 'Floor plan · 도면 · 원본 요금표', null, imageBlock(meta));
+    if (meta.event.length) out += section(pad(n++), t('sec_event'), t('unit'), eventTable(meta) + sheetFoot());
+    else out += `<div class="row">${sheetFoot()}</div>`;
+    if (meta.image) out += section(pad(n++), t('sec_plan'), null, imageBlock(meta));
     return out;
 }
 const pad = n => String(n).padStart(2, '0');
@@ -387,7 +471,7 @@ function renderSheetGeneral(sd, meta) {
 
     const block = time => {
         const groups = ['photo', 'video'].map(type => ({
-            name: type === 'photo' ? '사진' : '영상',
+            name: t(type === 'photo' ? 'g_photo' : 'g_video'),
             attrs: ` data-type="${type}"`,
             hit: (state.type === type && state.time === time) ? { row: state.part, col: n } : null,
             values: key => sd.parts[key][type][time],
@@ -396,12 +480,12 @@ function renderSheetGeneral(sd, meta) {
         const merged = `<div class="sh-desk">${table(bands, rows, groups, ` data-time="${time}"`)}</div>`;
         const split = `<div class="sh-mob">${groups.map(g => table(bands, rows, [g], ` data-time="${time}"`)).join('')}</div>`;
         return merged + split
-            + notes('*추가 시간 당 렌탈 비용의 10% (Day견적으로 적용)', '*가구 촬영 혹은 차량 내부 진입 시 별도 금액 협의');
+            + notes(t('n_over'), t('n_furn'));
     };
 
     return sheetHead(meta)
-        + section('02', 'Day 9h · 사진 / 영상', '단위 만 원', block('day'))
-        + section('03', 'Half 4h · 사진 / 영상', '단위 만 원', block('half'))
+        + section('02', t('sec_day'), t('unit'), block('day'))
+        + section('03', t('sec_half'), t('unit'), block('half'))
         + sheetTail(meta, 4);
 }
 
@@ -413,11 +497,11 @@ function renderSheetHongdae(sd, meta) {
     // 시간제 (15인 이하) — 파트별 시간당 요금
     const hourlyRows = Object.keys(sd.parts).map(key => ({ key, label: key }));
     const hourly = table(sd.bands_small, hourlyRows, [{
-        name: '시간당',
+        name: t('g_hourly'),
         hit: small ? { row: state.part, col: nS } : null,
         values: key => sd.parts[key].hourly,
     }], ' data-mode="hourly"')
-        + notes('*단독 룸(A·B·D)은 최대 7명', '*8인 이상은 복합 파트(A+B / B+D / A+B+D)', '*그린하우스·백가든 옵션 각 +5만원/시간');
+        + notes(t('n_h_single'), t('n_h_combo'), t('n_h_opt'));
 
     // 전관 (16인 이상) — A+B+D 고정 요금
     const fixed = sd.parts['A+B+D'].fixed;
@@ -427,17 +511,17 @@ function renderSheetHongdae(sd, meta) {
         hit: (!small && state.part === 'A+B+D') ? { row: state.time, col: nL } : null,
         values: key => fixed[key],
     }], ' data-mode="fixed"')
-        + notes('*추가 시간 당 Day 요금의 10%', '*그린하우스·백가든 옵션 각 +30만원(30인 이하) / +60만원(31인 이상)');
+        + notes(t('n_h_over'), t('n_h_opt2'));
 
     return sheetHead(meta)
-        + section('02', '시간제 · 15인 이하', '단위 만 원 / 시간', hourly)
-        + section('03', '전관 A+B+D · 16인 이상', '단위 만 원', large)
+        + section('02', t('sec_hourly'), t('unit_h'), hourly)
+        + section('03', t('sec_whole'), t('unit'), large)
         + sheetTail(meta, 4);
 }
 
 function renderSheet() {
     const sd = LAYER_MASTER_ENGINE.studios[state.studio];
-    els.vStudioSheet.textContent = studioNames[state.studio];
+    els.vStudioSheet.textContent = studioName(state.studio);
     els.sheetBody.innerHTML = isHongdae() ? renderSheetHongdae(sd, sd.sheet) : renderSheetGeneral(sd, sd.sheet);
 }
 
@@ -467,13 +551,13 @@ function setView(view) {
     const sheet = view === 'sheet';
     els.controls.hidden = sheet;
     els.sheet.hidden = !sheet;
-    document.querySelectorAll('.mh-nav button').forEach(b => {
+    document.querySelectorAll('.mh-nav button[data-view]').forEach(b => {
         const on = b.dataset.view === view;
         b.classList.toggle('on', on);
         b.setAttribute('aria-pressed', String(on));
     });
     // 공유용 주소: #sheet 로 열면 요금표부터 보인다
-    history.replaceState(null, '', sheet ? '#sheet' : location.pathname + location.search);
+    history.replaceState(null, '', location.pathname + location.search + (sheet ? '#sheet' : ''));
     render();
     window.scrollTo({ top: 0 });
 }
@@ -484,7 +568,9 @@ document.addEventListener('click', e => {
     if (e.target.closest('#peek')) { toggleDock(); return; }
     if (e.target.id === 'dock-scrim') { toggleDock(false); return; }
 
-    const nav = e.target.closest('.mh-nav button');
+    if (e.target.closest('[data-lang-toggle]')) { setLang(state.lang === 'ko' ? 'en' : 'ko'); return; }
+
+    const nav = e.target.closest('.mh-nav button[data-view]');
     if (nav) { setView(nav.dataset.view); return; }
 
     const td = e.target.closest('.sh-t td[data-row]');
@@ -520,6 +606,27 @@ document.addEventListener('input', e => {
     render();
 });
 
+// 정적 문구(data-i18n)와 지점 버튼 이름을 현재 언어로 바꾼다
+function applyLang() {
+    document.documentElement.lang = state.lang;
+    document.title = t('title');
+    document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+    document.querySelectorAll('button[data-set="studio"]').forEach(b => { b.textContent = studioName(b.dataset.v); });
+    document.getElementById('lang-btn').textContent = t('lang_btn');
+}
+
+function setLang(lang) {
+    state.lang = lang;
+    try { localStorage.setItem('lang', lang); } catch (e) { /* 사생활 보호 모드 등 */ }
+    const u = new URL(location.href);
+    if (lang === 'en') u.searchParams.set('lang', 'en'); else u.searchParams.delete('lang');
+    history.replaceState(null, '', u.pathname + u.search + u.hash);
+    applyLang();
+    renderParts();
+    render();
+}
+
 function toggleDock(force) {
     const open = force === undefined ? !els.dock.classList.contains('open') : force;
     els.dock.classList.toggle('open', open);
@@ -529,8 +636,15 @@ function toggleDock(force) {
 
 // ─── 초기화 ─────────────────────────────────────────────
 // 요금표 화면의 지점 버튼. data-set="studio" 라 계산기 버튼과 같은 핸들러·동기화를 탄다.
-els.optsStudioSheet.innerHTML = Object.entries(studioNames)
-    .map(([k, v]) => `<button data-set="studio" data-v="${k}">${v}</button>`).join('');
+els.optsStudioSheet.innerHTML = Object.keys(I18N.ko.studio)
+    .map(k => `<button data-set="studio" data-v="${k}"></button>`).join('');
+
+// 언어: 주소의 ?lang=en > 저장된 선택 > 한국어
+let saved = null;
+try { saved = localStorage.getItem('lang'); } catch (e) { /* 무시 */ }
+const param = new URLSearchParams(location.search).get('lang');
+state.lang = (param === 'en' || param === 'ko') ? param : (saved === 'en' ? 'en' : 'ko');
+applyLang();
 
 renderParts();
 render();

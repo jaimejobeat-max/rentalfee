@@ -26,8 +26,10 @@
             </a>
             <!-- 계산기 ↔ 요금표 전환. 요금표는 같은 지점·선택을 공유한다 -->
             <nav class="mh-nav" aria-label="화면 전환">
-                <button data-view="calc" class="on" aria-pressed="true">견적 산출</button>
-                <button data-view="sheet" aria-pressed="false">요금표</button>
+                <!-- 언어 전환. 누르면 반대 언어로 바뀌고, 라벨은 바꿀 대상 언어를 보여준다 -->
+                <button class="mh-lang" id="lang-btn" data-lang-toggle>English</button>
+                <button data-view="calc" class="on" aria-pressed="true" data-i18n="nav_calc">견적 산출</button>
+                <button data-view="sheet" aria-pressed="false" data-i18n="nav_sheet">요금표</button>
             </nav>
         </div>
     </header>
@@ -52,14 +54,14 @@
             <div class="row">
                 <div class="row-h"><span class="row-n">02</span>Part<em id="v-part">1F</em></div>
                 <div class="opts" id="opts-part"></div>
-                <p class="note">가구 촬영 혹은 차량 내부 진입 시 별도 금액 협의</p>
+                <p class="note" data-i18n="note_part">가구 촬영 혹은 차량 내부 진입 시 별도 금액 협의</p>
             </div>
 
             <div class="row" id="row-type">
                 <div class="row-h"><span class="row-n">03</span>Type<em id="v-type">사진</em></div>
                 <div class="opts">
-                    <button data-set="type" data-v="photo" class="on">사진</button>
-                    <button data-set="type" data-v="video">영상</button>
+                    <button data-set="type" data-v="photo" class="on" data-i18n="type_photo">사진</button>
+                    <button data-set="type" data-v="video" data-i18n="type_video">영상</button>
                 </div>
             </div>
 
@@ -92,14 +94,14 @@
                         aria-label="연장 시간">
                     <div class="scale"><span>0H</span><span>6H</span></div>
                 </div>
-                <p class="note">연장료 = 풀데이 기본요금의 10% / 시간</p>
+                <p class="note" data-i18n="note_extra">연장료 = 풀데이 기본요금의 10% / 시간</p>
             </div>
 
             <div class="row" id="row-options" hidden>
-                <div class="row-h"><span class="row-n">07</span>Options<em class="tag">홍대 전용</em></div>
+                <div class="row-h"><span class="row-n">07</span>Options<em class="tag" data-i18n="tag_hongdae">홍대 전용</em></div>
                 <div class="opts opts-check">
-                    <button data-opt="GREENHOUSE">그린하우스 <b id="p-greenhouse">+5만원/h</b></button>
-                    <button data-opt="BACKGARDEN">백가든 <b id="p-backgarden">+5만원/h</b></button>
+                    <button data-opt="GREENHOUSE"><span data-i18n="opt_greenhouse">그린하우스</span> <b id="p-greenhouse">+5만원/h</b></button>
+                    <button data-opt="BACKGARDEN"><span data-i18n="opt_backgarden">백가든</span> <b id="p-backgarden">+5만원/h</b></button>
                 </div>
             </div>
         </section>
@@ -133,7 +135,7 @@
                     <div id="rc-charges"></div>
                     <div id="rc-total"></div>
                     <div id="rc-stamp"></div>
-                    <p class="rc-foot">본 견적은 참고용이며 실제 요금과 다를 수 있습니다.<br>정확한 금액은 지점에 문의하세요.</p>
+                    <p class="rc-foot" data-i18n-html="rc_foot">본 견적은 참고용이며 실제 요금과 다를 수 있습니다.<br>정확한 금액은 지점에 문의하세요.</p>
                 </div>
             </div>
         </aside>
