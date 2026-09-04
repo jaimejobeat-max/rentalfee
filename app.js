@@ -30,7 +30,7 @@ const I18N = {
         },
         hours: h => `${h}시간`, people: p => `${p}명`, day9: 'Day 9h', half4: 'Half 4h',
         spec_studio: '지점', spec_part: '파트', spec_type: '종류', spec_people: '인원', spec_time: '시간',
-        spec_hourly: h => `${h}시간 (시간제)`, spec_day: 'Day 9시간', spec_half: 'Half 4시간',
+        spec_hourly: h => `${h}시간 (시간제)`, spec_day: 'Day · 9시간', spec_half: 'Half · 4시간',
         status: '상태', sum: '합계', base: '기본 요금', overtime: h => `연장 ${h}시간`, options: n => `옵션 ${n}`,
         won: n => `${fmt(n)}만원`,
         // 요금표
