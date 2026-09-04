@@ -69,10 +69,17 @@ body {
     padding: 1.1rem 1.25rem;
 }
 
+/* 로고 — 마크 + 워드마크 락업 이미지. 높이만 정하고 폭은 비율대로. */
 .mh-logo {
-    font-size: 0.86rem;
-    font-weight: 700;
-    letter-spacing: 0.24em;
+    display: block;
+    line-height: 0;
+    flex-shrink: 0;
+}
+
+.mh-logo img {
+    display: block;
+    height: 15px;
+    width: auto;
 }
 
 /* 계산기 ↔ 요금표 전환 — 옵션 버튼과 같은 어법, 조금 더 작게 */
@@ -723,6 +730,10 @@ body {
 
     .mh-in {
         padding: 1.25rem 2rem;
+    }
+
+    .mh-logo img {
+        height: 22px;
     }
 
     .workbench {

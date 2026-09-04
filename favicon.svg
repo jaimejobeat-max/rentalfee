@@ -1,22 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" role="img" aria-label="LAYER STUDIOS">
-    <style>
-        :root {
-            --bg: #14120f;
-            --fg: #fbfaf7;
-        }
-
-        /* 어두운 탭 바에서 검은 사각형이 묻히지 않도록 반전한다 */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #fbfaf7;
-                --fg: #14120f;
-            }
-        }
-    </style>
-    <rect width="16" height="16" fill="var(--bg)" />
-    <g fill="var(--fg)">
-        <rect x="3" y="4" width="10" height="2" />
-        <rect x="3" y="7" width="10" height="2" />
-        <rect x="3" y="10" width="6" height="2" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="87.25 87.25 905.5 905.5" role="img" aria-label="LAYER STUDIOS">
+    <!-- layerstudios logo.ai 의 마크를 그대로 옮겼다 -->
+    <g fill="#14120f">
+        <path transform="matrix(1,0,0,-1,225.1897,854.8025)" d="M0 0V767.55H-137.938L-137.937-137.945H160.05 767.558V0H160.05Z"/>
+        <path transform="matrix(1,0,0,-1,385.2397,87.252017)" d="M0 0H-137.947V-745.448H-29.29 0 607.508V-607.508H0Z"/>
+        <path transform="matrix(1,0,0,-1,407.3423,87.25238)" d="M0 0C6.643-322.188 270.083-583.247 585.406-585.407V0Z"/>
     </g>
 </svg>
