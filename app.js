@@ -243,7 +243,8 @@ function paint() {
     els.vPart.textContent = state.part;
     els.vType.textContent = state.type === 'photo' ? '사진' : '영상';
     els.vTime.textContent = small ? `${state.hours}시간` : (state.time === 'day' ? 'Day 9h' : 'Half 4h');
-    els.vPersonnel.textContent = `${state.personnel}명`;
+    // 슬라이더 끝(80명)은 눈금 표기와 맞춰 MAX로 보여준다. 견적서에는 실제 인원을 적는다.
+    els.vPersonnel.textContent = state.personnel >= PERSONNEL_MAX ? 'MAX' : `${state.personnel}명`;
     els.vExtra.textContent = `${state.extraHours}시간`;
 
     els.rcMeta.textContent = `QUOTATION · NO. ${state.studio}-${state.part}-${state.personnel}P`;
