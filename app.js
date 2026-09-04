@@ -1,5 +1,5 @@
 /**
- * LAYER STUDIOS 견적 산출기 — UI (RECEIPT)
+ * LAYER STUDIOS 견적 산출기 — UI
  * 계산은 전부 engine.js에 맡기고, 여기서는 상태·표시만 다룬다.
  */
 
@@ -258,7 +258,7 @@ function paint() {
     if (r.err) {
         els.rcCharges.innerHTML = li('상태', '산출 불가');
         els.rcTotal.innerHTML = '';
-        els.rcStamp.className = 'rc-stamp void';
+        els.rcStamp.className = 'rc-stamp';
         els.rcStamp.textContent = r.err;
         els.peek.classList.add('err');
         els.peekV.textContent = '산출 불가';
@@ -282,7 +282,7 @@ function paint() {
     els.rcTotal.innerHTML = `<div class="rc-total">
     <span class="rc-total-k">TOTAL</span><span class="rc-total-v">${won(r.total)}</span></div>`;
     els.rcStamp.className = 'rc-stamp';
-    els.rcStamp.textContent = '참 고 용 · 확 정 아 님';
+    els.rcStamp.textContent = '';
 
     els.peek.classList.remove('err');
     els.peekV.textContent = won(r.total);

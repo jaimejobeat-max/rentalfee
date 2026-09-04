@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════
    LAYER STUDIOS — 견적 산출기
-   컨셉: RECEIPT / 라이트 톤 브루탈리즘
+   컨셉: 라이트 톤 브루탈리즘 — 견적서는 평평한 종이 한 장
    모바일 우선. 900px 이상에서 2단 작업대 레이아웃.
 
    서체: Pretendard 단독.
@@ -19,7 +19,6 @@
     --ink-3: #6f6961;
     --rule: #c6c0b5;
     --rule-2: #a8a196;
-    --stamp: #b03024;
     --peek-h: 62px;
     --font-ui: 'Pretendard Variable', Pretendard, system-ui, -apple-system, 'Apple SD Gothic Neo', sans-serif;
     --font-body: 'Pretendard Variable', Pretendard, system-ui, -apple-system, 'Apple SD Gothic Neo', sans-serif;
@@ -673,26 +672,21 @@ body {
     white-space: nowrap;
 }
 
+/* 산출 불가일 때만 사유를 보여준다. 평소에는 비어 있고 숨긴다. */
 .rc-stamp {
-    margin: 1.3rem auto 0;
-    max-width: 264px;
-    border: 2px solid var(--stamp);
-    color: var(--stamp);
-    font-size: 0.66rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
+    margin: 1.3rem 0 0;
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    font-size: 0.72rem;
+    font-weight: 600;
     text-align: center;
-    padding: 0.45rem 0.3rem;
-    transform: rotate(-2.5deg);
-    opacity: 0.9;
+    padding: 0.6rem 0.8rem;
+    line-height: 1.6;
     font-family: var(--font-body);
 }
 
-.rc-stamp.void {
-    border-color: var(--ink);
-    color: var(--ink);
-    letter-spacing: 0;
-    line-height: 1.6;
+.rc-stamp:empty {
+    display: none;
 }
 
 .rc-foot {
@@ -770,32 +764,11 @@ body {
         display: none;
     }
 
+    /* 평평한 종이 한 장 — 그림자·절취선 없이 가는 테두리만 */
     .paper {
         overflow: visible;
         padding: 0 1.6rem 1.8rem;
-        box-shadow: 0 16px 44px rgba(20, 18, 15, 0.16);
-        position: relative;
-    }
-
-    /* 톱니 절취선 — 종이가 뽑혀 나온 느낌 */
-    .paper::before,
-    .paper::after {
-        content: '';
-        position: absolute;
-        left: 0;
-        right: 0;
-        height: 10px;
-        background: radial-gradient(circle at 6px -1px, transparent 5.5px, var(--paper) 6px);
-        background-size: 16px 10px;
-    }
-
-    .paper::before {
-        top: -9px;
-        transform: scaleY(-1);
-    }
-
-    .paper::after {
-        bottom: -9px;
+        border: 1px solid var(--rule);
     }
 
     .dock-scrim {
