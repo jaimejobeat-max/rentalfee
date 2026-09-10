@@ -546,6 +546,20 @@ function applySheetCell(td) {
     render();
 }
 
+// ─── 주소 ───────────────────────────────────────────────
+// 요금표는 지점마다 고유 주소를 가진다: /hannam, /layer7 … (홈페이지에서 링크용)
+// 계산기 화면은 루트(/)다. ?lang= 은 그대로 따라간다.
+const STUDIO_SLUGS = {
+    HANNAM: 'hannam', LAYER7: 'layer7', LAYER20: 'layer20', LAYER11: 'layer11',
+    LAYER27: 'layer27', LAYER26: 'layer26', LAYER41: 'layer41', HONGDAE: 'hongdae',
+};
+const studioFromSlug = slug => Object.keys(STUDIO_SLUGS).find(k => STUDIO_SLUGS[k] === slug) || null;
+
+function syncUrl() {
+    const path = state.view === 'sheet' ? '/' + STUDIO_SLUGS[state.studio] : '/';
+    history.replaceState(null, '', path + location.search);
+}
+
 function setView(view) {
     state.view = view;
     const sheet = view === 'sheet';
@@ -557,7 +571,7 @@ function setView(view) {
         b.setAttribute('aria-pressed', String(on));
     });
     // 공유용 주소: #sheet 로 열면 요금표부터 보인다
-    history.replaceState(null, '', location.pathname + location.search + (sheet ? '#sheet' : ''));
+    syncUrl();
     render();
     window.scrollTo({ top: 0 });
 }
@@ -593,6 +607,7 @@ document.addEventListener('click', e => {
         state.studio = v;
         if (!partsOf(v).includes(state.part)) state.part = partsOf(v)[0];
         renderParts();
+        if (state.view === 'sheet') syncUrl();
     } else {
         state[set] = v;
     }
@@ -621,7 +636,8 @@ function setLang(lang) {
     try { localStorage.setItem('lang', lang); } catch (e) { /* 사생활 보호 모드 등 */ }
     const u = new URL(location.href);
     if (lang === 'en') u.searchParams.set('lang', 'en'); else u.searchParams.delete('lang');
-    history.replaceState(null, '', u.pathname + u.search + u.hash);
+    history.replaceState(null, '', u.pathname + u.search);
+    syncUrl();
     applyLang();
     renderParts();
     render();
@@ -648,4 +664,12 @@ applyLang();
 
 renderParts();
 render();
-if (location.hash === '#sheet') setView('sheet');
+const slugStudio = studioFromSlug(location.pathname.replace(/^\/|\/$/g, '').toLowerCase());
+if (slugStudio) {
+    state.studio = slugStudio;
+    state.part = partsOf(slugStudio)[0];
+    renderParts();
+    setView('sheet');
+} else if (location.hash === '#sheet') {
+    setView('sheet');
+}
