@@ -1,27 +1,30 @@
 /* ═══════════════════════════════════════════════════
    LAYER STUDIOS — 견적 산출기
-   컨셉: 라이트 톤 브루탈리즘 — 견적서는 평평한 종이 한 장
-   모바일 우선. 900px 이상에서 2단 작업대 레이아웃.
-
-   서체: Pretendard 단독.
-   --font-ui   = 라벨·라틴·숫자
-   --font-body = 한글 본문
-   (지금은 둘 다 Pretendard지만, 조합을 바꿀 때를 위해 역할을 나눠 둔다)
+   홈페이지(layerdemo2)의 디자인 언어를 그대로 따른다.
+   흰 바탕 · 검정 · 회색 세 색, Helvetica Neue(한글은 Pretendard),
+   상자 없는 텍스트 탭, 1px 검정 실선, 32px 거터, 64px 고정 헤더.
+   모바일 우선. 900px 이상에서 2단(조작 패널 | 견적서).
    ═══════════════════════════════════════════════════ */
 
 :root {
-    --bg: #e8e5de;
-    --bg-2: #dedad1;
-    --paper: #fbfaf7;
-    --ink: #14120f;
-    /* 가독성을 위해 보조 잉크 2단계를 한 단씩 진하게 잡았다 */
-    --ink-2: #4a453e;
-    --ink-3: #6f6961;
-    --rule: #c6c0b5;
-    --rule-2: #a8a196;
-    --peek-h: 62px;
-    --font-ui: 'Pretendard Variable', Pretendard, system-ui, -apple-system, 'Apple SD Gothic Neo', sans-serif;
-    --font-body: 'Pretendard Variable', Pretendard, system-ui, -apple-system, 'Apple SD Gothic Neo', sans-serif;
+    --black: #000;
+    --white: #fff;
+    --grey: #8a8a8a;
+    --line: #e5e5e5;
+    --sans: "Helvetica Neue", Helvetica, Arial, "Pretendard Variable", Pretendard, sans-serif;
+
+    --fs-ui: 12px;
+    --fs-tab: 14px;
+    --fs-nav: 21px;
+    --fs-title: 52px;
+    --fs-title-m: 32px;
+
+    --gutter: 32px;
+    --gutter-m: 20px;
+    --header-h: 64px;
+    --peek-h: 56px;
+
+    --ease: cubic-bezier(.22, .61, .36, 1);
 }
 
 *,
@@ -38,38 +41,66 @@
 }
 
 html {
-    font-size: 16px;
     -webkit-text-size-adjust: 100%;
 }
 
 body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: var(--font-ui);
+    background: var(--white);
+    color: var(--black);
+    font-family: var(--sans);
+    font-size: var(--fs-ui);
+    line-height: 1.33;
     /* 숫자 폭을 고정해 슬라이더를 끌 때 금액이 흔들리지 않게 한다 */
     font-variant-numeric: tabular-nums;
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
-    /* 모바일: 하단 고정 견적서 손잡이만큼 자리를 비워둔다 */
+    /* 고정 헤더 + 모바일 하단 견적서 손잡이만큼 비워둔다 */
+    padding-top: var(--header-h);
     padding-bottom: calc(var(--peek-h) + env(safe-area-inset-bottom, 0px));
 }
 
-/* ─── Masthead ─────────────────────────────── */
+button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+}
+
+/* ─── Header (홈페이지와 같은 64px 고정 헤더) ───────── */
 .masthead {
-    border-bottom: 2px solid var(--ink);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-h);
+    z-index: 200;
+    background: var(--white);
+    border-bottom: 1px solid var(--black);
 }
 
 .mh-in {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
-    max-width: 1120px;
-    margin: 0 auto;
-    padding: 1.1rem 1.25rem;
+    gap: 22px;
+    height: 100%;
+    padding: 0 var(--gutter);
 }
 
-/* 로고 — 마크 + 워드마크 락업 이미지. 높이만 정하고 폭은 비율대로. */
 .mh-logo {
     display: block;
     line-height: 0;
@@ -78,219 +109,190 @@ body {
 
 .mh-logo img {
     display: block;
-    height: 15px;
+    height: 13px;
     width: auto;
 }
 
-/* 계산기 ↔ 요금표 전환 — 옵션 버튼과 같은 어법, 조금 더 작게 */
+/* 헤더 링크 — 텍스트만. 현재 화면은 검정, 나머지는 회색. 호버 시 밑줄이 왼쪽에서 자란다 */
 .mh-nav {
     display: flex;
-    gap: 0.3rem;
+    align-items: center;
+    gap: 22px;
 }
 
 .mh-nav button {
+    position: relative;
+    padding: 4px 0;
+    font-size: var(--fs-ui);
+    text-transform: uppercase;
+    color: var(--grey);
     white-space: nowrap;
-    font-family: var(--font-ui);
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    padding: 0.38rem 0.7rem;
-    min-height: 32px;
-    background: transparent;
-    color: var(--ink);
-    border: 1px solid var(--rule-2);
-    cursor: pointer;
-    transition: none;
+    transition: color .2s var(--ease);
 }
 
-.mh-nav button:hover:not(.on) {
-    background: var(--bg-2);
-    border-color: var(--ink);
+.mh-nav button::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .3s var(--ease);
 }
 
+.mh-nav button:hover,
 .mh-nav button.on {
-    background: var(--ink);
-    color: var(--paper);
-    border-color: var(--ink);
+    color: var(--black);
 }
 
-.mh-nav button:focus-visible {
-    outline: 2px solid var(--ink);
-    outline-offset: 2px;
+.mh-nav button:hover::after,
+.mh-nav button.on::after {
+    transform: scaleX(1);
 }
 
-/* 언어 버튼 — 화면 전환 버튼과 살짝 떨어뜨려 다른 종류임을 보인다 */
+/* 언어 버튼 — 화면 전환과 다른 종류임을 간격으로 보인다 */
 .mh-lang {
-    margin-right: 0.45rem;
-    font-weight: 500;
-}
-
-/* 좁은 화면: 로고와 버튼 세 개가 한 줄에 안 들어가니 버튼 줄을 아래로 내려 오른쪽에 붙인다 */
-@media (max-width: 599px) {
-    .mh-in {
-        flex-wrap: wrap;
-        row-gap: 0.7rem;
-        padding-top: 1rem;
-        padding-bottom: 0.9rem;
-    }
-
-    .mh-nav {
-        margin-left: auto;
-    }
+    margin-right: 10px;
+    text-transform: none !important;
 }
 
 /* ─── Workbench ────────────────────────────── */
 .workbench {
-    max-width: 1120px;
-    margin: 0 auto;
+    padding: 0 var(--gutter);
 }
 
-.controls {
-    padding: 0.5rem 1.25rem 2rem;
+.controls,
+.sheet {
+    padding-bottom: 48px;
 }
 
-/* ─── Row ──────────────────────────────────── */
+/* ─── Row — 홈페이지 정보 블록(.sinfo__block)과 같은 어법 ── */
 .row {
-    padding: 1.35rem 0 1.4rem;
-    border-bottom: 1px dashed var(--rule);
+    border-top: 1px solid var(--black);
+    padding: 12px 0 32px;
 }
 
 .row-h {
     display: flex;
     align-items: baseline;
-    gap: 0.7rem;
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
+    gap: 12px;
+    font-size: var(--fs-ui);
     text-transform: uppercase;
-    color: var(--ink-2);
-    margin-bottom: 0.95rem;
+    color: var(--grey);
+    margin-bottom: 18px;
 }
 
 .row-n {
-    color: var(--ink);
-    font-weight: 700;
+    color: var(--black);
 }
 
+/* 현재값 — 스튜디오 이름과 같은 21px 볼드 */
 .row-h em {
     margin-left: auto;
     font-style: normal;
-    font-family: var(--font-body);
-    font-size: 0.86rem;
+    font-size: var(--fs-nav);
     font-weight: 700;
-    letter-spacing: 0;
+    letter-spacing: -0.02em;
+    line-height: 1;
     text-transform: none;
-    color: var(--ink);
+    color: var(--black);
 }
 
 .row-h em.tag {
-    font-size: 0.64rem;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    color: var(--ink-2);
-    border: 1px solid var(--rule-2);
-    padding: 0.12rem 0.42rem;
+    font-size: var(--fs-ui);
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--grey);
 }
 
-/* ─── Option buttons ───────────────────────── */
+/* ─── Option tabs — 상자 없이 텍스트만. 회색 → 선택 시 검정 + 밑줄 ── */
 .opts {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem;
+    gap: 6px 22px;
 }
 
 .opts button {
-    font-family: var(--font-ui);
-    font-size: 0.82rem;
-    font-weight: 500;
-    letter-spacing: 0.01em;
-    padding: 0.55rem 0.8rem;
-    background: transparent;
-    color: var(--ink);
-    border: 1px solid var(--rule-2);
-    cursor: pointer;
-    /* 브루탈리즘: 전환 없이 딱딱 끊어지게 */
-    transition: none;
-    min-height: 40px;
+    font-size: var(--fs-tab);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    padding: 6px 0 4px;
+    min-height: 32px;
+    color: var(--grey);
+    border-bottom: 1px solid transparent;
+    transition: color .2s var(--ease), border-color .2s var(--ease);
 }
 
-.opts button:hover:not(:disabled):not(.on) {
-    background: var(--bg-2);
-    border-color: var(--ink);
+.opts button:hover:not(:disabled) {
+    color: var(--black);
 }
 
 .opts button.on {
-    background: var(--ink);
-    color: var(--paper);
-    border-color: var(--ink);
-    font-weight: 700;
+    color: var(--black);
+    border-bottom-color: var(--black);
 }
 
 .opts button:disabled {
-    opacity: 0.32;
+    color: var(--line);
     text-decoration: line-through;
     cursor: not-allowed;
 }
 
-.opts button:focus-visible {
-    outline: 2px solid var(--ink);
-    outline-offset: 2px;
-}
-
 .grp {
     width: 100%;
-    font-size: 0.66rem;
-    font-weight: 500;
-    letter-spacing: 0.08em;
+    font-size: var(--fs-ui);
     text-transform: uppercase;
-    color: var(--ink-2);
-    margin-top: 0.75rem;
-    margin-bottom: 0.05rem;
+    color: var(--grey);
+    margin-top: 14px;
 }
 
 .grp:first-child {
     margin-top: 0;
 }
 
-/* 체크박스형 옵션 — 선택 시 좌측에 잉크 마크 */
+/* 체크형 옵션 — 앞에 작은 네모, 선택 시 검정으로 채운다 */
 .opts-check button {
     position: relative;
-    padding-left: 1.9rem;
+    padding-left: 18px;
+    border-bottom: none;
 }
 
 .opts-check button b {
-    font-weight: 700;
-    margin-left: 0.35rem;
+    font-weight: 400;
+    color: var(--grey);
+    margin-left: 6px;
 }
 
 .opts-check button::before {
     content: '';
     position: absolute;
-    left: 0.7rem;
+    left: 0;
     top: 50%;
     transform: translateY(-50%);
-    width: 10px;
-    height: 10px;
-    border: 1px solid var(--rule-2);
+    width: 9px;
+    height: 9px;
+    border: 1px solid currentColor;
 }
 
 .opts-check button.on::before {
-    background: var(--paper);
-    border-color: var(--paper);
+    background: var(--black);
+    border-color: var(--black);
 }
 
-/* ─── Slider ───────────────────────────────── */
+/* ─── Slider — 1px 검정 선 위의 검정 손잡이 ─────────── */
 .slider {
-    padding-top: 0.35rem;
+    padding-top: 10px;
 }
 
 .slider input[type=range] {
     -webkit-appearance: none;
     appearance: none;
     width: 100%;
-    height: 18px;
-    /* 눈금자 */
-    background: repeating-linear-gradient(90deg, var(--rule-2) 0 1px, transparent 1px 8px);
+    height: 22px;
+    background: linear-gradient(var(--black), var(--black)) center / 100% 1px no-repeat;
     outline: none;
     cursor: pointer;
 }
@@ -298,94 +300,83 @@ body {
 .slider input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 14px;
-    height: 30px;
-    background: var(--ink);
-    cursor: pointer;
+    width: 12px;
+    height: 22px;
+    background: var(--black);
     border: none;
     border-radius: 0;
+    cursor: pointer;
 }
 
 .slider input[type=range]::-moz-range-thumb {
-    width: 14px;
-    height: 30px;
-    background: var(--ink);
+    width: 12px;
+    height: 22px;
+    background: var(--black);
     border: none;
     border-radius: 0;
     cursor: pointer;
-}
-
-.slider input[type=range]:focus-visible {
-    outline: 2px solid var(--ink);
-    outline-offset: 3px;
 }
 
 .scale {
     display: flex;
     justify-content: space-between;
-    margin-top: 0.5rem;
-    font-size: 0.64rem;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    color: var(--ink-3);
+    margin-top: 8px;
+    font-size: var(--fs-ui);
+    text-transform: uppercase;
+    color: var(--grey);
 }
 
 .note {
-    margin-top: 0.85rem;
-    font-size: 0.68rem;
-    font-family: var(--font-body);
-    color: var(--ink-2);
-    letter-spacing: 0;
+    margin-top: 14px;
+    font-size: var(--fs-ui);
+    line-height: 1.5;
+    color: var(--grey);
+    word-break: keep-all;
 }
 
 /* ═══════════════════════════════════════════
-   요금표 — 이미지 요금표와 같은 구성을 표로 다시 그린다
+   요금표
    ═══════════════════════════════════════════ */
-.sheet {
-    padding: 0.5rem 1.25rem 2rem;
-}
-
 .sh-head {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 0.3rem 1rem;
-    margin-top: 1.7rem;
-    padding-bottom: 0.7rem;
-    border-bottom: 2px solid var(--ink);
+    gap: 8px 24px;
+    margin-top: 8px;
+    padding-bottom: 20px;
 }
 
+/* 파트 제목(.part__title)과 같은 52px */
 .sh-title {
-    font-size: 1.25rem;
-    font-weight: 800;
-    letter-spacing: -0.01em;
-    line-height: 1.1;
+    font-size: var(--fs-title-m);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: .9;
+    text-transform: uppercase;
 }
 
 .sh-ver {
-    font-size: 0.62rem;
-    font-weight: 500;
-    letter-spacing: 0.08em;
+    font-size: var(--fs-ui);
+    letter-spacing: .04em;
     text-transform: uppercase;
-    color: var(--ink-2);
+    color: var(--grey);
 }
 
 /* 강조 범례 */
 .sh-key {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
-    margin: 0.7rem 0 0.2rem;
-    font-size: 0.66rem;
-    font-family: var(--font-body);
-    color: var(--ink-2);
+    gap: 8px;
+    margin-bottom: 32px;
+    font-size: var(--fs-ui);
+    color: var(--grey);
 }
 
 .sh-key i {
-    width: 10px;
-    height: 10px;
-    background: var(--ink);
+    width: 9px;
+    height: 9px;
+    background: var(--black);
     flex-shrink: 0;
 }
 
@@ -395,60 +386,57 @@ body {
 }
 
 .sh-mob .sh-wrap+.sh-wrap {
-    margin-top: 0.8rem;
+    margin-top: 12px;
 }
 
 .sh-wrap {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    border-top: 1px solid var(--ink);
-    border-bottom: 1px solid var(--ink);
+    border-top: 1px solid var(--black);
+    border-bottom: 1px solid var(--black);
 }
 
-/* 표 — 원본처럼 가로 줄은 위·아래·머리 아래 세 줄뿐. 세로 줄은 파트 열 뒤와 그룹 사이. */
+/* 표 — 가로 줄은 위·아래·머리 아래 세 줄. 세로 줄은 파트 열 뒤와 그룹 사이(연회색). */
 .sh-t {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.8rem;
+    font-size: var(--fs-tab);
     line-height: 1.3;
 }
 
 .sh-t th,
 .sh-t td {
-    padding: 0.5rem 0.25rem;
+    padding: 8px 4px;
     text-align: center;
     white-space: nowrap;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .sh-t tbody tr:first-child th,
 .sh-t tbody tr:first-child td {
-    padding-top: 0.8rem;
+    padding-top: 14px;
 }
 
 .sh-t tbody tr:last-child th,
 .sh-t tbody tr:last-child td {
-    padding-bottom: 0.8rem;
+    padding-bottom: 14px;
 }
 
-/* 그룹 머리 (사진 | 영상) — 행 머리와 같은 작은 대문자 어법 */
+/* 그룹 머리 (사진 | 영상) */
 .sh-t thead th.sh-g {
-    padding: 0.55rem 0.5rem 0.1rem;
-    font-size: 0.62rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
+    padding: 10px 8px 2px;
+    font-size: var(--fs-ui);
     text-transform: uppercase;
     text-align: left;
-    color: var(--ink-2);
+    color: var(--black);
 }
 
 /* 인원 구간 머리 */
 .sh-t thead tr:last-child th {
-    padding-bottom: 0.55rem;
-    font-size: 0.66rem;
-    font-weight: 500;
-    color: var(--ink-3);
-    border-bottom: 1px solid var(--ink);
+    padding-bottom: 10px;
+    font-size: var(--fs-ui);
+    color: var(--grey);
+    border-bottom: 1px solid var(--black);
 }
 
 /* 왼쪽 파트 열 — 표를 가로로 밀어도 남아 있게 */
@@ -456,47 +444,48 @@ body {
     position: sticky;
     left: 0;
     z-index: 1;
-    background: var(--bg);
+    background: var(--white);
     text-align: left;
-    padding-left: 0.15rem;
-    padding-right: 0.6rem;
+    padding-left: 0;
+    padding-right: 12px;
     font-weight: 700;
-    font-size: 0.78rem;
-    color: var(--ink);
-    border-right: 1px solid var(--rule-2);
+    letter-spacing: -0.01em;
+    color: var(--black);
+    border-right: 1px solid var(--line);
 }
 
 /* 두 그룹이 한 표에 있을 때 — 사이에 세로 실선 */
 .sh-t th.sh-g+th.sh-g,
 .sh-t .sh-sep {
-    border-left: 1px solid var(--rule-2);
+    border-left: 1px solid var(--line);
 }
 
 .sh-t td[data-row] {
     cursor: pointer;
+    transition: background .2s var(--ease);
 }
 
 .sh-t td[data-row]:hover {
-    background: var(--bg-2);
+    background: #f2f2f2;
 }
 
 .sh-t td.dead {
-    color: var(--ink-3);
+    color: var(--grey);
 }
 
 .sh-na {
-    color: var(--rule-2);
+    color: var(--line);
 }
 
-/* 현재 선택 — 잉크로 찍은 칸. 행·열 머리는 잉크색·굵기로만 */
+/* 현재 선택 — 검정 칸. 행·열 머리는 검정 글자로만 */
 .sh-t td.hit {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--black);
+    color: var(--white);
     font-weight: 700;
 }
 
 .sh-t th.hit {
-    color: var(--ink);
+    color: var(--black);
     font-weight: 700;
 }
 
@@ -506,26 +495,21 @@ body {
 }
 
 .sh-t-event td {
-    font-weight: 600;
+    font-weight: 700;
 }
 
 /* 주석 묶음 — 항목은 한 줄에 이어지되, 줄바꿈은 항목 단위로만 */
 .sh-notes {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.15rem 1.2rem;
+    gap: 2px 20px;
 }
 
-.sh .row:last-child {
-    border-bottom: none;
-}
-
-/* 원본 요금표 이미지 — 흰 종이 한 장처럼 */
+/* 원본 요금표 이미지 — 도면 이미지와 같은 연회색 테두리 */
 .sh-img {
     display: block;
-    background: #fff;
-    border: 1px solid var(--rule);
-    box-shadow: 0 10px 30px rgba(20, 18, 15, 0.12);
+    background: var(--white);
+    border: 1px solid var(--line);
 }
 
 .sh-img img {
@@ -535,70 +519,64 @@ body {
 }
 
 /* ═══════════════════════════════════════════
-   견적서 — 모바일: 하단에서 뽑아 올리는 종이
+   견적서 — 모바일: 하단에서 뽑아 올리는 시트
    ═══════════════════════════════════════════ */
 .dock {
     position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 60;
+    z-index: 160;
     display: flex;
     flex-direction: column;
     max-height: 88vh;
     transform: translateY(calc(100% - var(--peek-h) - env(safe-area-inset-bottom, 0px)));
-    transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform .5s var(--ease);
 }
 
 .dock.open {
     transform: translateY(0);
 }
 
-/* 손잡이 */
+/* 손잡이 — 홈페이지의 검정 메뉴 바탕과 같은 반전 */
 .peek {
     display: flex;
-    align-items: center;
-    gap: 0.7rem;
+    align-items: baseline;
+    gap: 16px;
     width: 100%;
     height: var(--peek-h);
     flex-shrink: 0;
-    padding: 0 1.25rem;
-    background: var(--ink);
-    color: var(--paper);
-    border: none;
-    font-family: var(--font-ui);
+    padding: 0 var(--gutter);
+    background: var(--black);
+    color: var(--white);
     font-variant-numeric: tabular-nums;
-    cursor: pointer;
     text-align: left;
+    align-items: center;
 }
 
 .peek-k {
-    font-size: 0.66rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
+    font-size: var(--fs-ui);
     text-transform: uppercase;
-    opacity: 0.82;
+    color: var(--grey);
 }
 
 .peek-v {
-    font-size: 1.3rem;
+    font-size: var(--fs-nav);
     font-weight: 700;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
     margin-left: auto;
 }
 
 .peek-cue {
-    font-size: 0.66rem;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    opacity: 0.82;
-    border: 1px solid rgba(251, 250, 247, 0.45);
-    padding: 0.22rem 0.5rem;
+    font-size: var(--fs-ui);
+    text-transform: uppercase;
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 2px;
     white-space: nowrap;
 }
 
 .peek.err .peek-v {
-    font-size: 1rem;
+    font-size: var(--fs-tab);
 }
 
 /* 종이 */
@@ -607,57 +585,51 @@ body {
     min-height: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    background: var(--paper);
-    padding: 0 1.25rem calc(2rem + env(safe-area-inset-bottom, 0px));
+    background: var(--white);
+    padding: 0 var(--gutter) calc(32px + env(safe-area-inset-bottom, 0px));
 }
 
 .paper-in {
-    max-width: 420px;
-    margin: 0 auto;
-    padding-top: 1.6rem;
-    font-size: 0.82rem;
-    line-height: 1.9;
+    padding-top: 24px;
 }
 
 .rc-title {
-    text-align: center;
+    font-size: var(--fs-nav);
     font-weight: 700;
-    font-size: 0.8rem;
-    letter-spacing: 0.22em;
-    padding-bottom: 0.8rem;
-    border-bottom: 2px solid var(--ink);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    text-transform: uppercase;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--black);
 }
 
 .rc-meta {
-    text-align: center;
-    font-size: 0.64rem;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    color: var(--ink-2);
-    margin: 0.7rem 0 1.1rem;
+    font-size: var(--fs-ui);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--grey);
+    margin: 12px 0 24px;
 }
 
 .li {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    gap: 0.9rem;
+    gap: 16px;
+    line-height: 2;
 }
 
 .li span:first-child {
-    color: var(--ink-2);
-    font-family: var(--font-body);
-    font-size: 0.78rem;
+    color: var(--grey);
     white-space: nowrap;
 }
 
 .li span:last-child {
-    font-weight: 600;
+    font-weight: 700;
     text-align: right;
-    font-family: var(--font-body);
 }
 
-/* 금액 줄 — 점선 리더로 좌우를 잇는다 */
+/* 금액 줄 — 점 리더로 좌우를 잇는다 */
 .li-charge span:first-child {
     flex: 1;
     min-width: 0;
@@ -667,50 +639,49 @@ body {
 
 .li-charge span:first-child::after {
     content: ' ' attr(data-dots);
-    color: var(--rule);
-    letter-spacing: 0.1em;
+    color: var(--line);
+    letter-spacing: .1em;
 }
 
 .rc-rule {
-    border-top: 1px dashed var(--rule-2);
-    margin: 0.9rem 0;
+    border-top: 1px solid var(--black);
+    margin: 16px 0;
 }
 
+/* TOTAL — 파트 제목과 같은 52px */
 .rc-total {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    gap: 1rem;
-    border-top: 2px solid var(--ink);
-    border-bottom: 2px solid var(--ink);
-    padding: 0.75rem 0;
-    margin-top: 0.75rem;
+    gap: 16px;
+    border-top: 1px solid var(--black);
+    border-bottom: 1px solid var(--black);
+    padding: 18px 0;
+    margin-top: 16px;
 }
 
 .rc-total-k {
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.16em;
+    font-size: var(--fs-ui);
+    text-transform: uppercase;
+    color: var(--grey);
 }
 
 .rc-total-v {
-    font-size: 1.9rem;
+    font-size: var(--fs-title-m);
     font-weight: 700;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.02em;
+    line-height: .9;
     white-space: nowrap;
 }
 
 /* 산출 불가일 때만 사유를 보여준다. 평소에는 비어 있고 숨긴다. */
 .rc-stamp {
-    margin: 1.3rem 0 0;
-    border: 1px solid var(--ink);
-    color: var(--ink);
-    font-size: 0.72rem;
-    font-weight: 600;
-    text-align: center;
-    padding: 0.6rem 0.8rem;
-    line-height: 1.6;
-    font-family: var(--font-body);
+    margin: 20px 0 0;
+    border: 1px solid var(--black);
+    font-size: var(--fs-ui);
+    line-height: 1.5;
+    padding: 10px 12px;
+    word-break: keep-all;
 }
 
 .rc-stamp:empty {
@@ -718,27 +689,53 @@ body {
 }
 
 .rc-foot {
-    margin-top: 1.4rem;
-    font-size: 0.64rem;
-    font-family: var(--font-body);
-    color: var(--ink-3);
-    text-align: center;
-    line-height: 1.8;
+    margin-top: 20px;
+    font-size: var(--fs-ui);
+    line-height: 1.6;
+    color: var(--grey);
+    word-break: keep-all;
 }
 
 .dock-scrim {
     position: fixed;
     inset: 0;
-    z-index: 50;
-    background: rgba(20, 18, 15, 0.4);
+    z-index: 150;
+    background: rgba(0, 0, 0, .4);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s;
+    transition: opacity .3s var(--ease);
 }
 
 .dock-scrim.on {
     opacity: 1;
     pointer-events: auto;
+}
+
+/* ═══════════════════════════════════════════
+   좁은 화면
+   ═══════════════════════════════════════════ */
+@media (max-width: 767px) {
+    :root {
+        --gutter: var(--gutter-m);
+        --header-h: 56px;
+    }
+
+    .mh-logo img {
+        height: 11px;
+    }
+
+    /* 첫 행의 선이 헤더 선에 붙지 않게 숨을 둔다 */
+    .workbench {
+        padding-top: 28px;
+    }
+
+    .mh-nav {
+        gap: 16px;
+    }
+
+    .mh-lang {
+        margin-right: 4px;
+    }
 }
 
 /* ═══════════════════════════════════════════
@@ -749,25 +746,21 @@ body {
         padding-bottom: 0;
     }
 
-    .mh-in {
-        padding: 1.25rem 2rem;
-    }
-
-    .mh-logo img {
-        height: 22px;
-    }
-
     .workbench {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 384px;
-        gap: 2.5rem;
+        grid-template-columns: minmax(0, 1.4fr) minmax(320px, 1fr);
+        gap: 64px;
         align-items: start;
-        padding: 0 2rem 4rem;
+        padding: 48px var(--gutter) 120px;
     }
 
     .controls,
     .sheet {
-        padding: 0.5rem 0 0;
+        padding-bottom: 0;
+    }
+
+    .sh-title {
+        font-size: var(--fs-title);
     }
 
     .sh-desk {
@@ -778,29 +771,30 @@ body {
         display: none;
     }
 
-    .sh-title {
-        font-size: 1.5rem;
-    }
-
-    /* 손잡이·시트 동작을 전부 해제하고 평범한 종이로 되돌린다 */
+    /* 손잡이·시트 동작을 전부 해제하고 정보 블록으로 되돌린다 */
     .dock {
         position: sticky;
-        top: 2rem;
+        top: calc(var(--header-h) + 48px);
         transform: none !important;
         max-height: none;
         z-index: 1;
-        margin-top: 2rem;
     }
 
     .peek {
         display: none;
     }
 
-    /* 평평한 종이 한 장 — 그림자·절취선 없이 가는 테두리만 */
     .paper {
         overflow: visible;
-        padding: 0 1.6rem 1.8rem;
-        border: 1px solid var(--rule);
+        padding: 0;
+    }
+
+    .paper-in {
+        padding-top: 0;
+    }
+
+    .rc-total-v {
+        font-size: var(--fs-title);
     }
 
     .dock-scrim {
@@ -808,13 +802,12 @@ body {
     }
 }
 
-/* 넓은 화면에서는 조작 패널을 2열 격자로. 같은 줄의 행은 높이가 맞아 점선이 나란히 떨어진다.
-   지점 행은 버튼이 많으니 두 칸을 다 쓴다. */
+/* 넓은 화면에서는 조작 패널을 2열 격자로. 지점 행은 두 칸을 다 쓴다. */
 @media (min-width: 1180px) {
     .controls {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        column-gap: 2.5rem;
+        column-gap: 48px;
         align-items: stretch;
     }
 
@@ -825,8 +818,9 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
 
-    .dock,
-    .dock-scrim {
-        transition-duration: 0.01ms;
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
     }
 }
