@@ -32,6 +32,7 @@
                 <button class="mh-lang" id="lang-btn" data-lang-toggle>English</button>
                 <button data-view="calc" class="on" aria-pressed="true" data-i18n="nav_calc">견적 산출</button>
                 <button data-view="sheet" aria-pressed="false" data-i18n="nav_sheet">요금표</button>
+                <button data-view="info" aria-pressed="false" data-i18n="nav_info">안내</button>
             </nav>
         </div>
     </header>
@@ -120,6 +121,16 @@
             <div class="sh" id="sheet-body"></div>
         </section>
 
+        <!-- ── 안내 ─────────────────────────────────── -->
+        <!-- 지점별 주소 · 오시는 길 · 주차 · 발전차 · 전력. 내용은 info.js -->
+        <section class="sheet info" id="info-view" hidden>
+            <div class="row">
+                <div class="row-h"><span class="row-n">01</span>Studio<em id="v-studio-info">한남</em></div>
+                <div class="opts" id="opts-studio-info"></div>
+            </div>
+            <div id="info-body"></div>
+        </section>
+
         <!-- ── 견적서 ───────────────────────────────── -->
         <aside class="dock" id="dock">
             <button class="peek" id="peek" aria-expanded="false" aria-controls="paper">
@@ -146,6 +157,7 @@
     <div class="dock-scrim" id="dock-scrim"></div>
 
     <script src="engine.js"></script>
+    <script src="info.js"></script>
     <script src="app.js"></script>
 </body>
 

@@ -519,6 +519,115 @@ input:focus-visible {
 }
 
 /* ═══════════════════════════════════════════
+   안내 — 홈페이지 스튜디오 페이지의 설명 | 안내 블록 구조.
+   데스크톱: 왼쪽에 제목·링크가 고정되고 오른쪽에 구역이 쌓인다.
+   글자는 14px 하나로 정돈하고, 주소·전력 총량만 볼드, 주석은 12px 회색.
+   ═══════════════════════════════════════════ */
+.info .sh-head {
+    margin-top: 32px;
+    padding-bottom: 28px;
+}
+
+.info-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
+    font-size: var(--fs-ui);
+    font-weight: 700;
+}
+
+.info-links a:hover {
+    color: var(--grey);
+}
+
+.info-row {
+    padding: 12px 0 28px;
+}
+
+.info-b {
+    font-size: var(--fs-tab);
+    line-height: 1.6;
+    word-break: keep-all;
+}
+
+.info-b p+p {
+    margin-top: 2px;
+}
+
+.info-note {
+    font-size: var(--fs-ui);
+    line-height: 1.6;
+    color: var(--grey);
+}
+
+.info-b p+.info-note {
+    margin-top: 8px;
+}
+
+.info-note+.info-note {
+    margin-top: 2px !important;
+}
+
+.info-note-gap {
+    margin-top: 24px !important;
+}
+
+/* 주소 · 전력 총량 — 구역의 핵심 값 */
+.info-addr,
+.info-lead {
+    font-weight: 700;
+}
+
+.info-addr-sub {
+    color: var(--grey);
+}
+
+/* 복사 버튼 — 조용한 회색 텍스트, 호버 시 밑줄 */
+.copy {
+    margin-left: 10px;
+    font-size: var(--fs-ui);
+    font-weight: 400;
+    text-transform: uppercase;
+    color: var(--grey);
+    vertical-align: baseline;
+    white-space: nowrap;
+    transition: color .2s var(--ease);
+}
+
+.copy:hover,
+.copy.done {
+    color: var(--black);
+}
+
+.copy:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* 유료 주차장 */
+.info-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px 32px;
+}
+
+.pl-name b {
+    font-weight: 700;
+}
+
+.pl-name span {
+    margin-left: 8px;
+    font-size: var(--fs-ui);
+    color: var(--grey);
+}
+
+.info-list .pl-addr,
+.info-list .info-note {
+    margin-top: 0 !important;
+}
+
+/* ═══════════════════════════════════════════
    견적서 — 모바일: 하단에서 뽑아 올리는 시트
    ═══════════════════════════════════════════ */
 .dock {
@@ -769,6 +878,50 @@ input:focus-visible {
 
     .sh-mob {
         display: none;
+    }
+
+    /* 안내: 견적서 없이, 제목(왼쪽 고정) | 구역(오른쪽) 두 단 */
+    .workbench.is-info {
+        grid-template-columns: 1fr;
+    }
+
+    #info-body {
+        display: grid;
+        grid-template-columns: 1fr 1.4fr;
+        column-gap: 64px;
+        align-items: start;
+        margin-top: 40px;
+    }
+
+    .info .sh-head {
+        grid-column: 1;
+        grid-row: 1 / span 12;
+        position: sticky;
+        top: calc(var(--header-h) + 40px);
+        margin-top: 0;
+        padding-bottom: 0;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .info-links {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .info-row {
+        grid-column: 2;
+        padding: 12px 0 32px;
+    }
+
+    .info-row .row-h {
+        margin-bottom: 12px;
+    }
+
+    .info-list {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px 32px;
     }
 
     /* 손잡이·시트 동작을 전부 해제하고 정보 블록으로 되돌린다 */

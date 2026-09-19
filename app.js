@@ -9,7 +9,11 @@ const I18N = {
     ko: {
         title: 'LAYER STUDIOS — 견적 산출기',
         lang_btn: 'English',
-        nav_calc: '견적 산출', nav_sheet: '요금표',
+        nav_calc: '견적 산출', nav_sheet: '요금표', nav_info: '안내',
+        info_title: 'INFORMATION', info_pdf: '기본 안내 (PDF)', info_fee: '요금표 보기',
+        info_h: { address: '주소', access: '찾아오시는 길', parking: '주차 가능 대수', paid: '유료 주차장', generator: '발전차', power: '전력' },
+        info_power: (t, u, approx) => `총 전력 ${t}kW` + (u ? ` / 가용 전력 ${approx ? '약 ' : ''}${u}kW` : ''),
+        info_paid_note: '', copy: '복사', copied: '복사됨',
         note_part: '가구 촬영 혹은 차량 내부 진입 시 별도 금액 협의',
         type_photo: '사진', type_video: '영상',
         note_extra: '연장료 = 풀데이 기본요금의 10% / 시간',
@@ -51,7 +55,11 @@ const I18N = {
     en: {
         title: 'LAYER STUDIOS — Rental Quote',
         lang_btn: '한국어',
-        nav_calc: 'Quote', nav_sheet: 'Rates',
+        nav_calc: 'Quote', nav_sheet: 'Rates', nav_info: 'Info',
+        info_title: 'INFORMATION', info_pdf: 'Main Information (PDF)', info_fee: 'View rates',
+        info_h: { address: 'Address', access: 'Getting here', parking: 'Parking', paid: 'Paid parking nearby', generator: 'Generator truck', power: 'Power' },
+        info_power: (t, u, approx) => `Total ${t}kW` + (u ? ` / usable ${approx ? 'approx. ' : ''}${u}kW` : ''),
+        info_paid_note: '*Names and addresses are kept in Korean so you can paste them into a map app.', copy: 'Copy', copied: 'Copied',
         note_part: 'Furniture shoots or vehicle access are priced separately',
         type_photo: 'Photo', type_video: 'Video',
         note_extra: 'Overtime = 10% of the full-day base rate per hour',
@@ -189,6 +197,11 @@ const els = {
     sheetBody: document.getElementById('sheet-body'),
     vStudioSheet: document.getElementById('v-studio-sheet'),
     optsStudioSheet: document.getElementById('opts-studio-sheet'),
+    info: document.getElementById('info-view'),
+    infoBody: document.getElementById('info-body'),
+    vStudioInfo: document.getElementById('v-studio-info'),
+    optsStudioInfo: document.getElementById('opts-studio-info'),
+    workbench: document.querySelector('.workbench'),
 };
 
 // ─── 상태 판별 헬퍼 ──────────────────────────────────────
@@ -384,6 +397,7 @@ function render() {
     syncPartStates();
     paint();
     if (state.view === 'sheet') renderSheet();
+    if (state.view === 'info') renderInfo();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -546,8 +560,50 @@ function applySheetCell(td) {
     render();
 }
 
+// ═══════════════════════════════════════════════════════
+// 안내 — info.js 의 지점별 안내문을 구역으로 그린다
+// ═══════════════════════════════════════════════════════
+function renderInfo() {
+    const info = LAYER_INFO[state.studio];
+    const L = state.lang, H = t('info_h');
+    const name = LAYER_MASTER_ENGINE.studios[state.studio].sheet.title.replace(' RENTAL FEE', '');
+    els.vStudioInfo.textContent = studioName(state.studio);
+
+    // '*' 나 '(' 로 시작하는 줄은 주석 — 작고 회색으로. 나머지는 본문.
+    const lines = arr => arr.map(l => `<p${/^[*(]/.test(l) ? ' class="info-note"' : ''}>${esc(l)}</p>`).join('');
+    const copyBtn = text => `<button class="copy" data-copy="${esc(text)}">${t('copy')}</button>`;
+    const block = (n, key, body) =>
+        `<div class="row info-row" data-k="${key}"><div class="row-h"><span class="row-n">${pad(n)}</span>${H[key]}</div><div class="info-b">${body}</div></div>`;
+
+    // 주소: 현재 언어의 표기를 크게, 다른 표기를 작게. 둘 다 복사할 수 있다.
+    const [addrKo, addrEn] = info.address;
+    const addrs = L === 'en' ? [addrEn, addrKo] : [addrKo, addrEn];
+    const address = addrs.map((a, i) =>
+        `<p class="${i ? 'info-addr-sub' : 'info-addr'}"><span>${esc(a)}</span>${copyBtn(a)}</p>`).join('');
+
+    const paid = info.paid.map(p => `<li>
+        <p class="pl-name"><b>${esc(p.name)}</b>${p.dist ? `<span>${p.dist}</span>` : ''}</p>
+        <p class="pl-addr"><span>${esc(p.addr)}</span>${copyBtn(p.addr)}</p>
+        ${p.note ? `<p class="info-note">${esc(p.note[L])}</p>` : ''}</li>`).join('');
+    const paidNote = t('info_paid_note') ? `<p class="info-note info-note-gap">${t('info_paid_note')}</p>` : '';
+
+    let n = 2, out = '';
+    out += block(n++, 'address', address);
+    out += block(n++, 'access', lines(info.access[L]));
+    out += block(n++, 'parking', lines(info.parking[L]));
+    out += block(n++, 'paid', `<ul class="info-list">${paid}</ul>${paidNote}`);
+    out += block(n++, 'generator', lines(info.generator[L]));
+    if (info.power) out += block(n++, 'power',
+        `<p class="info-lead">${t('info_power')(info.power.total, info.power.usable, info.power.approx)}</p>` + lines(info.power.lines));
+
+    const pdf = info.pdf ? `<a href="${info.pdf}" target="_blank" rel="noopener">${t('info_pdf')} ↗</a>` : '';
+    els.infoBody.innerHTML = `<div class="sh-head"><h2 class="sh-title">${esc(name)} ${t('info_title')}</h2>
+        <span class="info-links">${pdf}<a href="/${STUDIO_SLUGS[state.studio]}" data-goto="sheet">${t('info_fee')} →</a></span></div>${out}`;
+}
+
 // ─── 주소 ───────────────────────────────────────────────
 // 요금표는 지점마다 고유 주소를 가진다: /hannam, /layer7 … (홈페이지에서 링크용)
+// 안내는 그 아래 /info: /hannam/info, /layer7/info …
 // 계산기 화면은 루트(/)다. ?lang= 은 그대로 따라간다.
 const STUDIO_SLUGS = {
     HANNAM: 'hannam', LAYER7: 'layer7', LAYER20: 'layer20', LAYER11: 'layer11',
@@ -556,15 +612,21 @@ const STUDIO_SLUGS = {
 const studioFromSlug = slug => Object.keys(STUDIO_SLUGS).find(k => STUDIO_SLUGS[k] === slug) || null;
 
 function syncUrl() {
-    const path = state.view === 'sheet' ? '/' + STUDIO_SLUGS[state.studio] : '/';
+    const slug = '/' + STUDIO_SLUGS[state.studio];
+    const path = state.view === 'sheet' ? slug : state.view === 'info' ? slug + '/info' : '/';
     history.replaceState(null, '', path + location.search);
 }
 
 function setView(view) {
     state.view = view;
-    const sheet = view === 'sheet';
-    els.controls.hidden = sheet;
+    const sheet = view === 'sheet', info = view === 'info';
+    els.controls.hidden = view !== 'calc';
     els.sheet.hidden = !sheet;
+    els.info.hidden = !info;
+    // 안내 화면에는 견적서가 필요 없다 — 숨기고 본문이 폭을 다 쓴다
+    els.workbench.classList.toggle('is-info', info);
+    els.dock.hidden = info;
+    if (info) toggleDock(false);
     document.querySelectorAll('.mh-nav button[data-view]').forEach(b => {
         const on = b.dataset.view === view;
         b.classList.toggle('on', on);
@@ -581,6 +643,12 @@ document.addEventListener('click', e => {
     // 견적서 열고 닫기 (모바일)
     if (e.target.closest('#peek')) { toggleDock(); return; }
     if (e.target.id === 'dock-scrim') { toggleDock(false); return; }
+
+    const cp = e.target.closest('button.copy');
+    if (cp) { copyText(cp.dataset.copy, cp); return; }
+
+    const go = e.target.closest('a[data-goto]');
+    if (go) { e.preventDefault(); setView(go.dataset.goto); return; }
 
     if (e.target.closest('[data-lang-toggle]')) { setLang(state.lang === 'ko' ? 'en' : 'ko'); return; }
 
@@ -607,7 +675,7 @@ document.addEventListener('click', e => {
         state.studio = v;
         if (!partsOf(v).includes(state.part)) state.part = partsOf(v)[0];
         renderParts();
-        if (state.view === 'sheet') syncUrl();
+        if (state.view !== 'calc') syncUrl();
     } else {
         state[set] = v;
     }
@@ -643,6 +711,26 @@ function setLang(lang) {
     render();
 }
 
+// 주소 복사. 클립보드 API 가 막힌 환경(구형 브라우저, http)은 textarea 로 대신한다.
+function copyText(text, btn) {
+    const done = () => {
+        btn.textContent = t('copied');
+        btn.classList.add('done');
+        clearTimeout(btn._t);
+        btn._t = setTimeout(() => { btn.textContent = t('copy'); btn.classList.remove('done'); }, 1600);
+    };
+    const fallback = () => {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.setAttribute('readonly', '');
+        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); done(); } catch (e) { /* 복사 불가 */ }
+        ta.remove();
+    };
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, fallback);
+    else fallback();
+}
+
 function toggleDock(force) {
     const open = force === undefined ? !els.dock.classList.contains('open') : force;
     els.dock.classList.toggle('open', open);
@@ -652,7 +740,7 @@ function toggleDock(force) {
 
 // ─── 초기화 ─────────────────────────────────────────────
 // 요금표 화면의 지점 버튼. data-set="studio" 라 계산기 버튼과 같은 핸들러·동기화를 탄다.
-els.optsStudioSheet.innerHTML = Object.keys(I18N.ko.studio)
+els.optsStudioSheet.innerHTML = els.optsStudioInfo.innerHTML = Object.keys(I18N.ko.studio)
     .map(k => `<button data-set="studio" data-v="${k}"></button>`).join('');
 
 // 언어: 주소의 ?lang=en > 저장된 선택 > 한국어
@@ -664,12 +752,14 @@ applyLang();
 
 renderParts();
 render();
-const slugStudio = studioFromSlug(location.pathname.replace(/^\/|\/$/g, '').toLowerCase());
+const [seg0, seg1] = location.pathname.replace(/^\/|\/$/g, '').toLowerCase().split('/');
+const slugStudio = studioFromSlug(seg0);
 if (slugStudio) {
     state.studio = slugStudio;
     state.part = partsOf(slugStudio)[0];
     renderParts();
-    setView('sheet');
+    setView(seg1 === 'info' ? 'info' : 'sheet');
 } else if (location.hash === '#sheet') {
     setView('sheet');
 }
+

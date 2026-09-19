@@ -1,6 +1,7 @@
 {
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/:studio(hannam|layer7|layer20|layer11|layer27|layer26|layer41|hongdae)", "destination": "/index.html" }
+    { "source": "/:studio(hannam|layer7|layer20|layer11|layer27|layer26|layer41|hongdae)", "destination": "/index.html" },
+    { "source": "/:studio(hannam|layer7|layer20|layer11|layer27|layer26|layer41|hongdae)/info", "destination": "/index.html" }
   ]
 }
