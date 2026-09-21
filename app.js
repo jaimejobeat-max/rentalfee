@@ -10,7 +10,8 @@ const I18N = {
         title: 'LAYER STUDIOS — 견적 산출기',
         lang_btn: 'English',
         nav_calc: '견적 산출', nav_sheet: '요금표', nav_info: '안내',
-        info_title: 'INFORMATION', info_pdf: '기본 안내 (PDF)', info_fee: '요금표 보기',
+        info_title: 'Information', info_pdf: '기본 안내 (PDF)', info_fee: '요금표 보기',
+        info_g1: n => `${n} 기본 안내사항`, info_g2: '전력 · 발전차 안내',
         info_h: { address: '주소', access: '찾아오시는 길', parking: '주차 가능 대수', paid: '유료 주차장', generator: '발전차', power: '전력' },
         info_power: (t, u, approx) => `총 전력 ${t}kW` + (u ? ` / 가용 전력 ${approx ? '약 ' : ''}${u}kW` : ''),
         info_paid_note: '', copy: '복사', copied: '복사됨',
@@ -56,7 +57,8 @@ const I18N = {
         title: 'LAYER STUDIOS — Rental Quote',
         lang_btn: '한국어',
         nav_calc: 'Quote', nav_sheet: 'Rates', nav_info: 'Info',
-        info_title: 'INFORMATION', info_pdf: 'Main Information (PDF)', info_fee: 'View rates',
+        info_title: 'Information', info_pdf: 'Main Information (PDF)', info_fee: 'View rates',
+        info_g1: n => `${n} — basic information`, info_g2: 'Power & generator truck',
         info_h: { address: 'Address', access: 'Getting here', parking: 'Parking', paid: 'Paid parking nearby', generator: 'Generator truck', power: 'Power' },
         info_power: (t, u, approx) => `Total ${t}kW` + (u ? ` / usable ${approx ? 'approx. ' : ''}${u}kW` : ''),
         info_paid_note: '*Names and addresses are kept in Korean so you can paste them into a map app.', copy: 'Copy', copied: 'Copied',
@@ -564,41 +566,36 @@ function applySheetCell(td) {
 // 안내 — info.js 의 지점별 안내문을 구역으로 그린다
 // ═══════════════════════════════════════════════════════
 function renderInfo() {
+    // 기존 홈페이지의 지점 안내(Guide) 시트를 따른다:
+    // 작은 제목 + 굵은 선, 묶음 제목, 그 아래 검정 라벨 · 회색 본문이 연회색 실선으로 나뉘는 한 단 목록.
     const info = LAYER_INFO[state.studio];
     const L = state.lang, H = t('info_h');
-    const name = LAYER_MASTER_ENGINE.studios[state.studio].sheet.title.replace(' RENTAL FEE', '');
     els.vStudioInfo.textContent = studioName(state.studio);
 
-    // '*' 나 '(' 로 시작하는 줄은 주석 — 작고 회색으로. 나머지는 본문.
-    const lines = arr => arr.map(l => `<p${/^[*(]/.test(l) ? ' class="info-note"' : ''}>${esc(l)}</p>`).join('');
     const copyBtn = text => `<button class="copy" data-copy="${esc(text)}">${t('copy')}</button>`;
-    const block = (n, key, body) =>
-        `<div class="row info-row" data-k="${key}"><div class="row-h"><span class="row-n">${pad(n)}</span>${H[key]}</div><div class="info-b">${body}</div></div>`;
+    const lines = arr => arr.map(l => `<p>${esc(l)}</p>`).join('');
+    const item = (key, body, inline) =>
+        `<div class="gd-item${inline ? ' gd-inline' : ''}" data-k="${key}"><h4>${H[key]}</h4><div class="gd-b">${body}</div></div>`;
 
-    // 주소: 현재 언어의 표기를 크게, 다른 표기를 작게. 둘 다 복사할 수 있다.
     const [addrKo, addrEn] = info.address;
-    const addrs = L === 'en' ? [addrEn, addrKo] : [addrKo, addrEn];
-    const address = addrs.map((a, i) =>
-        `<p class="${i ? 'info-addr-sub' : 'info-addr'}"><span>${esc(a)}</span>${copyBtn(a)}</p>`).join('');
+    const address = (L === 'en' ? [addrEn, addrKo] : [addrKo, addrEn])
+        .map(a => `<p><span>${esc(a)}</span>${copyBtn(a)}</p>`).join('');
 
-    const paid = info.paid.map(p => `<li>
-        <p class="pl-name"><b>${esc(p.name)}</b>${p.dist ? `<span>${p.dist}</span>` : ''}</p>
-        <p class="pl-addr"><span>${esc(p.addr)}</span>${copyBtn(p.addr)}</p>
-        ${p.note ? `<p class="info-note">${esc(p.note[L])}</p>` : ''}</li>`).join('');
-    const paidNote = t('info_paid_note') ? `<p class="info-note info-note-gap">${t('info_paid_note')}</p>` : '';
+    const paid = info.paid.map(p => {
+        const tail = [p.dist, p.note && p.note[L]].filter(Boolean).map(esc).join(' / ');
+        return `<p><span>${esc(p.name)} : ${esc(p.addr)}${tail ? ' / ' + tail : ''}</span>${copyBtn(p.addr)}</p>`;
+    }).join('') + (t('info_paid_note') ? `<p>${t('info_paid_note')}</p>` : '');
 
-    let n = 2, out = '';
-    out += block(n++, 'address', address);
-    out += block(n++, 'access', lines(info.access[L]));
-    out += block(n++, 'parking', lines(info.parking[L]));
-    out += block(n++, 'paid', `<ul class="info-list">${paid}</ul>${paidNote}`);
-    out += block(n++, 'generator', lines(info.generator[L]));
-    if (info.power) out += block(n++, 'power',
-        `<p class="info-lead">${t('info_power')(info.power.total, info.power.usable, info.power.approx)}</p>` + lines(info.power.lines));
+    const g1 = item('address', address, true) + item('access', lines(info.access[L]))
+        + item('parking', lines(info.parking[L])) + item('paid', paid);
+    const g2 = item('generator', lines(info.generator[L]))
+        + (info.power ? item('power', lines([t('info_power')(info.power.total, info.power.usable, info.power.approx), ...info.power.lines])) : '');
 
     const pdf = info.pdf ? `<a href="${info.pdf}" target="_blank" rel="noopener">${t('info_pdf')} ↗</a>` : '';
-    els.infoBody.innerHTML = `<div class="sh-head"><h2 class="sh-title">${esc(name)} ${t('info_title')}</h2>
-        <span class="info-links">${pdf}<a href="/${STUDIO_SLUGS[state.studio]}" data-goto="sheet">${t('info_fee')} →</a></span></div>${out}`;
+    els.infoBody.innerHTML = `<div class="gd-head"><h2>${t('info_title')}</h2>
+        <span class="info-links">${pdf}<a href="/${STUDIO_SLUGS[state.studio]}" data-goto="sheet">${t('info_fee')} →</a></span></div>
+        <h3 class="gd-group">${esc(t('info_g1')(studioName(state.studio)))}</h3><div class="gd-list">${g1}</div>
+        <h3 class="gd-group">${esc(t('info_g2'))}</h3><div class="gd-list">${g2}</div>`;
 }
 
 // ─── 주소 ───────────────────────────────────────────────
