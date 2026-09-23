@@ -200,8 +200,9 @@ const LAYER_INFO = (() => {
                 en: ['1 car per team in the studio garage. Please use a nearby car park for additional cars.'],
             },
             paid: [
-                { name: 'CS타워 지하주차장', dist: null, addr: '서울 마포구 성산동 56-3' },
-                { name: '마포중앙도서관', dist: null, addr: '서울 마포구 성산로 128', note: { ko: '02-3153-5800', en: '02-3153-5800' } },
+                // 거리는 카카오맵 좌표 기준 직선거리 (2026-09)
+                { name: 'CS타워 지하주차장', dist: '240m', addr: '서울 마포구 성산동 56-3' },
+                { name: '마포중앙도서관', dist: '410m', addr: '서울 마포구 성산로 128', note: { ko: '02-3153-5800', en: '02-3153-5800' } },
             ],
             generator: { ko: GEN.ko.slice(0, 2), en: GEN.en.slice(0, 2) },
             power: null,
