@@ -581,9 +581,11 @@ function renderInfo() {
     const address = (L === 'en' ? [addrEn, addrKo] : [addrKo, addrEn])
         .map(a => `<p><span>${esc(a)}</span>${copyBtn(a)}</p>`).join('');
 
+    // 유료 주차장: 데스크톱은 한 줄, 모바일은 이름 / 주소+복사 / 비고 세 줄로 나뉜다 (CSS)
     const paid = info.paid.map(p => {
         const tail = [p.dist, p.note && p.note[L]].filter(Boolean).map(esc).join(' / ');
-        return `<p><span>${esc(p.name)} : ${esc(p.addr)}${tail ? ' / ' + tail : ''}</span>${copyBtn(p.addr)}</p>`;
+        // 복사 버튼은 모바일에서 주소 줄 끝에, 데스크톱에서는 전체 줄 끝에 온다 (CSS 로 자리를 바꾼다)
+        return `<p class="pk"><span class="pk-n">${esc(p.name)}</span><span class="pk-s"> : </span><span class="pk-a">${esc(p.addr)}<span class="pk-c">${copyBtn(p.addr)}</span></span>${tail ? `<span class="pk-s"> / </span><span class="pk-t">${tail}</span>` : ''}<span class="pk-c2">${copyBtn(p.addr)}</span></p>`;
     }).join('') + (t('info_paid_note') ? `<p>${t('info_paid_note')}</p>` : '');
 
     const g1 = item('address', address, true) + item('access', lines(info.access[L]))

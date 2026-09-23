@@ -580,6 +580,33 @@ input:focus-visible {
     color: var(--grey);
 }
 
+/* 유료 주차장 — 모바일: 이름(검정) / 주소 + 복사 / 비고. 데스크톱은 한 줄(.pk-s 구분자 표시). */
+.pk .pk-s {
+    display: none;
+}
+
+.pk .pk-n {
+    display: block;
+    color: var(--black);
+}
+
+.pk .pk-a,
+.pk .pk-t {
+    display: block;
+}
+
+.pk .pk-t {
+    font-size: var(--fs-ui);
+}
+
+.pk+.pk {
+    margin-top: 10px;
+}
+
+.pk .pk-c2 {
+    display: none;
+}
+
 /* 복사 — 시트의 '색상 보기' 링크처럼 검정 텍스트 */
 .copy {
     margin-left: 10px;
@@ -812,6 +839,37 @@ input:focus-visible {
     .mh-lang {
         margin-right: 4px;
     }
+
+    /* 안내: 좁은 화면에서는 줄 간격과 여백을 줄여 한 화면에 더 담는다 */
+    .gd-head {
+        margin-top: 20px;
+        padding-bottom: 14px;
+    }
+
+    .gd-head+.gd-group {
+        margin-top: 36px;
+    }
+
+    .gd-group {
+        margin: 40px 0 6px;
+    }
+
+    .gd-item {
+        padding: 10px 0 12px;
+        line-height: 1.6;
+    }
+
+    .gd-item h4 {
+        margin-bottom: 3px;
+    }
+
+    .gd-b p+p {
+        margin-top: 3px;
+    }
+
+    .copy {
+        margin-left: 8px;
+    }
 }
 
 /* ═══════════════════════════════════════════
@@ -863,6 +921,33 @@ input:focus-visible {
 
     .gd-inline h4 {
         flex-shrink: 0;
+    }
+
+    .pk .pk-s,
+    .pk .pk-n,
+    .pk .pk-a,
+    .pk .pk-t {
+        display: inline;
+    }
+
+    .pk .pk-n {
+        color: var(--grey);
+    }
+
+    .pk .pk-t {
+        font-size: inherit;
+    }
+
+    .pk+.pk {
+        margin-top: 0;
+    }
+
+    .pk .pk-c {
+        display: none;
+    }
+
+    .pk .pk-c2 {
+        display: inline;
     }
 
     /* 손잡이·시트 동작을 전부 해제하고 정보 블록으로 되돌린다 */
