@@ -8,7 +8,7 @@
 const I18N = {
     ko: {
         title: 'LAYER STUDIOS — 견적 산출기',
-        lang_btn: 'English',
+        lang_btn: 'English', lang_btn_s: 'EN',
         nav_calc: '견적 산출', nav_sheet: '요금표', nav_info: '안내',
         info_title: 'Information', info_pdf: '기본 안내 (PDF)', info_fee: '요금표 보기',
         info_g1: n => `${n} 기본 안내사항`, info_g2: '전력 · 발전차 안내',
@@ -55,7 +55,7 @@ const I18N = {
     },
     en: {
         title: 'LAYER STUDIOS — Rental Quote',
-        lang_btn: '한국어',
+        lang_btn: '한국어', lang_btn_s: 'KO',
         nav_calc: 'Quote', nav_sheet: 'Rates', nav_info: 'Info',
         info_title: 'Information', info_pdf: 'Main Information (PDF)', info_fee: 'View rates',
         info_g1: n => `${n} — basic information`, info_g2: 'Power & generator truck',
@@ -325,15 +325,19 @@ function syncMode() {
         els.rowOptions.hidden = true;
         if (state.options.length) state.options = [];
     }
+
+    // 넓은 화면의 2열 격자: 지점·파트 다음 행들을 둘씩 짝짓는다. 하나가 남으면 두 칸을 다 쓰게 한다.
+    const paired = [...els.controls.querySelectorAll('.row')].filter(r => !r.hidden).slice(2);
+    paired.forEach((r, i) => r.classList.toggle('row-wide', paired.length % 2 === 1 && i === paired.length - 1));
 }
 
 // ─── 견적서 ─────────────────────────────────────────────
 const optionName = o => t(o === 'GREENHOUSE' ? 'opt_greenhouse' : 'opt_backgarden');
 
 function li(k, v, charge) {
-    // 금액 줄은 점선 리더로 좌우를 잇는다
+    // 금액 줄은 점선 리더로 좌우를 잇는다. 넓은 견적서에서도 금액까지 닿도록 넉넉히 찍고, 넘치는 만큼은 잘린다.
     return `<div class="li${charge ? ' li-charge' : ''}">
-    <span${charge ? ' data-dots="' + '·'.repeat(40) + '"' : ''}>${k}</span><span>${v}</span></div>`;
+    <span${charge ? ' data-dots="' + '·'.repeat(240) + '"' : ''}>${k}</span><span>${v}</span></div>`;
 }
 
 function paint() {
@@ -695,7 +699,10 @@ function applyLang() {
     document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
     document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
     document.querySelectorAll('button[data-set="studio"]').forEach(b => { b.textContent = studioName(b.dataset.v); });
-    document.getElementById('lang-btn').textContent = t('lang_btn');
+    // 아주 좁은 화면에서는 짧은 라벨(EN/KO)만 보인다
+    const langBtn = document.getElementById('lang-btn');
+    langBtn.innerHTML = `<span class="lang-l">${t('lang_btn')}</span><span class="lang-s">${t('lang_btn_s')}</span>`;
+    langBtn.setAttribute('aria-label', t('lang_btn'));
 }
 
 function setLang(lang) {

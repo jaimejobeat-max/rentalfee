@@ -14,10 +14,21 @@
     --sans: "Helvetica Neue", Helvetica, Arial, "Pretendard Variable", Pretendard, sans-serif;
 
     --fs-ui: 12px;
+    --fs-body: 13px;   /* 안내 본문 */
     --fs-tab: 14px;
+    --fs-sub: 15px;    /* 안내 묶음 제목 */
     --fs-nav: 21px;
     --fs-title: 52px;
     --fs-title-m: 32px;
+
+    /* 간격 — 구역·행·주석 사이는 이 단계만 쓴다 */
+    --sp-xs: 8px;
+    --sp-s: 12px;
+    --sp-m: 16px;
+    --sp-l: 24px;
+    --sp-xl: 32px;
+    --sp-2xl: 48px;
+    --sp-3xl: 64px;
 
     --gutter: 32px;
     --gutter-m: 20px;
@@ -113,7 +124,7 @@ input:focus-visible {
     width: auto;
 }
 
-/* 헤더 링크 — 텍스트만. 현재 화면은 검정, 나머지는 회색. 호버 시 밑줄이 왼쪽에서 자란다 */
+/* 헤더 링크 — 텍스트만. 현재 화면은 검정, 나머지는 회색. 밑줄은 아래 '밑줄 탭' 공통 규칙 */
 .mh-nav {
     display: flex;
     align-items: center;
@@ -130,7 +141,26 @@ input:focus-visible {
     transition: color .2s var(--ease);
 }
 
-.mh-nav button::after {
+.mh-nav button:hover,
+.mh-nav button.on {
+    color: var(--black);
+}
+
+/* 언어 버튼 — 화면 전환과 다른 종류임을 간격으로 보인다 */
+.mh-lang {
+    margin-right: 10px;
+    text-transform: none !important;
+}
+
+/* 짧은 라벨(EN/KO)은 아주 좁은 화면에서만 */
+.lang-s {
+    display: none;
+}
+
+/* ─── 밑줄 탭 — 헤더 메뉴와 선택지가 같은 방식.
+       선택되면(헤더는 호버해도) 1px 밑줄이 왼쪽에서 자란다 ── */
+.mh-nav button::after,
+.opts button::after {
     content: "";
     position: absolute;
     left: 0;
@@ -143,20 +173,10 @@ input:focus-visible {
     transition: transform .3s var(--ease);
 }
 
-.mh-nav button:hover,
-.mh-nav button.on {
-    color: var(--black);
-}
-
 .mh-nav button:hover::after,
-.mh-nav button.on::after {
+.mh-nav button.on::after,
+.opts button.on::after {
     transform: scaleX(1);
-}
-
-/* 언어 버튼 — 화면 전환과 다른 종류임을 간격으로 보인다 */
-.mh-lang {
-    margin-right: 10px;
-    text-transform: none !important;
 }
 
 /* ─── Workbench ────────────────────────────── */
@@ -166,23 +186,23 @@ input:focus-visible {
 
 .controls,
 .sheet {
-    padding-bottom: 48px;
+    padding-bottom: var(--sp-2xl);
 }
 
 /* ─── Row — 홈페이지 정보 블록(.sinfo__block)과 같은 어법 ── */
 .row {
     border-top: 1px solid var(--black);
-    padding: 12px 0 32px;
+    padding: var(--sp-s) 0 var(--sp-xl);
 }
 
 .row-h {
     display: flex;
     align-items: baseline;
-    gap: 12px;
+    gap: var(--sp-s);
     font-size: var(--fs-ui);
     text-transform: uppercase;
     color: var(--grey);
-    margin-bottom: 18px;
+    margin-bottom: var(--sp-m);
 }
 
 .row-n {
@@ -208,7 +228,7 @@ input:focus-visible {
     color: var(--grey);
 }
 
-/* ─── Option tabs — 상자 없이 텍스트만. 회색 → 선택 시 검정 + 밑줄 ── */
+/* ─── Option tabs — 상자 없이 텍스트만. 회색 → 선택 시 검정 + 밑줄(밑줄 탭 공통 규칙) ── */
 .opts {
     display: flex;
     flex-wrap: wrap;
@@ -216,23 +236,19 @@ input:focus-visible {
 }
 
 .opts button {
+    position: relative;
     font-size: var(--fs-tab);
     font-weight: 700;
     letter-spacing: -0.01em;
     padding: 6px 0 4px;
     min-height: 32px;
     color: var(--grey);
-    border-bottom: 1px solid transparent;
-    transition: color .2s var(--ease), border-color .2s var(--ease);
+    transition: color .2s var(--ease);
 }
 
-.opts button:hover:not(:disabled) {
-    color: var(--black);
-}
-
+.opts button:hover:not(:disabled),
 .opts button.on {
     color: var(--black);
-    border-bottom-color: var(--black);
 }
 
 .opts button:disabled {
@@ -246,18 +262,20 @@ input:focus-visible {
     font-size: var(--fs-ui);
     text-transform: uppercase;
     color: var(--grey);
-    margin-top: 14px;
+    margin-top: var(--sp-m);
 }
 
 .grp:first-child {
     margin-top: 0;
 }
 
-/* 체크형 옵션 — 앞에 작은 네모, 선택 시 검정으로 채운다 */
+/* 체크형 옵션 — 앞에 작은 네모, 선택 시 검정으로 채운다. 밑줄은 없다 */
 .opts-check button {
-    position: relative;
     padding-left: 18px;
-    border-bottom: none;
+}
+
+.opts-check button::after {
+    content: none;
 }
 
 .opts-check button b {
@@ -284,7 +302,7 @@ input:focus-visible {
 
 /* ─── Slider — 1px 검정 선 위의 검정 손잡이 ─────────── */
 .slider {
-    padding-top: 10px;
+    padding-top: var(--sp-xs);
 }
 
 .slider input[type=range] {
@@ -320,14 +338,14 @@ input:focus-visible {
 .scale {
     display: flex;
     justify-content: space-between;
-    margin-top: 8px;
+    margin-top: var(--sp-xs);
     font-size: var(--fs-ui);
     text-transform: uppercase;
     color: var(--grey);
 }
 
 .note {
-    margin-top: 14px;
+    margin-top: var(--sp-s);
     font-size: var(--fs-ui);
     line-height: 1.5;
     color: var(--grey);
@@ -342,14 +360,15 @@ input:focus-visible {
     align-items: baseline;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 8px 24px;
-    margin-top: 8px;
-    padding-bottom: 20px;
+    gap: var(--sp-xs) var(--sp-l);
+    margin-top: var(--sp-xs);
+    padding-bottom: var(--sp-m);
 }
 
-/* 파트 제목(.part__title)과 같은 52px */
+/* 파트 제목(.part__title)과 같은 52px. 폰에서는 가장 긴 제목(HONGDAE RENTAL FEE)도
+   한 줄에 들어가도록 화면 폭에 맞춰 줄인다 */
 .sh-title {
-    font-size: var(--fs-title-m);
+    font-size: min(var(--fs-title-m), 7.4vw);
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: .9;
@@ -367,8 +386,8 @@ input:focus-visible {
 .sh-key {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 32px;
+    gap: var(--sp-xs);
+    margin-bottom: var(--sp-xl);
     font-size: var(--fs-ui);
     color: var(--grey);
 }
@@ -386,7 +405,7 @@ input:focus-visible {
 }
 
 .sh-mob .sh-wrap+.sh-wrap {
-    margin-top: 12px;
+    margin-top: var(--sp-s);
 }
 
 .sh-wrap {
@@ -439,8 +458,10 @@ input:focus-visible {
     border-bottom: 1px solid var(--black);
 }
 
-/* 왼쪽 파트 열 — 표를 가로로 밀어도 남아 있게 */
-.sh-t th:first-child {
+/* 왼쪽 파트 열(본문 머리 + 왼쪽 위 빈칸) — 표를 가로로 밀어도 남아 있게.
+   th:first-child로 잡으면 머리 둘째 줄의 첫 인원 구간('~10인')까지 걸리므로 따로 지정한다 */
+.sh-t tbody th,
+.sh-t .sh-corner {
     position: sticky;
     left: 0;
     z-index: 1;
@@ -452,6 +473,11 @@ input:focus-visible {
     letter-spacing: -0.01em;
     color: var(--black);
     border-right: 1px solid var(--line);
+}
+
+/* 머리 아래 검정 줄이 파트 열까지 이어지게 */
+.sh-t .sh-corner {
+    border-bottom: 1px solid var(--black);
 }
 
 /* 두 그룹이 한 표에 있을 때 — 사이에 세로 실선 */
@@ -527,9 +553,9 @@ input:focus-visible {
     align-items: baseline;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 8px 24px;
-    margin-top: 28px;
-    padding-bottom: 18px;
+    gap: var(--sp-xs) var(--sp-l);
+    margin-top: var(--sp-xl);
+    padding-bottom: var(--sp-m);
     border-bottom: 2px solid var(--black);
 }
 
@@ -544,34 +570,31 @@ input:focus-visible {
     display: flex;
     flex-wrap: wrap;
     gap: 6px 22px;
-    font-size: 13px;
+    font-size: var(--fs-body);
 }
 
 .info-links a:hover {
     color: var(--grey);
 }
 
+/* 묶음 제목 — 머리 아래 첫 묶음과 묶음 사이의 간격을 같게 둔다 */
 .gd-group {
-    margin: 56px 0 14px;
-    font-size: 15px;
+    margin: var(--sp-2xl) 0 var(--sp-s);
+    font-size: var(--fs-sub);
     font-weight: 400;
     letter-spacing: -0.01em;
-}
-
-.gd-head+.gd-group {
-    margin-top: 64px;
 }
 
 .gd-item {
     padding: 9px 0 10px;
     border-bottom: 1px solid var(--line);
-    font-size: 13px;
+    font-size: var(--fs-body);
     line-height: 1.9;
     word-break: keep-all;
 }
 
 .gd-item h4 {
-    font-size: 13px;
+    font-size: var(--fs-body);
     font-weight: 400;
     color: var(--black);
 }
@@ -607,7 +630,7 @@ input:focus-visible {
     display: none;
 }
 
-/* 복사 — 시트의 '색상 보기' 링크처럼 검정 텍스트 */
+/* 복사 — 시트의 '색상 보기' 링크처럼 검정 텍스트. 밑줄은 견적서 손잡이의 링크와 같은 방식 */
 .copy {
     margin-left: 10px;
     font-size: var(--fs-ui);
@@ -644,8 +667,8 @@ input:focus-visible {
 /* 손잡이 — 홈페이지의 검정 메뉴 바탕과 같은 반전 */
 .peek {
     display: flex;
-    align-items: baseline;
-    gap: 16px;
+    align-items: center;
+    gap: var(--sp-m);
     width: 100%;
     height: var(--peek-h);
     flex-shrink: 0;
@@ -654,7 +677,6 @@ input:focus-visible {
     color: var(--white);
     font-variant-numeric: tabular-nums;
     text-align: left;
-    align-items: center;
 }
 
 .peek-k {
@@ -670,11 +692,12 @@ input:focus-visible {
     margin-left: auto;
 }
 
+/* 링크형 밑줄 — 안내의 '복사'와 같은 방식 */
 .peek-cue {
     font-size: var(--fs-ui);
     text-transform: uppercase;
-    border-bottom: 1px solid currentColor;
-    padding-bottom: 2px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
     white-space: nowrap;
 }
 
@@ -689,11 +712,11 @@ input:focus-visible {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     background: var(--white);
-    padding: 0 var(--gutter) calc(32px + env(safe-area-inset-bottom, 0px));
+    padding: 0 var(--gutter) calc(var(--sp-xl) + env(safe-area-inset-bottom, 0px));
 }
 
 .paper-in {
-    padding-top: 24px;
+    padding-top: var(--sp-l);
 }
 
 .rc-title {
@@ -702,8 +725,6 @@ input:focus-visible {
     letter-spacing: -0.02em;
     line-height: 1;
     text-transform: uppercase;
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--black);
 }
 
 .rc-meta {
@@ -711,14 +732,14 @@ input:focus-visible {
     letter-spacing: .04em;
     text-transform: uppercase;
     color: var(--grey);
-    margin: 12px 0 24px;
+    margin: var(--sp-s) 0 var(--sp-l);
 }
 
 .li {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    gap: 16px;
+    gap: var(--sp-m);
     line-height: 2;
 }
 
@@ -746,9 +767,10 @@ input:focus-visible {
     letter-spacing: .1em;
 }
 
+/* 사양과 금액 사이 — 검정 실선은 TOTAL에만 두고 여기는 연회색 */
 .rc-rule {
-    border-top: 1px solid var(--black);
-    margin: 16px 0;
+    border-top: 1px solid var(--line);
+    margin: var(--sp-m) 0;
 }
 
 /* TOTAL — 파트 제목과 같은 52px */
@@ -756,11 +778,11 @@ input:focus-visible {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    gap: 16px;
+    gap: var(--sp-m);
     border-top: 1px solid var(--black);
     border-bottom: 1px solid var(--black);
-    padding: 18px 0;
-    margin-top: 16px;
+    padding: var(--sp-m) 0;
+    margin-top: var(--sp-m);
 }
 
 .rc-total-k {
@@ -779,7 +801,7 @@ input:focus-visible {
 
 /* 산출 불가일 때만 사유를 보여준다. 평소에는 비어 있고 숨긴다. */
 .rc-stamp {
-    margin: 20px 0 0;
+    margin: var(--sp-m) 0 0;
     border: 1px solid var(--black);
     font-size: var(--fs-ui);
     line-height: 1.5;
@@ -792,7 +814,7 @@ input:focus-visible {
 }
 
 .rc-foot {
-    margin-top: 20px;
+    margin-top: var(--sp-m);
     font-size: var(--fs-ui);
     line-height: 1.6;
     color: var(--grey);
@@ -829,11 +851,11 @@ input:focus-visible {
 
     /* 첫 행의 선이 헤더 선에 붙지 않게 숨을 둔다 */
     .workbench {
-        padding-top: 28px;
+        padding-top: var(--sp-l);
     }
 
     .mh-nav {
-        gap: 16px;
+        gap: var(--sp-m);
     }
 
     .mh-lang {
@@ -842,16 +864,12 @@ input:focus-visible {
 
     /* 안내: 좁은 화면에서는 줄 간격과 여백을 줄여 한 화면에 더 담는다 */
     .gd-head {
-        margin-top: 20px;
-        padding-bottom: 14px;
-    }
-
-    .gd-head+.gd-group {
-        margin-top: 36px;
+        margin-top: var(--sp-l);
+        padding-bottom: var(--sp-s);
     }
 
     .gd-group {
-        margin: 40px 0 6px;
+        margin: var(--sp-xl) 0 var(--sp-xs);
     }
 
     .gd-item {
@@ -872,6 +890,34 @@ input:focus-visible {
     }
 }
 
+/* 375px보다 좁은 폰 — 헤더 메뉴가 화면 밖으로 밀리지 않게 로고·간격을 줄이고 언어는 EN/KO로 */
+@media (max-width: 374px) {
+    .mh-in {
+        gap: var(--sp-s);
+    }
+
+    /* 영어 메뉴(QUOTE · RATES · INFO)도 320px에 들어가는 최대 간격 */
+    .mh-nav {
+        gap: 10px;
+    }
+
+    .mh-logo img {
+        height: 10px;
+    }
+
+    .mh-lang {
+        margin-right: 0;
+    }
+
+    .lang-l {
+        display: none;
+    }
+
+    .lang-s {
+        display: inline;
+    }
+}
+
 /* ═══════════════════════════════════════════
    데스크톱 — 2단. 견적서는 오른쪽에 고정.
    ═══════════════════════════════════════════ */
@@ -883,9 +929,9 @@ input:focus-visible {
     .workbench {
         display: grid;
         grid-template-columns: minmax(0, 1.4fr) minmax(320px, 1fr);
-        gap: 64px;
+        gap: var(--sp-3xl);
         align-items: start;
-        padding: 48px var(--gutter) 120px;
+        padding: var(--sp-2xl) var(--gutter) 120px;
     }
 
     .controls,
@@ -911,7 +957,7 @@ input:focus-visible {
     }
 
     .gd-head {
-        margin-top: 40px;
+        margin-top: var(--sp-2xl);
     }
 
     .gd-inline {
@@ -953,7 +999,7 @@ input:focus-visible {
     /* 손잡이·시트 동작을 전부 해제하고 정보 블록으로 되돌린다 */
     .dock {
         position: sticky;
-        top: calc(var(--header-h) + 48px);
+        top: calc(var(--header-h) + var(--sp-2xl));
         transform: none !important;
         max-height: none;
         z-index: 1;
@@ -968,8 +1014,10 @@ input:focus-visible {
         padding: 0;
     }
 
+    /* 왼쪽 행들처럼 검정 실선으로 시작해 두 단의 윗선을 맞춘다 */
     .paper-in {
-        padding-top: 0;
+        border-top: 1px solid var(--black);
+        padding-top: var(--sp-s);
     }
 
     .rc-total-v {
@@ -981,16 +1029,18 @@ input:focus-visible {
     }
 }
 
-/* 넓은 화면에서는 조작 패널을 2열 격자로. 지점 행은 두 칸을 다 쓴다. */
+/* 넓은 화면에서는 조작 패널을 2열 격자로. 지점·파트 행은 두 칸을 다 쓰고,
+   나머지는 둘씩 짝짓는다. 짝 없이 남은 마지막 행(.row-wide, app.js의 syncMode)도 두 칸을 쓴다. */
 @media (min-width: 1180px) {
     .controls {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        column-gap: 48px;
+        column-gap: var(--sp-2xl);
         align-items: stretch;
     }
 
-    .controls .row:first-child {
+    .controls .row:nth-child(-n+2),
+    .controls .row-wide {
         grid-column: 1 / -1;
     }
 }
