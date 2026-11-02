@@ -102,13 +102,15 @@ const LAYER_MASTER_ENGINE = {
             getN_small: (p) => p <= 4 ? 0 : p <= 5 ? 1 : p <= 6 ? 2 : p <= 7 ? 3 : p <= 10 ? 4 : 5,
             getN_large: (p) => p <= 20 ? 0 : p <= 30 ? 1 : p <= 40 ? 2 : 3,
             parts: {
-                'A': { hourly: [6, 6.5, 7, 7.5, 0, 0] },
+                // 2026.11 개정: A 는 백가든 이용이 포함된 요금이 되며 시간당 1만원 인상.
+                // 복합 파트의 시간제 요금도 모두 1만원씩 인상. 전관(16인 이상) Day/Half 고정 요금은 그대로.
+                'A+백가든': { hourly: [7, 7.5, 8, 8.5, 0, 0] },
                 'B': { hourly: [6, 6.5, 7, 7.5, 0, 0] },
                 'D': { hourly: [6, 6.5, 7, 7.5, 0, 0] },
-                'A+B': { hourly: [12, 12, 12, 12, 15, 20] },
-                'B+D': { hourly: [12, 12, 12, 12, 15, 20] },
+                'A+B': { hourly: [13, 13, 13, 13, 16, 21] },
+                'B+D': { hourly: [13, 13, 13, 13, 16, 21] },
                 'A+B+D': {
-                    hourly: [18, 18, 18, 18, 18, 25],
+                    hourly: [19, 19, 19, 19, 19, 26],
                     fixed: { day: [250, 300, 400, 500], half: [150, 200, 300, 400] }
                 }
             }
@@ -125,9 +127,8 @@ const LAYER_MASTER_ENGINE = {
             const rate = sData.parts[part].hourly[n] || 0;
             if (rate === 0) return '인원 초과 · 복합 파트를 선택해주세요';
             let base = rate * hours;
-            // 옵션: 각각 +5만원/h
-            const optCount = [options.includes('GREENHOUSE'), options.includes('BACKGARDEN')].filter(Boolean).length;
-            base += 5 * hours * optCount;
+            // 옵션: 그린하우스 +4만원/h (백가든은 A 파트 요금에 포함)
+            if (options.includes('GREENHOUSE')) base += 4 * hours;
             return base;
         }
 
@@ -137,8 +138,7 @@ const LAYER_MASTER_ENGINE = {
             const n = sData.getN_large(personnel);
             const basePrice = sData.parts['A+B+D'].fixed[time][n];
             const dayPriceRef = sData.parts['A+B+D'].fixed['day'][n];
-            const optCount = [options.includes('GREENHOUSE'), options.includes('BACKGARDEN')].filter(Boolean).length;
-            const optionFee = optCount > 0 ? (personnel <= 30 ? 30 : 60) * optCount : 0;
+            const optionFee = options.includes('GREENHOUSE') ? (personnel <= 30 ? 30 : 60) : 0;
             const extraFee = (dayPriceRef * 0.1) * extraHours;
             return basePrice + optionFee + extraFee;
         }

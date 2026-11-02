@@ -18,7 +18,7 @@ const I18N = {
         note_part: '가구 촬영 혹은 차량 내부 진입 시 별도 금액 협의',
         type_photo: '사진', type_video: '영상',
         note_extra: '연장료 = 풀데이 기본요금의 10% / 시간',
-        tag_hongdae: '홍대 전용', opt_greenhouse: '그린하우스', opt_backgarden: '백가든',
+        tag_hongdae: '홍대 전용', opt_greenhouse: '그린하우스',
         rc_foot: '본 견적은 참고용이며 실제 요금과 다를 수 있습니다.<br>정확한 금액은 지점에 문의하세요.',
         peek_cue: '견적서', peek_why: '사유', na: '산출 불가',
         studio: { HANNAM: '한남', LAYER7: '레이어 7', LAYER20: '레이어 20', LAYER11: '레이어 11',
@@ -48,8 +48,8 @@ const I18N = {
         n_contact: '일정 및 세부 문의는 <b>contact@plusjun.com</b> 메일로 부탁드립니다.',
         n_image: '이미지를 누르면 크게 볼 수 있습니다.', img_alt: '원본 요금표 (도면 포함)',
         n_h_single: '*단독 룸(A·B·D)은 최대 7명', n_h_combo: '*8인 이상은 복합 파트(A+B / B+D / A+B+D)',
-        n_h_opt: '*그린하우스·백가든 옵션 각 +5만원/시간', n_h_over: '*추가 시간 당 Day 요금의 10%',
-        n_h_opt2: '*그린하우스·백가든 옵션 각 +30만원(30인 이하) / +60만원(31인 이상)',
+        n_h_bg: '*A 파트는 백가든 이용이 포함된 요금입니다', n_h_opt: '*그린하우스 옵션 +4만원/시간', n_h_over: '*추가 시간 당 Day 요금의 10%',
+        n_h_opt2: '*그린하우스 옵션 +30만원(30인 이하) / +60만원(31인 이상)',
         band: ([lo, hi], i, n) => (i === 0 && lo === 1) ? `~${hi}인` : (i === n - 1 && hi >= PERSONNEL_MAX) ? `${lo}인~` : lo === hi ? `${lo}인` : `${lo}~${hi}인`,
         partName: k => k,
     },
@@ -65,7 +65,7 @@ const I18N = {
         note_part: 'Furniture shoots or vehicle access are priced separately',
         type_photo: 'Photo', type_video: 'Video',
         note_extra: 'Overtime = 10% of the full-day base rate per hour',
-        tag_hongdae: 'Hongdae only', opt_greenhouse: 'Greenhouse', opt_backgarden: 'Back garden',
+        tag_hongdae: 'Hongdae only', opt_greenhouse: 'Greenhouse',
         rc_foot: 'This quote is for reference and may differ from the actual fee.<br>Contact the studio for an exact price.',
         peek_cue: 'Quote', peek_why: 'Why', na: 'Unavailable',
         studio: { HANNAM: 'Hannam', LAYER7: 'Layer 7', LAYER20: 'Layer 20', LAYER11: 'Layer 11',
@@ -94,11 +94,11 @@ const I18N = {
         n_contact: 'For scheduling and details, email <b>contact@plusjun.com</b>.',
         n_image: 'Tap the image to view it full size.', img_alt: 'original rate sheet (with floor plan)',
         n_h_single: '*Single rooms (A·B·D): up to 7 people', n_h_combo: '*8 or more: combined parts (A+B / B+D / A+B+D)',
-        n_h_opt: '*Greenhouse / Back garden option: +₩50,000 per hour each', n_h_over: '*Overtime: 10% of the Day rate per hour',
-        n_h_opt2: '*Greenhouse / Back garden option: +₩300,000 (up to 30) / +₩600,000 (31 or more) each',
+        n_h_bg: '*Part A includes use of the back garden', n_h_opt: '*Greenhouse option: +₩40,000 per hour', n_h_over: '*Overtime: 10% of the Day rate per hour',
+        n_h_opt2: '*Greenhouse option: +₩300,000 (up to 30) / +₩600,000 (31 or more)',
         band: ([lo, hi], i, n) => (i === 0 && lo === 1) ? `≤${hi}` : (i === n - 1 && hi >= PERSONNEL_MAX) ? `${lo}+` : lo === hi ? `${lo}` : `${lo}–${hi}`,
         // 엔진의 파트 이름에 섞인 한국어를 영어로
-        partName: k => k.replace('카페', 'CAFE').replace('+가든', '+Garden').replace('1F+철제난간', '1F + railing').replace('2F오피스 포함', 'incl. 2F office'),
+        partName: k => k.replace('백가든', 'Back Garden').replace('카페', 'CAFE').replace('+가든', '+Garden').replace('1F+철제난간', '1F + railing').replace('2F오피스 포함', 'incl. 2F office'),
     },
 };
 const t = k => I18N[state.lang][k];
@@ -107,7 +107,7 @@ const partName = k => t('partName')(k);
 
 // ─── 홍대 파트 그룹 정의 ──────────────────────────────────
 const HONGDAE_GROUPS = [
-    { parts: ['A', 'B', 'D'] },
+    { parts: ['A+백가든', 'B', 'D'] },
     { parts: ['A+B', 'B+D'] },
     { parts: ['A+B+D'] },
 ];
@@ -148,7 +148,7 @@ const PART_RESTRICTIONS = {
         return null;
     },
     HONGDAE: (p, part) => {
-        if (p >= 8 && ['A', 'B', 'D'].includes(part))
+        if (p >= 8 && ['A+백가든', 'B', 'D'].includes(part))
             return t('restrict').hongdae;
         return null;
     },
@@ -183,7 +183,6 @@ const els = {
     vPersonnel: document.getElementById('v-personnel'),
     vExtra: document.getElementById('v-extra'),
     priceGreenhouse: document.getElementById('p-greenhouse'),
-    priceBackgarden: document.getElementById('p-backgarden'),
     rcMeta: document.getElementById('rc-meta'),
     rcSpec: document.getElementById('rc-spec'),
     rcCharges: document.getElementById('rc-charges'),
@@ -315,9 +314,8 @@ function syncMode() {
         els.rowExtra.hidden = small;
         els.rowOptions.hidden = false;
 
-        const fee = small ? `+${won(5)}/h` : `+${won(state.personnel <= 30 ? 30 : 60)}`;
+        const fee = small ? `+${won(4)}/h` : `+${won(state.personnel <= 30 ? 30 : 60)}`;
         els.priceGreenhouse.textContent = fee;
-        els.priceBackgarden.textContent = fee;
     } else {
         els.timeDayHalf.hidden = false;
         els.timeHourly.hidden = true;
@@ -332,7 +330,7 @@ function syncMode() {
 }
 
 // ─── 견적서 ─────────────────────────────────────────────
-const optionName = o => t(o === 'GREENHOUSE' ? 'opt_greenhouse' : 'opt_backgarden');
+const optionName = () => t('opt_greenhouse');
 
 function li(k, v, charge) {
     // 금액 줄은 점선 리더로 좌우를 잇는다. 넓은 견적서에서도 금액까지 닿도록 넉넉히 찍고, 넘치는 만큼은 잘린다.
@@ -354,7 +352,8 @@ function paint() {
     els.vPersonnel.textContent = state.personnel >= PERSONNEL_MAX ? 'MAX' : t('people')(state.personnel);
     els.vExtra.textContent = t('hours')(state.extraHours);
 
-    els.rcMeta.textContent = `QUOTATION · NO. ${state.studio}-${state.part}-${state.personnel}P`;
+    // 견적 번호의 파트 표기도 현재 언어를 따른다 (영어 화면에서 한글이 섞이지 않게)
+    els.rcMeta.textContent = `QUOTATION · NO. ${state.studio}-${partName(state.part)}-${state.personnel}P`;
 
     // 사양
     let spec = li(t('spec_studio'), studioName(state.studio)) + li(t('spec_part'), partName(state.part));
@@ -521,7 +520,7 @@ function renderSheetHongdae(sd, meta) {
         hit: small ? { row: state.part, col: nS } : null,
         values: key => sd.parts[key].hourly,
     }], ' data-mode="hourly"')
-        + notes(t('n_h_single'), t('n_h_combo'), t('n_h_opt'));
+        + notes(t('n_h_single'), t('n_h_combo'), t('n_h_bg'), t('n_h_opt'));
 
     // 전관 (16인 이상) — A+B+D 고정 요금
     const fixed = sd.parts['A+B+D'].fixed;
