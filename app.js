@@ -18,7 +18,7 @@ const I18N = {
         note_part: '가구 촬영 혹은 차량 내부 진입 시 별도 금액 협의',
         type_photo: '사진', type_video: '영상',
         note_extra: '연장료 = 풀데이 기본요금의 10% / 시간',
-        tag_hongdae: '홍대 전용', opt_greenhouse: '그린하우스',
+        tag_hongdae: '홍대 전용', opt_greenhouse: '그린하우스', opt_backgarden: '백가든',
         rc_foot: '본 견적은 참고용이며 실제 요금과 다를 수 있습니다.<br>정확한 금액은 지점에 문의하세요.',
         peek_cue: '견적서', peek_why: '사유', na: '산출 불가',
         studio: { HANNAM: '한남', LAYER7: '레이어 7', LAYER20: '레이어 20', LAYER11: '레이어 11',
@@ -49,7 +49,7 @@ const I18N = {
         n_image: '이미지를 누르면 크게 볼 수 있습니다.', img_alt: '원본 요금표 (도면 포함)',
         n_h_single: '*단독 룸(A·B·D)은 최대 7명', n_h_combo: '*8인 이상은 복합 파트(A+B / B+D / A+B+D)',
         n_h_bg: '*A 파트는 백가든 이용이 포함된 요금입니다', n_h_opt: '*그린하우스 옵션 +4만원/시간', n_h_over: '*추가 시간 당 Day 요금의 10%',
-        n_h_opt2: '*그린하우스 옵션 +30만원(30인 이하) / +60만원(31인 이상)',
+        n_h_opt2: '*그린하우스·백가든 옵션 각 +30만원(16~30인) / +50만원(31인 이상) · 시간 무관 정액',
         band: ([lo, hi], i, n) => (i === 0 && lo === 1) ? `~${hi}인` : (i === n - 1 && hi >= PERSONNEL_MAX) ? `${lo}인~` : lo === hi ? `${lo}인` : `${lo}~${hi}인`,
         partName: k => k,
     },
@@ -65,7 +65,7 @@ const I18N = {
         note_part: 'Furniture shoots or vehicle access are priced separately',
         type_photo: 'Photo', type_video: 'Video',
         note_extra: 'Overtime = 10% of the full-day base rate per hour',
-        tag_hongdae: 'Hongdae only', opt_greenhouse: 'Greenhouse',
+        tag_hongdae: 'Hongdae only', opt_greenhouse: 'Greenhouse', opt_backgarden: 'Back garden',
         rc_foot: 'This quote is for reference and may differ from the actual fee.<br>Contact the studio for an exact price.',
         peek_cue: 'Quote', peek_why: 'Why', na: 'Unavailable',
         studio: { HANNAM: 'Hannam', LAYER7: 'Layer 7', LAYER20: 'Layer 20', LAYER11: 'Layer 11',
@@ -95,7 +95,7 @@ const I18N = {
         n_image: 'Tap the image to view it full size.', img_alt: 'original rate sheet (with floor plan)',
         n_h_single: '*Single rooms (A·B·D): up to 7 people', n_h_combo: '*8 or more: combined parts (A+B / B+D / A+B+D)',
         n_h_bg: '*Part A includes use of the back garden', n_h_opt: '*Greenhouse option: +₩40,000 per hour', n_h_over: '*Overtime: 10% of the Day rate per hour',
-        n_h_opt2: '*Greenhouse option: +₩300,000 (up to 30) / +₩600,000 (31 or more)',
+        n_h_opt2: '*Greenhouse / Back garden option: +₩300,000 (16–30) / +₩500,000 (31 or more) each, flat regardless of hours',
         band: ([lo, hi], i, n) => (i === 0 && lo === 1) ? `≤${hi}` : (i === n - 1 && hi >= PERSONNEL_MAX) ? `${lo}+` : lo === hi ? `${lo}` : `${lo}–${hi}`,
         // 엔진의 파트 이름에 섞인 한국어를 영어로
         partName: k => k.replace('백가든', 'Back Garden').replace('카페', 'CAFE').replace('+가든', '+Garden').replace('1F+철제난간', '1F + railing').replace('2F오피스 포함', 'incl. 2F office'),
@@ -183,6 +183,8 @@ const els = {
     vPersonnel: document.getElementById('v-personnel'),
     vExtra: document.getElementById('v-extra'),
     priceGreenhouse: document.getElementById('p-greenhouse'),
+    priceBackgarden: document.getElementById('p-backgarden'),
+    optBackgarden: document.querySelector('button[data-opt="BACKGARDEN"]'),
     rcMeta: document.getElementById('rc-meta'),
     rcSpec: document.getElementById('rc-spec'),
     rcCharges: document.getElementById('rc-charges'),
@@ -314,8 +316,12 @@ function syncMode() {
         els.rowExtra.hidden = small;
         els.rowOptions.hidden = false;
 
-        const fee = small ? `+${won(4)}/h` : `+${won(state.personnel <= 30 ? 30 : 60)}`;
+        // 시간제: 그린하우스만 +4만원/h (백가든은 A 요금에 포함). 전관: 둘 다 정액 30 / 50만원
+        const fee = small ? `+${won(4)}/h` : `+${won(state.personnel <= 30 ? 30 : 50)}`;
         els.priceGreenhouse.textContent = fee;
+        els.priceBackgarden.textContent = fee;
+        els.optBackgarden.hidden = small;
+        if (small && state.options.includes('BACKGARDEN')) state.options = state.options.filter(o => o !== 'BACKGARDEN');
     } else {
         els.timeDayHalf.hidden = false;
         els.timeHourly.hidden = true;
@@ -330,7 +336,7 @@ function syncMode() {
 }
 
 // ─── 견적서 ─────────────────────────────────────────────
-const optionName = () => t('opt_greenhouse');
+const optionName = o => t(o === 'BACKGARDEN' ? 'opt_backgarden' : 'opt_greenhouse');
 
 function li(k, v, charge) {
     // 금액 줄은 점선 리더로 좌우를 잇는다. 넓은 견적서에서도 금액까지 닿도록 넉넉히 찍고, 넘치는 만큼은 잘린다.

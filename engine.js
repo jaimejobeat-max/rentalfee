@@ -138,7 +138,9 @@ const LAYER_MASTER_ENGINE = {
             const n = sData.getN_large(personnel);
             const basePrice = sData.parts['A+B+D'].fixed[time][n];
             const dayPriceRef = sData.parts['A+B+D'].fixed['day'][n];
-            const optionFee = options.includes('GREENHOUSE') ? (personnel <= 30 ? 30 : 60) : 0;
+            // 전관 옵션: 그린하우스·백가든 각각 정액 (시간 무관) — 16~30인 30만원, 31인 이상 50만원
+            const optCount = [options.includes('GREENHOUSE'), options.includes('BACKGARDEN')].filter(Boolean).length;
+            const optionFee = (personnel <= 30 ? 30 : 50) * optCount;
             const extraFee = (dayPriceRef * 0.1) * extraHours;
             return basePrice + optionFee + extraFee;
         }
