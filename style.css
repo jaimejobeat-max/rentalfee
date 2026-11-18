@@ -9,7 +9,8 @@
 :root {
     --black: #000;
     --white: #fff;
-    --grey: #8a8a8a;
+    --grey: #6b6b6b;   /* 흰 바탕 대비 5.3:1 — 12px 주석도 읽히는 가장 옅은 회색 */
+    --grey-off: #b0b0b0; /* 고를 수 없는 항목 */
     --line: #e5e5e5;
     --sans: "Helvetica Neue", Helvetica, Arial, "Pretendard Variable", Pretendard, sans-serif;
 
@@ -252,9 +253,24 @@ input:focus-visible {
 }
 
 .opts button:disabled {
-    color: var(--line);
-    text-decoration: line-through;
+    color: var(--grey-off);
     cursor: not-allowed;
+}
+
+/* 못 고르는 파트 — 이름에만 취소선, 옆에 가능한 인원(~7명)을 적어 이유를 알린다 */
+.opts button:disabled .pt-n {
+    text-decoration: line-through;
+}
+
+.pt-cap {
+    margin-left: 5px;
+    font-size: var(--fs-ui);
+    font-weight: 400;
+    letter-spacing: 0;
+}
+
+.pt-cap:empty {
+    display: none;
 }
 
 .grp {
@@ -595,12 +611,13 @@ input:focus-visible {
 
 .gd-item h4 {
     font-size: var(--fs-body);
-    font-weight: 400;
+    font-weight: 700;
     color: var(--black);
 }
 
+/* 본문은 검정 — 주소·주차 같은 정보 자체라 회색으로 흐리지 않는다 */
 .gd-b {
-    color: var(--grey);
+    color: var(--black);
 }
 
 /* 유료 주차장 — 모바일: 이름(검정) / 주소 + 복사 / 비고. 데스크톱은 한 줄(.pk-s 구분자 표시). */
@@ -620,6 +637,7 @@ input:focus-visible {
 
 .pk .pk-t {
     font-size: var(--fs-ui);
+    color: var(--grey);
 }
 
 .pk+.pk {
@@ -983,12 +1001,9 @@ input:focus-visible {
         display: inline;
     }
 
-    .pk .pk-n {
-        color: var(--grey);
-    }
-
     .pk .pk-t {
         font-size: inherit;
+        color: inherit;
     }
 
     .pk+.pk {

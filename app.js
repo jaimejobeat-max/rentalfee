@@ -19,6 +19,7 @@ const I18N = {
         type_photo: '사진', type_video: '영상',
         note_extra: '연장료 = 풀데이 기본요금의 10% / 시간',
         tag_hongdae: '홍대 전용', opt_greenhouse: '그린하우스', opt_backgarden: '백가든',
+        cap_max: n => `~${n}명`, cap_min: n => `${n}명~`,
         vat: 'VAT 별도',
         rc_foot: '모든 금액은 부가세(VAT 10%) 별도입니다.<br>본 견적은 참고용이며 실제 요금과 다를 수 있습니다.<br>정확한 금액은 지점에 문의하세요.',
         peek_cue: '견적서', peek_why: '사유', na: '산출 불가',
@@ -67,6 +68,7 @@ const I18N = {
         type_photo: 'Photo', type_video: 'Video',
         note_extra: 'Overtime = 10% of the full-day base rate per hour',
         tag_hongdae: 'Hongdae only', opt_greenhouse: 'Greenhouse', opt_backgarden: 'Back garden',
+        cap_max: n => `up to ${n}`, cap_min: n => `${n}+`,
         vat: 'VAT excluded',
         rc_foot: 'All prices exclude VAT (10%).<br>This quote is for reference and may differ from the actual fee.<br>Contact the studio for an exact price.',
         peek_cue: 'Quote', peek_why: 'Why', na: 'Unavailable',
@@ -214,9 +216,32 @@ const isHongdae = () => state.studio === 'HONGDAE';
 const isHongdaeSmall = () => isHongdae() && state.personnel <= 15;
 const partsOf = studio => Object.keys(LAYER_MASTER_ENGINE.studios[studio].parts);
 
-function restrictionFor(part) {
+function restrictionFor(part, personnel = state.personnel) {
     const rules = PART_RESTRICTIONS[state.studio];
-    return rules ? rules(state.personnel, part) : null;
+    return rules ? rules(personnel, part) : null;
+}
+
+// 그 인원으로 이 파트를 빌릴 수 있는가 — 인원 제한 규칙과 엔진(요금 없는 칸)을 함께 본다
+function partFits(part, personnel = state.personnel) {
+    return !restrictionFor(part, personnel) && typeof calcAt({ part, personnel }) === 'number';
+}
+
+// 파트가 받는 인원 범위 [최소, 최대]. 받을 수 있는 인원이 없으면 null
+function partRange(part) {
+    let lo = 0, hi = 0;
+    for (let p = 1; p <= PERSONNEL_MAX; p++) {
+        if (!partFits(part, p)) continue;
+        if (!lo) lo = p;
+        hi = p;
+    }
+    return lo ? [lo, hi] : null;
+}
+
+// 지점을 바꿨을 때: 지금 파트가 그 지점에 없거나 현재 인원을 못 받으면, 받을 수 있는 첫 파트로 옮긴다
+function pickPart() {
+    const keys = partsOf(state.studio);
+    if (keys.includes(state.part) && partFits(state.part)) return;
+    state.part = keys.find(k => partFits(k)) || (keys.includes(state.part) ? state.part : keys[0]);
 }
 
 // ─── 계산 ───────────────────────────────────────────────
@@ -263,7 +288,7 @@ function renderParts() {
         const b = document.createElement('button');
         b.dataset.set = 'part';
         b.dataset.v = key;
-        b.textContent = partName(key);
+        b.innerHTML = `<span class="pt-n">${esc(partName(key))}</span><span class="pt-cap"></span>`;
         els.optsPart.appendChild(b);
     };
 
@@ -288,7 +313,11 @@ function syncPartStates() {
     els.optsPart.querySelectorAll('button').forEach(b => {
         const key = b.dataset.v;
         b.classList.toggle('on', key === state.part);
-        b.disabled = !!restrictionFor(key) && key !== state.part;
+        b.disabled = !partFits(key) && key !== state.part;
+        // 못 고르는 파트에는 받을 수 있는 인원을 적는다: 지금 인원이 많으면 '~7명', 적으면 '16명~'
+        const range = b.disabled && partRange(key);
+        b.querySelector('.pt-cap').textContent = !range ? ''
+            : state.personnel > range[1] ? t('cap_max')(range[1]) : t('cap_min')(range[0]);
     });
 }
 
@@ -333,7 +362,10 @@ function syncMode() {
     }
 
     // 넓은 화면의 2열 격자: 지점·파트 다음 행들을 둘씩 짝짓는다. 하나가 남으면 두 칸을 다 쓰게 한다.
-    const paired = [...els.controls.querySelectorAll('.row')].filter(r => !r.hidden).slice(2);
+    const shown = [...els.controls.querySelectorAll('.row')].filter(r => !r.hidden);
+    // 숨은 행이 있어도 번호가 건너뛰지 않게, 보이는 행만 차례로 매긴다
+    shown.forEach((r, i) => { const n = r.querySelector('.row-n'); if (n) n.textContent = String(i + 1).padStart(2, '0'); });
+    const paired = shown.slice(2);
     paired.forEach((r, i) => r.classList.toggle('row-wide', paired.length % 2 === 1 && i === paired.length - 1));
 }
 
@@ -683,7 +715,7 @@ document.addEventListener('click', e => {
     const { set, v } = btn.dataset;
     if (set === 'studio') {
         state.studio = v;
-        if (!partsOf(v).includes(state.part)) state.part = partsOf(v)[0];
+        pickPart();
         renderParts();
         if (state.view !== 'calc') syncUrl();
     } else {
@@ -770,6 +802,7 @@ const slugStudio = studioFromSlug(seg0);
 if (slugStudio) {
     state.studio = slugStudio;
     state.part = partsOf(slugStudio)[0];
+    pickPart();
     renderParts();
     setView(seg1 === 'info' ? 'info' : 'sheet');
 } else if (location.hash === '#sheet') {
