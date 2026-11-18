@@ -22,20 +22,24 @@ const I18N = {
         cap_max: n => `~${n}명`, cap_min: n => `${n}명~`,
         vat: 'VAT 별도', vat_s: 'VAT 별도',
         rc_foot: '모든 금액은 부가세(VAT 10%) 별도입니다.<br>본 견적은 참고용이며 실제 요금과 다를 수 있습니다.<br>정확한 금액은 지점에 문의하세요.',
-        peek_cue: '견적서', peek_why: '사유', na: '산출 불가',
+        peek_cue: '견적서', peek_why: '사유', peek_close: '닫기', na: '산출 불가',
+        rc_title: '견적서', rc_copy: '견적 복사',
+        rc_text_head: d => `[LAYER STUDIOS 견적] ${d}`, rc_text_foot: '※ 참고용 견적이며 실제 요금과 다를 수 있습니다.',
         studio: { HANNAM: '한남', LAYER7: '레이어 7', LAYER20: '레이어 20', LAYER11: '레이어 11',
                   LAYER27: '레이어 27', LAYER26: '레이어 26', LAYER41: '레이어 41', HONGDAE: '홍대' },
         hongdae_groups: ['단독 룸 (최대 7명 · 시간제)', '복합 룸 (최대 15명 · 시간제)', '전체 공간 (16명+ 가능)'],
         restrict: {
-            hannam: '31인 이상은 ALL 파트만 이용 가능합니다',
-            l7_abc: '20인 이상은 ABC 파트만 이용 가능합니다', l7_15: '15인 이상 해당 파트 이용 불가합니다', l7_c: '10인 초과 시 C 파트 이용 불가합니다',
-            l20: '31인 이상 3F 대관 불가합니다',
-            l11: '41인 이상은 A+B / B+카페 / A+B+카페만 이용 가능합니다',
-            l27: '31인 이상은 ALL 파트만 이용 가능합니다', l26: '31인 이상은 AB 파트만 이용 가능합니다',
-            l41: '40인 이상은 AB / ABC 파트만 이용 가능합니다',
-            hongdae: '8인 이상은 복합 파트를 선택해주세요 (A+B / B+D / A+B+D)',
+            hannam: '31명 이상은 ALL 파트만 이용 가능합니다',
+            l7_abc: '20명 이상은 ABC 파트만 이용 가능합니다', l7_15: '15명 이상 해당 파트 이용 불가합니다', l7_c: '10명 초과 시 C 파트 이용 불가합니다',
+            l20: '31명 이상 3F 대관 불가합니다',
+            l11: '41명 이상은 A+B / B+카페 / A+B+카페만 이용 가능합니다',
+            l27: '31명 이상은 ALL 파트만 이용 가능합니다', l26: '31명 이상은 AB 파트만 이용 가능합니다',
+            l41: '40명 이상은 AB / ABC 파트만 이용 가능합니다',
+            hongdae: '8명 이상은 복합 파트를 선택해주세요 (A+B / B+D / A+B+D)',
         },
         hours: h => `${h}시간`, people: p => `${p}명`, day9: 'Day 9시간', half4: 'Half 4시간', per_h: '/시간',
+        // 왼쪽 행 머리 — 견적서의 항목 이름과 같은 말을 쓴다
+        row_studio: '지점', row_part: '파트', row_type: '종류', row_personnel: '인원', row_time: '시간', row_extra: '연장', row_options: '옵션',
         spec_studio: '지점', spec_part: '파트', spec_type: '종류', spec_people: '인원', spec_time: '시간',
         spec_hourly: h => `${h}시간 (시간제)`, spec_day: 'Day 9시간', spec_half: 'Half 4시간',
         status: '상태', sum: '합계', base: '기본 요금', overtime: h => `연장 ${h}시간`, options: n => `옵션 ${n}`,
@@ -43,16 +47,16 @@ const I18N = {
         // 요금표
         sh_key: '현재 선택 · 칸을 누르면 견적에 반영됩니다',
         sec_day: 'Day 9시간 · 사진 / 영상', sec_half: 'Half 4시간 · 사진 / 영상', sec_event: 'Event 12시간 · 행사',
-        sec_plan: 'Floor plan · 도면 · 원본 요금표', sec_hourly: '시간제 · 15인 이하', sec_whole: '전관 A+B+D · 16인 이상',
+        sec_plan: 'Floor plan · 도면 · 원본 요금표', sec_hourly: '시간제 · 15명 이하', sec_whole: '전관 A+B+D · 16명 이상',
         unit: '단위 만원', unit_h: '단위 만원 / 시간', g_photo: '사진', g_video: '영상', g_hourly: '시간당',
         n_over: '*추가 시간 당 렌탈 비용의 10% (Day견적으로 적용)', n_furn: '*가구 촬영 혹은 차량 내부 진입 시 별도 금액 협의',
         n_exh: '*전시 및 장기 대관 시 할인 적용 별도 협의', n_change: '*상세 협의 시 일부 견적이 변경될 수 있습니다.',
         n_contact: '일정 및 세부 문의는 <b>contact@plusjun.com</b> 메일로 부탁드립니다.',
         n_image: '이미지를 누르면 크게 볼 수 있습니다.', img_alt: '원본 요금표 (도면 포함)',
-        n_h_single: '*단독 룸(A·B·D)은 최대 7명', n_h_combo: '*8인 이상은 복합 파트(A+B / B+D / A+B+D)',
+        n_h_single: '*단독 룸(A·B·D)은 최대 7명', n_h_combo: '*8명 이상은 복합 파트(A+B / B+D / A+B+D)',
         n_h_bg: '*A 파트는 백가든 이용이 포함된 요금입니다', n_h_opt: '*그린하우스 옵션 +4만원/시간', n_h_over: '*추가 시간 당 Day 요금의 10%',
-        n_h_opt2: '*그린하우스·백가든 옵션 각 +30만원(16~30인) / +50만원(31인 이상) · 시간 무관 정액',
-        band: ([lo, hi], i, n) => (i === 0 && lo === 1) ? `~${hi}인` : (i === n - 1 && hi >= PERSONNEL_MAX) ? `${lo}인~` : lo === hi ? `${lo}인` : `${lo}~${hi}인`,
+        n_h_opt2: '*그린하우스·백가든 옵션 각 +30만원(16~30명) / +50만원(31명 이상) · 시간 무관 정액',
+        band: ([lo, hi], i, n) => (i === 0 && lo === 1) ? `~${hi}명` : (i === n - 1 && hi >= PERSONNEL_MAX) ? `${lo}명~` : lo === hi ? `${lo}명` : `${lo}~${hi}명`,
         partName: k => k,
     },
     en: {
@@ -71,7 +75,9 @@ const I18N = {
         cap_max: n => `up to ${n}`, cap_min: n => `${n}+`,
         vat: 'VAT excluded', vat_s: '+VAT',   // 하단 바는 좁아서 짧게
         rc_foot: 'All prices exclude VAT (10%).<br>This quote is for reference and may differ from the actual fee.<br>Contact the studio for an exact price.',
-        peek_cue: 'Quote', peek_why: 'Why', na: 'Unavailable',
+        peek_cue: 'Quote', peek_why: 'Why', peek_close: 'Close', na: 'Unavailable',
+        rc_title: 'Quotation', rc_copy: 'Copy quote',
+        rc_text_head: d => `[LAYER STUDIOS quote] ${d}`, rc_text_foot: '* For reference only; the actual fee may differ.',
         studio: { HANNAM: 'Hannam', LAYER7: 'Layer 7', LAYER20: 'Layer 20', LAYER11: 'Layer 11',
                   LAYER27: 'Layer 27', LAYER26: 'Layer 26', LAYER41: 'Layer 41', HONGDAE: 'Hongdae' },
         hongdae_groups: ['Single room (up to 7 · hourly)', 'Combined rooms (up to 15 · hourly)', 'Whole space (16+)'],
@@ -85,6 +91,7 @@ const I18N = {
             hongdae: 'For 8 or more, choose a combined part (A+B / B+D / A+B+D)',
         },
         hours: h => `${h}h`, people: p => `${p} ppl`, day9: 'Day 9h', half4: 'Half 4h', per_h: '/h',
+        row_studio: 'Studio', row_part: 'Part', row_type: 'Type', row_personnel: 'Personnel', row_time: 'Time', row_extra: 'Extra', row_options: 'Options',
         spec_studio: 'Studio', spec_part: 'Part', spec_type: 'Type', spec_people: 'People', spec_time: 'Time',
         spec_hourly: h => `${h}h (hourly)`, spec_day: 'Day 9h', spec_half: 'Half 4h',
         status: 'Status', sum: 'Total', base: 'Base rate', overtime: h => `Overtime ${h}h`, options: n => `Options ${n}`,
@@ -190,6 +197,7 @@ const els = {
     priceBackgarden: document.getElementById('p-backgarden'),
     optBackgarden: document.querySelector('button[data-opt="BACKGARDEN"]'),
     rcMeta: document.getElementById('rc-meta'),
+    rcCopy: document.getElementById('rc-copy'),
     rcSpec: document.getElementById('rc-spec'),
     rcCharges: document.getElementById('rc-charges'),
     rcTotal: document.getElementById('rc-total'),
@@ -413,14 +421,17 @@ function paint() {
     els.vPersonnel.textContent = t('people')(state.personnel);
     els.vExtra.textContent = t('hours')(state.extraHours);
 
-    // 견적 번호의 파트 표기도 현재 언어를 따른다 (영어 화면에서 한글이 섞이지 않게)
-    els.rcMeta.textContent = `QUOTATION · NO. ${state.studio}-${partName(state.part)}-${state.personnel}P`;
+    // 견적서 머리: 상호 · 견적일. 캡처해 보냈을 때 언제 낸 견적인지 남는다
+    const today = quoteDate();
+    els.rcMeta.textContent = `LAYER STUDIOS · ${today}`;
 
-    // 사양
-    let spec = li(t('spec_studio'), studioName(state.studio)) + li(t('spec_part'), partName(state.part));
-    if (!hd) spec += li(t('spec_type'), typeName);
-    spec += li(t('spec_people'), t('people')(state.personnel));
-    spec += li(t('spec_time'), small ? t('spec_hourly')(state.hours) : t(state.time === 'day' ? 'spec_day' : 'spec_half'));
+    // 사양 — 화면에 그리는 줄을 '견적 복사'용 글자로도 모은다
+    const text = [t('rc_text_head')(today)];
+    const row = (k, v, charge) => { text.push(`${k}: ${v}`); return li(k, v, charge); };
+    let spec = row(t('spec_studio'), studioName(state.studio)) + row(t('spec_part'), partName(state.part));
+    if (!hd) spec += row(t('spec_type'), typeName);
+    spec += row(t('spec_people'), t('people')(state.personnel));
+    spec += row(t('spec_time'), small ? t('spec_hourly')(state.hours) : t(state.time === 'day' ? 'spec_day' : 'spec_half'));
     els.rcSpec.innerHTML = spec;
 
     if (r.err) {
@@ -430,7 +441,8 @@ function paint() {
         els.rcStamp.textContent = r.err;
         els.peek.classList.add('err');
         els.peekV.textContent = t('na');
-        els.peekCue.textContent = t('peek_why');
+        els.rcCopy.hidden = true;
+        syncPeekCue();
         return;
     }
 
@@ -439,13 +451,16 @@ function paint() {
     if (r.base === undefined) {
         charges = li(t('sum'), won(r.total), true);
     } else {
-        charges = li(t('base'), won(r.base), true);
-        if (r.extraFee > 0) charges += li(t('overtime')(state.extraHours), '+' + won(r.extraFee), true);
+        charges = row(t('base'), won(r.base), true);
+        if (r.extraFee > 0) charges += row(t('overtime')(state.extraHours), '+' + won(r.extraFee), true);
         if (r.optionFee > 0) {
             const names = state.options.map(optionName).join(' · ');
-            charges += li(t('options')(names), '+' + won(r.optionFee), true);
+            charges += row(t('options')(names), '+' + won(r.optionFee), true);
         }
     }
+    text.push(`${t('sum')}: ${won(r.total)} (${t('vat')})`, t('rc_text_foot'));
+    els.rcCopy.dataset.copy = text.join('\n');
+    els.rcCopy.hidden = false;
     els.rcCharges.innerHTML = charges;
     els.rcTotal.innerHTML = `<div class="rc-total">
     <span class="rc-total-k">TOTAL</span><span class="rc-total-v">${won(r.total)}<span class="rc-vat">(${t('vat')})</span></span></div>`;
@@ -454,7 +469,19 @@ function paint() {
 
     els.peek.classList.remove('err');
     els.peekV.innerHTML = `${won(r.total)}<span class="peek-vat">(${t('vat_s')})</span>`;
-    els.peekCue.textContent = t('peek_cue');
+    syncPeekCue();
+}
+
+// 손잡이 오른쪽 글자: 펼쳐져 있으면 '닫기', 접혀 있으면 '견적서'(산출 불가일 때는 '사유')
+function syncPeekCue() {
+    const open = els.dock.classList.contains('open');
+    els.peekCue.textContent = t(open ? 'peek_close' : els.peek.classList.contains('err') ? 'peek_why' : 'peek_cue');
+}
+
+// 오늘 날짜 2026.11.18
+function quoteDate() {
+    const d = new Date(), z = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}.${z(d.getMonth() + 1)}.${z(d.getDate())}`;
 }
 
 function render() {
@@ -786,7 +813,7 @@ function copyText(text, btn) {
         btn.textContent = t('copied');
         btn.classList.add('done');
         clearTimeout(btn._t);
-        btn._t = setTimeout(() => { btn.textContent = t('copy'); btn.classList.remove('done'); }, 1600);
+        btn._t = setTimeout(() => { btn.textContent = t(btn.dataset.i18n || 'copy'); btn.classList.remove('done'); }, 1600);
     };
     const fallback = () => {
         const ta = document.createElement('textarea');
@@ -805,6 +832,7 @@ function toggleDock(force) {
     els.dock.classList.toggle('open', open);
     els.dockScrim.classList.toggle('on', open);
     els.peek.setAttribute('aria-expanded', String(open));
+    syncPeekCue();
 }
 
 // ─── 초기화 ─────────────────────────────────────────────

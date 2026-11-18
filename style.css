@@ -14,10 +14,13 @@
     --line: #e5e5e5;
     --sans: "Helvetica Neue", Helvetica, Arial, "Pretendard Variable", Pretendard, sans-serif;
 
-    --fs-ui: 12px;
-    --fs-body: 13px;   /* 안내 본문 */
-    --fs-tab: 14px;
-    --fs-sub: 15px;    /* 안내 묶음 제목 */
+    --fs-ui: 13px;
+    --fs-body: 14px;   /* 안내 본문 */
+    --fs-tab: 15px;
+    --fs-sub: 16px;    /* 안내 묶음 제목 */
+    --fs-table: 14px;  /* 요금표 숫자 — 좁은 화면에서 다섯 열이 들어가는 크기 */
+    --fs-menu: 12px;   /* 헤더 메뉴 */
+    --thumb-w: 12px;   /* 슬라이더 손잡이 폭. 눈금 위치 계산에도 쓴다 */
     --fs-nav: 21px;
     --fs-title: 52px;
     --fs-title-m: 32px;
@@ -32,6 +35,7 @@
     --sp-3xl: 64px;
 
     --gutter: 32px;
+    --page-max: 1280px;   /* 넓은 화면에서 본문·헤더가 더 벌어지지 않는 폭 (거터 포함) */
     --gutter-m: 20px;
     --header-h: 64px;
     --peek-h: 56px;
@@ -110,6 +114,8 @@ input:focus-visible {
     justify-content: space-between;
     gap: 22px;
     height: 100%;
+    max-width: var(--page-max);
+    margin: 0 auto;
     padding: 0 var(--gutter);
 }
 
@@ -134,8 +140,8 @@ input:focus-visible {
 
 .mh-nav button {
     position: relative;
-    padding: 4px 0;
-    font-size: var(--fs-ui);
+    padding: 12px 0;
+    font-size: var(--fs-menu);
     text-transform: uppercase;
     color: var(--grey);
     white-space: nowrap;
@@ -150,12 +156,20 @@ input:focus-visible {
 /* 언어 전환(KR / EN) — 화면 탭과 다른 종류라 밑줄 없이, 세로 실선으로 갈라 둔다 */
 .mh-nav .mh-lang {
     padding-right: 22px;
-    border-right: 1px solid var(--line);
     color: var(--grey);
 }
 
+/* 밑줄 대신 오른쪽의 짧은 세로 실선 */
 .mh-nav .mh-lang::after {
-    display: none;
+    left: auto;
+    right: 0;
+    top: 50%;
+    bottom: auto;
+    width: 1px;
+    height: 16px;
+    background: var(--line);
+    transform: translateY(-50%);
+    transition: none;
 }
 
 .mh-lang .on {
@@ -176,12 +190,18 @@ input:focus-visible {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: 8px;
     height: 1px;
     background: currentColor;
     transform: scaleX(0);
     transform-origin: left;
     transition: transform .3s var(--ease);
+}
+
+.opts button::after {
+    left: 8px;
+    right: 8px;
+    bottom: 4px;
 }
 
 .mh-nav button:hover::after,
@@ -243,7 +263,7 @@ input:focus-visible {
 .opts {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px 22px;
+    gap: 8px 22px;
 }
 
 .opts button {
@@ -251,8 +271,9 @@ input:focus-visible {
     font-size: var(--fs-tab);
     font-weight: 700;
     letter-spacing: -0.01em;
-    padding: 6px 0 4px;
-    min-height: 32px;
+    padding: 10px 8px 8px;
+    margin: -4px -8px;
+    min-height: 40px;
     color: var(--grey);
     transition: color .2s var(--ease);
 }
@@ -297,7 +318,7 @@ input:focus-visible {
 
 /* 체크형 옵션 — 앞에 작은 네모, 선택 시 검정으로 채운다. 밑줄은 없다 */
 .opts-check button {
-    padding-left: 18px;
+    padding-left: 26px;
 }
 
 .opts-check button::after {
@@ -313,7 +334,7 @@ input:focus-visible {
 .opts-check button::before {
     content: '';
     position: absolute;
-    left: 0;
+    left: 8px;
     top: 50%;
     transform: translateY(-50%);
     width: 9px;
@@ -334,8 +355,10 @@ input:focus-visible {
 .slider input[type=range] {
     -webkit-appearance: none;
     appearance: none;
+    display: block;
     width: 100%;
-    height: 22px;
+    height: 44px;
+    margin: -11px 0;
     background: linear-gradient(var(--black), var(--black)) center / 100% 1px no-repeat;
     outline: none;
     cursor: pointer;
@@ -344,7 +367,7 @@ input:focus-visible {
 .slider input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 12px;
+    width: var(--thumb-w);
     height: 22px;
     background: var(--black);
     border: none;
@@ -353,7 +376,7 @@ input:focus-visible {
 }
 
 .slider input[type=range]::-moz-range-thumb {
-    width: 12px;
+    width: var(--thumb-w);
     height: 22px;
     background: var(--black);
     border: none;
@@ -361,7 +384,7 @@ input:focus-visible {
     cursor: pointer;
 }
 
-/* 눈금 — 선 위의 짧은 세로줄. 손잡이 폭(12px)만큼 양 끝을 들여 손잡이 중심과 맞춘다 */
+/* 눈금 — 선 위의 짧은 세로줄. 손잡이 폭만큼 양 끝을 들여 손잡이 중심과 맞춘다 */
 .track {
     position: relative;
 }
@@ -378,7 +401,7 @@ input:focus-visible {
 
 .ticks i {
     position: absolute;
-    left: calc(6px + (100% - 12px) * var(--f));
+    left: calc(var(--thumb-w) / 2 + (100% - var(--thumb-w)) * var(--f));
     top: 50%;
     width: 1px;
     height: 7px;
@@ -482,7 +505,7 @@ input:focus-visible {
 .sh-t {
     width: 100%;
     border-collapse: collapse;
-    font-size: var(--fs-tab);
+    font-size: var(--fs-table);
     line-height: 1.3;
 }
 
@@ -563,7 +586,7 @@ input:focus-visible {
 }
 
 .sh-na {
-    color: var(--line);
+    color: var(--grey-off);
 }
 
 /* 현재 선택 — 검정 칸. 행·열 머리는 검정 글자로만 */
@@ -697,13 +720,17 @@ input:focus-visible {
 
 /* 복사 — 누르는 곳임이 보이게 늘 밑줄을 둔다 (견적서 손잡이의 링크와 같은 방식). 올리면 회색, 복사되면 밑줄이 사라진다 */
 .copy {
-    margin-left: 10px;
+    margin-left: 2px;
     font-size: var(--fs-ui);
     color: var(--black);
     white-space: nowrap;
     text-decoration: underline;
     text-underline-offset: 3px;
     transition: color .2s var(--ease);
+    padding: 8px;
+    margin-top: -8px;
+    margin-bottom: -8px;
+    margin-right: -8px;
 }
 
 .copy:hover {
@@ -783,6 +810,16 @@ input:focus-visible {
     content: "↓";
 }
 
+/* 펼치면 바로 아래 견적서에 합계가 있으니 손잡이에서는 금액을 빼고 '닫기'만 남긴다 */
+.dock.open .peek-k,
+.dock.open .peek-v {
+    display: none;
+}
+
+.dock.open .peek-cue {
+    margin-left: auto;
+}
+
 .peek-vat {
     margin-left: .2em;
     font-size: var(--fs-ui);
@@ -805,6 +842,14 @@ input:focus-visible {
 
 .paper-in {
     padding-top: var(--sp-l);
+}
+
+/* 제목 왼쪽, '견적 복사' 오른쪽 */
+.rc-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--sp-m);
 }
 
 .rc-title {
@@ -934,10 +979,39 @@ input:focus-visible {
 /* ═══════════════════════════════════════════
    좁은 화면
    ═══════════════════════════════════════════ */
+/* 중간 폭(태블릿·작은 노트북) — 2단에 요금표가 들어가도록 글자를 한 단계 줄인다 */
+@media (min-width: 768px) and (max-width: 1179px) {
+    :root {
+        --fs-ui: 12px;
+        --fs-body: 13px;
+        --fs-tab: 14px;
+        --fs-sub: 15px;
+    }
+}
+
 @media (max-width: 767px) {
     :root {
         --gutter: var(--gutter-m);
         --header-h: 56px;
+        --thumb-w: 16px;
+    }
+
+    /* 손가락으로 잡는 손잡이 — 선택값(21px)과 어울리게 조금 키운다 */
+    .slider input[type=range]::-webkit-slider-thumb {
+        height: 26px;
+    }
+
+    .slider input[type=range]::-moz-range-thumb {
+        height: 26px;
+    }
+
+    /* 견적서 합계 — 화면 폭에 맞춰 키운다. 영어 금액(₩11,200,000)은 길어서 한 단계 작게 */
+    .rc-total-v {
+        font-size: min(40px, 10.5vw);
+    }
+
+    :lang(en) .rc-total-v {
+        font-size: min(30px, 8vw);
     }
 
     .mh-logo img {
@@ -985,7 +1059,7 @@ input:focus-visible {
     }
 
     .copy {
-        margin-left: 8px;
+        margin-left: 0;
     }
 }
 
@@ -1023,11 +1097,14 @@ input:focus-visible {
         padding-bottom: 0;
     }
 
+    /* 견적서는 420px에서 멈춘다 — 항목 이름과 값이 멀어지지 않게 */
     .workbench {
         display: grid;
-        grid-template-columns: minmax(0, 1.4fr) minmax(320px, 1fr);
+        grid-template-columns: minmax(0, 1fr) clamp(320px, 34%, 420px);
         gap: var(--sp-3xl);
         align-items: start;
+        max-width: var(--page-max);
+        margin: 0 auto;
         padding: var(--sp-2xl) var(--gutter) 120px;
     }
 
@@ -1122,6 +1199,11 @@ input:focus-visible {
 /* 넓은 화면에서는 조작 패널을 2열 격자로. 지점·파트 행은 두 칸을 다 쓰고,
    나머지는 둘씩 짝짓는다. 짝 없이 남은 마지막 행(.row-wide, app.js의 syncMode)도 두 칸을 쓴다. */
 @media (min-width: 1180px) {
+    :root {
+        --fs-table: 15px;
+        --fs-menu: 13px;
+    }
+
     .controls {
         display: grid;
         grid-template-columns: 1fr 1fr;
