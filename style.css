@@ -695,18 +695,23 @@ input:focus-visible {
     display: none;
 }
 
-/* 복사 — 시트의 '색상 보기' 링크처럼 검정 텍스트. 밑줄은 견적서 손잡이의 링크와 같은 방식 */
+/* 복사 — 누르는 곳임이 보이게 늘 밑줄을 둔다 (견적서 손잡이의 링크와 같은 방식). 올리면 회색, 복사되면 밑줄이 사라진다 */
 .copy {
     margin-left: 10px;
     font-size: var(--fs-ui);
     color: var(--black);
     white-space: nowrap;
-}
-
-.copy:hover,
-.copy.done {
     text-decoration: underline;
     text-underline-offset: 3px;
+    transition: color .2s var(--ease);
+}
+
+.copy:hover {
+    color: var(--grey);
+}
+
+.copy.done {
+    text-decoration: none;
 }
 
 /* ═══════════════════════════════════════════
@@ -751,6 +756,7 @@ input:focus-visible {
 }
 
 .peek-v {
+    white-space: nowrap;
     font-size: var(--fs-nav);
     font-weight: 700;
     letter-spacing: -0.02em;
@@ -764,6 +770,23 @@ input:focus-visible {
     text-decoration: underline;
     text-underline-offset: 3px;
     white-space: nowrap;
+}
+
+/* 누르면 견적서가 올라온다는 표시. 펼쳐져 있으면 아래 화살표 */
+.peek-cue::after {
+    content: "↑";
+    display: inline-block;
+    margin-left: 4px;
+}
+
+.dock.open .peek-cue::after {
+    content: "↓";
+}
+
+.peek-vat {
+    margin-left: .2em;
+    font-size: var(--fs-ui);
+    letter-spacing: 0;
 }
 
 .peek.err .peek-v {
@@ -1034,13 +1057,9 @@ input:focus-visible {
         margin-top: var(--sp-2xl);
     }
 
-    .gd-inline {
-        display: flex;
-        gap: 14px;
-    }
-
-    .gd-inline h4 {
-        flex-shrink: 0;
+    /* 넓은 화면에서 본문 줄이 끝까지 늘어지지 않게 읽기 좋은 폭에서 끊는다 */
+    .gd-b {
+        max-width: 760px;
     }
 
     .pk .pk-s,
