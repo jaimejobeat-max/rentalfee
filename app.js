@@ -24,6 +24,15 @@ const I18N = {
         rc_foot: '모든 금액은 부가세(VAT 10%) 별도입니다.<br>본 견적은 참고용이며 실제 요금과 다를 수 있습니다.<br>정확한 금액은 지점에 문의하세요.',
         peek_cue: '견적서', peek_why: '사유', peek_close: '닫기', na: '산출 불가',
         rc_title: '견적서', rc_copy: '견적 복사',
+        // 가견적서
+        doc_open: '가견적서 만들기', doc_title: '가견적서', doc_print: 'PDF로 저장 / 인쇄', doc_close: '닫기',
+        doc_date: '견적일', doc_to: '수신', doc_to_ph: '회사명 / 성함', doc_to_suffix: '귀하',
+        doc_shoot: '촬영 예정일', doc_shoot_ph: '예: 2026.12.03', doc_from: '공급자', doc_studio: '지점', doc_addr: '주소', doc_contact: '문의',
+        doc_item: '항목', doc_detail: '내용', doc_amount: '금액', doc_rental: '대관료',
+        doc_supply: '공급가액', doc_vat: '부가세 (10%)', doc_sum: '합계 (VAT 포함)',
+        doc_memo: '비고', doc_memo_ph: '요청 사항이 있으면 적어 주세요', doc_notes: '안내',
+        doc_disclaimer: '본 문서는 가견적서이며 확정 견적이 아닙니다. 실제 요금은 상세 협의 후 달라질 수 있습니다.',
+        doc_won: n => `${Math.round(n).toLocaleString('ko-KR')}원`,
         rc_text_head: d => `[LAYER STUDIOS 견적] ${d}`, rc_text_foot: '※ 참고용 견적이며 실제 요금과 다를 수 있습니다.',
         studio: { HANNAM: '한남', LAYER7: '레이어 7', LAYER20: '레이어 20', LAYER11: '레이어 11',
                   LAYER27: '레이어 27', LAYER26: '레이어 26', LAYER41: '레이어 41', HONGDAE: '홍대' },
@@ -77,6 +86,14 @@ const I18N = {
         rc_foot: 'All prices exclude VAT (10%).<br>This quote is for reference and may differ from the actual fee.<br>Contact the studio for an exact price.',
         peek_cue: 'Quote', peek_why: 'Why', peek_close: 'Close', na: 'Unavailable',
         rc_title: 'Quotation', rc_copy: 'Copy quote',
+        doc_open: 'Create provisional quote', doc_title: 'Provisional Quotation', doc_print: 'Save as PDF / Print', doc_close: 'Close',
+        doc_date: 'Date', doc_to: 'To', doc_to_ph: 'Company / Name', doc_to_suffix: '',
+        doc_shoot: 'Shoot date', doc_shoot_ph: 'e.g. 2026.12.03', doc_from: 'From', doc_studio: 'Studio', doc_addr: 'Address', doc_contact: 'Contact',
+        doc_item: 'Item', doc_detail: 'Details', doc_amount: 'Amount', doc_rental: 'Rental fee',
+        doc_supply: 'Subtotal', doc_vat: 'VAT (10%)', doc_sum: 'Total (VAT included)',
+        doc_memo: 'Notes', doc_memo_ph: 'Add any requests here', doc_notes: 'Terms',
+        doc_disclaimer: 'This is a provisional quotation, not a confirmed quote. The actual fee may change after detailed consultation.',
+        doc_won: n => `₩${Math.round(n).toLocaleString('en-US')}`,
         rc_text_head: d => `[LAYER STUDIOS quote] ${d}`, rc_text_foot: '* For reference only; the actual fee may differ.',
         studio: { HANNAM: 'Hannam', LAYER7: 'Layer 7', LAYER20: 'Layer 20', LAYER11: 'Layer 11',
                   LAYER27: 'Layer 27', LAYER26: 'Layer 26', LAYER41: 'Layer 41', HONGDAE: 'Hongdae' },
@@ -198,6 +215,9 @@ const els = {
     optBackgarden: document.querySelector('button[data-opt="BACKGARDEN"]'),
     rcMeta: document.getElementById('rc-meta'),
     rcCopy: document.getElementById('rc-copy'),
+    docOpen: document.getElementById('doc-open'),
+    doc: document.getElementById('doc'),
+    docPage: document.getElementById('doc-page'),
     rcSpec: document.getElementById('rc-spec'),
     rcCharges: document.getElementById('rc-charges'),
     rcTotal: document.getElementById('rc-total'),
@@ -427,7 +447,13 @@ function paint() {
 
     // 사양 — 화면에 그리는 줄을 '견적 복사'용 글자로도 모은다
     const text = [t('rc_text_head')(today)];
-    const row = (k, v, charge) => { text.push(`${k}: ${v}`); return li(k, v, charge); };
+    // 가견적서가 쓰는 같은 내용: 사양 [이름, 값] · 금액 [이름, 만원]
+    lastQuote = { date: today, spec: [], charges: [], total: null };
+    const row = (k, v, charge, amount) => {
+        text.push(`${k}: ${v}`);
+        if (charge) lastQuote.charges.push([k, amount]); else lastQuote.spec.push([k, v]);
+        return li(k, v, charge);
+    };
     let spec = row(t('spec_studio'), studioName(state.studio)) + row(t('spec_part'), partName(state.part));
     if (!hd) spec += row(t('spec_type'), typeName);
     spec += row(t('spec_people'), t('people')(state.personnel));
@@ -442,6 +468,7 @@ function paint() {
         els.peek.classList.add('err');
         els.peekV.textContent = t('na');
         els.rcCopy.hidden = true;
+        els.docOpen.hidden = true;
         syncPeekCue();
         return;
     }
@@ -450,14 +477,17 @@ function paint() {
     let charges = '';
     if (r.base === undefined) {
         charges = li(t('sum'), won(r.total), true);
+        lastQuote.charges.push([t('doc_rental'), r.total]);
     } else {
-        charges = row(t('base'), won(r.base), true);
-        if (r.extraFee > 0) charges += row(t('overtime')(state.extraHours), '+' + won(r.extraFee), true);
+        charges = row(t('base'), won(r.base), true, r.base);
+        if (r.extraFee > 0) charges += row(t('overtime')(state.extraHours), '+' + won(r.extraFee), true, r.extraFee);
         if (r.optionFee > 0) {
             const names = state.options.map(optionName).join(' · ');
-            charges += row(t('options')(names), '+' + won(r.optionFee), true);
+            charges += row(t('options')(names), '+' + won(r.optionFee), true, r.optionFee);
         }
     }
+    lastQuote.total = r.total;
+    els.docOpen.hidden = false;
     text.push(`${t('sum')}: ${won(r.total)} (${t('vat')})`, t('rc_text_foot'));
     els.rcCopy.dataset.copy = text.join('\n');
     els.rcCopy.hidden = false;
@@ -476,6 +506,81 @@ function paint() {
 function syncPeekCue() {
     const open = els.dock.classList.contains('open');
     els.peekCue.textContent = t(open ? 'peek_close' : els.peek.classList.contains('err') ? 'peek_why' : 'peek_cue');
+}
+
+// ═══════════════════════════════════════════════════════
+// 가견적서 — 지금 견적을 A4 한 장 문서로. 서버 없이 브라우저 인쇄(PDF로 저장)로 내보낸다.
+// 고객이 직접 뽑는 문서라 사업자 정보·직인·계좌는 넣지 않는다.
+// ═══════════════════════════════════════════════════════
+let lastQuote = null;
+const docForm = { to: '', shoot: '', memo: '' };   // 닫았다 열어도 입력이 남게
+
+function renderDoc() {
+    const q = lastQuote;
+    if (!q || q.total === null) return;
+    const W = t('doc_won'), hd = isHongdae();
+    const supply = Math.round(q.total * 10000), vat = Math.round(supply * 0.1);
+    const address = LAYER_INFO[state.studio].address[state.lang === 'en' ? 1 : 0];
+    // 대관료 줄의 '내용': 지점을 뺀 사양을 한 줄로 (1F · 사진 · 10명 · Day 9시간)
+    const detail = q.spec.slice(1).map(([, v]) => v).join(' · ');
+    const items = q.charges.map(([k, amt], i) =>
+        `<tr><td${i === 0 ? ` data-detail="${esc(detail)}"` : ''}>${i === 0 ? t('doc_rental') : esc(k)}</td><td>${i === 0 ? esc(detail) : ''}</td><td class="num">${W(amt * 10000)}</td></tr>`).join('');
+    // 안내문 — 요금표에 적힌 것과 같은 문장
+    const strip = x => x.replace(/^\*/, '');
+    const notes = (hd ? (isHongdaeSmall() ? [t('n_furn'), t('n_change')] : [t('n_h_over'), t('n_furn'), t('n_change')])
+        : [t('n_over'), t('n_furn'), t('n_exh'), t('n_change')]).map(strip);
+    const field = (key, ph, tag = 'input') => tag === 'input'
+        ? `<input data-doc="${key}" value="${esc(docForm[key])}" placeholder="${esc(ph)}" autocomplete="off">`
+        : `<textarea data-doc="${key}" rows="2" placeholder="${esc(ph)}">${esc(docForm[key])}</textarea>`;
+
+    els.docPage.innerHTML = `
+    <header class="dc-head">
+        <h1>${t('doc_title')}</h1>
+        <img src="logo.png" alt="LAYER STUDIOS">
+    </header>
+    <div class="dc-meta">
+        <dl>
+            <div><dt>${t('doc_to')}</dt><dd class="dc-to">${field('to', t('doc_to_ph'))}<span>${t('doc_to_suffix')}</span></dd></div>
+            <div data-opt-field="shoot"><dt>${t('doc_shoot')}</dt><dd>${field('shoot', t('doc_shoot_ph'))}</dd></div>
+            <div><dt>${t('doc_date')}</dt><dd>${q.date}</dd></div>
+        </dl>
+        <dl>
+            <div><dt>${t('doc_from')}</dt><dd>LAYER STUDIOS</dd></div>
+            <div><dt>${t('doc_studio')}</dt><dd>${esc(studioName(state.studio))}</dd></div>
+            <div><dt>${t('doc_addr')}</dt><dd>${esc(address)}</dd></div>
+            <div><dt>${t('doc_contact')}</dt><dd>contact@plusjun.com</dd></div>
+        </dl>
+    </div>
+    <table class="dc-items">
+        <thead><tr><th>${t('doc_item')}</th><th>${t('doc_detail')}</th><th class="num">${t('doc_amount')}</th></tr></thead>
+        <tbody>${items}</tbody>
+    </table>
+    <div class="dc-sum">
+        <div><span>${t('doc_supply')}</span><span>${W(supply)}</span></div>
+        <div><span>${t('doc_vat')}</span><span>${W(vat)}</span></div>
+        <div class="dc-total"><span>${t('doc_sum')}</span><span>${W(supply + vat)}</span></div>
+    </div>
+    <section class="dc-block" data-opt-field="memo"><h2>${t('doc_memo')}</h2>${field('memo', t('doc_memo_ph'), 'textarea')}</section>
+    <section class="dc-block"><h2>${t('doc_notes')}</h2>
+        <ul>${notes.map(n => `<li>${esc(n)}</li>`).join('')}<li>${t('n_contact')}</li></ul>
+    </section>
+    <p class="dc-foot">${t('doc_disclaimer')}</p>`;
+    syncDocEmpty();
+}
+
+// 비워 둔 선택 항목(촬영 예정일·비고)은 인쇄에서 빠진다
+function syncDocEmpty() {
+    els.docPage.querySelectorAll('[data-opt-field]').forEach(el => {
+        el.classList.toggle('is-empty', !docForm[el.dataset.optField].trim());
+    });
+    els.docPage.querySelector('.dc-to').classList.toggle('is-empty', !docForm.to.trim());
+}
+
+function toggleDoc(open) {
+    if (open) renderDoc();
+    els.doc.hidden = !open;
+    document.body.classList.toggle('doc-open', open);
+    if (open) els.doc.scrollTop = 0;
 }
 
 // 오늘 날짜 2026.11.18
@@ -735,6 +840,10 @@ document.addEventListener('click', e => {
     if (e.target.closest('#peek')) { toggleDock(); return; }
     if (e.target.id === 'dock-scrim') { toggleDock(false); return; }
 
+    if (e.target.closest('#doc-open')) { toggleDoc(true); return; }
+    if (e.target.closest('[data-doc-close]')) { toggleDoc(false); return; }
+    if (e.target.closest('[data-doc-print]')) { window.print(); return; }
+
     const cp = e.target.closest('button.copy');
     if (cp) { copyText(cp.dataset.copy, cp); return; }
 
@@ -773,7 +882,19 @@ document.addEventListener('click', e => {
     render();
 });
 
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !els.doc.hidden) toggleDoc(false);
+});
+
 document.addEventListener('input', e => {
+    const f = e.target.closest('[data-doc]');
+    if (f) {
+        docForm[f.dataset.doc] = f.value;
+        // 비고는 적는 만큼 늘어난다 — 인쇄에서 잘리지 않게
+        if (f.tagName === 'TEXTAREA') { f.style.height = 'auto'; f.style.height = f.scrollHeight + 'px'; }
+        syncDocEmpty();
+        return;
+    }
     const r = e.target.closest('input[data-rng]');
     if (!r) return;
     state[r.dataset.rng] = +r.value;

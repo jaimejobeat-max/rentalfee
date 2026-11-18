@@ -1225,3 +1225,391 @@ input:focus-visible {
         transition: none !important;
     }
 }
+
+/* ═══════════════════════════════════════════
+   가견적서 — 견적서의 버튼, 화면을 덮는 A4 문서, 인쇄
+   ═══════════════════════════════════════════ */
+
+/* 견적서 아래의 버튼 — 산출 불가 상자(.rc-stamp)와 같은 1px 검정 테두리 */
+.rc-doc {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    margin-top: var(--sp-m);
+    border: 1px solid var(--black);
+    font-size: var(--fs-ui);
+    font-weight: 700;
+    transition: background .2s var(--ease), color .2s var(--ease);
+}
+
+.rc-doc:hover {
+    background: var(--black);
+    color: var(--white);
+}
+
+body.doc-open {
+    overflow: hidden;
+}
+
+.doc {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    background: #f2f2f2;
+    padding-bottom: var(--sp-2xl);
+}
+
+/* 위에 붙어 있는 띠: 닫기 · PDF로 저장 */
+.doc-bar {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-m);
+    height: var(--header-h);
+    padding: 0 var(--gutter);
+    background: var(--white);
+    border-bottom: 1px solid var(--black);
+    font-size: var(--fs-ui);
+}
+
+.doc-bar button {
+    min-height: 40px;
+}
+
+.doc-bar .doc-go {
+    padding: 0 var(--sp-m);
+    background: var(--black);
+    color: var(--white);
+    font-weight: 700;
+}
+
+/* 종이 — A4 비율의 폭(794px = 210mm)에서 멈춘다 */
+.doc-page {
+    max-width: 794px;
+    margin: var(--sp-l) auto 0;
+    padding: 56px 64px 64px;
+    background: var(--white);
+    font-size: 13px;
+    line-height: 1.6;
+    word-break: keep-all;
+}
+
+.dc-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--sp-m);
+    padding-bottom: var(--sp-m);
+    border-bottom: 2px solid var(--black);
+}
+
+.dc-head h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1;
+}
+
+.dc-head img {
+    height: 13px;
+    width: auto;
+    margin-bottom: 4px;
+}
+
+/* 수신 | 공급자 두 단 */
+.dc-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-xl);
+    margin-top: var(--sp-l);
+}
+
+.dc-meta dl > div {
+    display: flex;
+    gap: var(--sp-s);
+    padding: 5px 0;
+}
+
+.dc-meta dt {
+    flex: 0 0 72px;
+    color: var(--grey);
+}
+
+.dc-meta dd {
+    flex: 1;
+    min-width: 0;
+}
+
+.dc-to {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font-weight: 700;
+}
+
+/* 입력 칸 — 밑줄만. 인쇄하면 밑줄도 사라져 글자만 남는다 */
+.doc-page input,
+.doc-page textarea {
+    width: 100%;
+    min-width: 0;
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    padding: 0 0 2px;
+    outline: none;
+    resize: none;
+}
+
+.doc-page input:focus,
+.doc-page textarea:focus {
+    border-bottom-color: var(--black);
+}
+
+.doc-page ::placeholder {
+    color: var(--grey-off);
+    font-weight: 400;
+}
+
+.dc-items {
+    width: 100%;
+    margin-top: var(--sp-xl);
+    border-collapse: collapse;
+    border-top: 1px solid var(--black);
+}
+
+.dc-items th,
+.dc-items td {
+    padding: 10px 0;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--line);
+}
+
+.dc-items th {
+    font-weight: 400;
+    color: var(--grey);
+    border-bottom-color: var(--black);
+}
+
+.dc-items td:first-child {
+    width: 28%;
+    font-weight: 700;
+}
+
+.dc-items .num {
+    width: 24%;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.dc-items td.num {
+    font-weight: 700;
+}
+
+/* 공급가액 · 부가세 · 합계 — 오른쪽 절반 */
+.dc-sum {
+    width: 50%;
+    margin: var(--sp-m) 0 0 auto;
+}
+
+.dc-sum > div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-m);
+    padding: 5px 0;
+}
+
+.dc-sum > div span:first-child {
+    color: var(--grey);
+}
+
+.dc-sum .dc-total {
+    margin-top: var(--sp-xs);
+    padding: var(--sp-s) 0;
+    border-top: 1px solid var(--black);
+    border-bottom: 1px solid var(--black);
+    align-items: baseline;
+}
+
+.dc-sum .dc-total span:first-child {
+    color: var(--black);
+    font-weight: 700;
+}
+
+.dc-sum .dc-total span:last-child {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+}
+
+.dc-block {
+    margin-top: var(--sp-xl);
+}
+
+.dc-block h2 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: var(--sp-xs);
+}
+
+.dc-block ul {
+    list-style: none;
+    color: var(--grey);
+}
+
+.dc-block li::before {
+    content: "· ";
+}
+
+.dc-block li b {
+    font-weight: 700;
+    color: var(--black);
+}
+
+.dc-foot {
+    margin-top: var(--sp-xl);
+    padding-top: var(--sp-m);
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--grey);
+}
+
+@media (max-width: 767px) {
+    .doc-page {
+        margin-top: 0;
+        padding: var(--sp-l) var(--gutter) var(--sp-xl);
+    }
+
+    .dc-head h1 {
+        font-size: 26px;
+    }
+
+    .dc-head img {
+        height: 11px;
+    }
+
+    .dc-meta {
+        grid-template-columns: 1fr;
+        gap: var(--sp-m);
+    }
+
+    .dc-meta dl + dl {
+        padding-top: var(--sp-m);
+        border-top: 1px solid var(--line);
+    }
+
+    .dc-sum {
+        width: 100%;
+    }
+
+    /* 좁은 화면에서는 내용을 항목 아래로 내린다 */
+    .dc-items thead th:nth-child(2) {
+        display: none;
+    }
+
+    .dc-items td:nth-child(2) {
+        display: none;
+    }
+
+    .dc-items td:first-child {
+        width: auto;
+    }
+
+    .dc-items td:first-child[data-detail]::after {
+        content: attr(data-detail);
+        display: block;
+        font-weight: 400;
+        color: var(--grey);
+    }
+}
+
+/* 인쇄 — 종이만 남긴다. 휴대폰에서 뽑아도 A4 두 단 배치로 나온다 */
+@media print {
+    @page {
+        size: A4;
+        margin: 18mm 16mm;
+    }
+
+    html,
+    body {
+        background: #fff;
+        padding: 0 !important;
+        min-height: 0;
+        overflow: visible !important;
+    }
+
+    body.doc-open > :not(.doc) {
+        display: none !important;
+    }
+
+    .doc {
+        position: static;
+        overflow: visible;
+        background: none;
+        padding: 0;
+    }
+
+    .doc-bar {
+        display: none;
+    }
+
+    .doc-page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        font-size: 10.5pt;
+    }
+
+    .doc-page input,
+    .doc-page textarea {
+        border-bottom: none;
+    }
+
+    .doc-page ::placeholder {
+        color: transparent;
+    }
+
+    /* 비워 둔 선택 항목은 빼고, 수신이 비면 '귀하'도 뺀다 */
+    .doc-page .is-empty[data-opt-field],
+    .dc-to.is-empty span {
+        display: none;
+    }
+
+    .dc-meta {
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+    }
+
+    .dc-meta dl + dl {
+        padding-top: 0;
+        border-top: none;
+    }
+
+    .dc-sum {
+        width: 50%;
+    }
+
+    .dc-items thead th:nth-child(2),
+    .dc-items td:nth-child(2) {
+        display: table-cell;
+    }
+
+    .dc-items td:first-child[data-detail]::after {
+        content: none;
+    }
+
+    .dc-items,
+    .dc-sum,
+    .dc-block {
+        break-inside: avoid;
+    }
+}
