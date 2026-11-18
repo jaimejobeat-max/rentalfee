@@ -35,16 +35,16 @@ const I18N = {
             l41: '40인 이상은 AB / ABC 파트만 이용 가능합니다',
             hongdae: '8인 이상은 복합 파트를 선택해주세요 (A+B / B+D / A+B+D)',
         },
-        hours: h => `${h}시간`, people: p => `${p}명`, day9: 'Day 9h', half4: 'Half 4h',
+        hours: h => `${h}시간`, people: p => `${p}명`, day9: 'Day 9시간', half4: 'Half 4시간', per_h: '/시간',
         spec_studio: '지점', spec_part: '파트', spec_type: '종류', spec_people: '인원', spec_time: '시간',
-        spec_hourly: h => `${h}시간 (시간제)`, spec_day: 'Day · 9시간', spec_half: 'Half · 4시간',
+        spec_hourly: h => `${h}시간 (시간제)`, spec_day: 'Day 9시간', spec_half: 'Half 4시간',
         status: '상태', sum: '합계', base: '기본 요금', overtime: h => `연장 ${h}시간`, options: n => `옵션 ${n}`,
         won: n => `${fmt(n)}만원`,
         // 요금표
         sh_key: '현재 선택 · 칸을 누르면 견적에 반영됩니다',
-        sec_day: 'Day 9h · 사진 / 영상', sec_half: 'Half 4h · 사진 / 영상', sec_event: 'Event 12h · 행사',
+        sec_day: 'Day 9시간 · 사진 / 영상', sec_half: 'Half 4시간 · 사진 / 영상', sec_event: 'Event 12시간 · 행사',
         sec_plan: 'Floor plan · 도면 · 원본 요금표', sec_hourly: '시간제 · 15인 이하', sec_whole: '전관 A+B+D · 16인 이상',
-        unit: '단위 만 원', unit_h: '단위 만 원 / 시간', g_photo: '사진', g_video: '영상', g_hourly: '시간당',
+        unit: '단위 만원', unit_h: '단위 만원 / 시간', g_photo: '사진', g_video: '영상', g_hourly: '시간당',
         n_over: '*추가 시간 당 렌탈 비용의 10% (Day견적으로 적용)', n_furn: '*가구 촬영 혹은 차량 내부 진입 시 별도 금액 협의',
         n_exh: '*전시 및 장기 대관 시 할인 적용 별도 협의', n_change: '*상세 협의 시 일부 견적이 변경될 수 있습니다.',
         n_contact: '일정 및 세부 문의는 <b>contact@plusjun.com</b> 메일로 부탁드립니다.',
@@ -84,9 +84,9 @@ const I18N = {
             l41: 'Groups of 40 or more can only book AB or ABC',
             hongdae: 'For 8 or more, choose a combined part (A+B / B+D / A+B+D)',
         },
-        hours: h => `${h}h`, people: p => `${p} ppl`, day9: 'Day 9h', half4: 'Half 4h',
+        hours: h => `${h}h`, people: p => `${p} ppl`, day9: 'Day 9h', half4: 'Half 4h', per_h: '/h',
         spec_studio: 'Studio', spec_part: 'Part', spec_type: 'Type', spec_people: 'People', spec_time: 'Time',
-        spec_hourly: h => `${h}h (hourly)`, spec_day: 'Day · 9h', spec_half: 'Half · 4h',
+        spec_hourly: h => `${h}h (hourly)`, spec_day: 'Day 9h', spec_half: 'Half 4h',
         status: 'Status', sum: 'Total', base: 'Base rate', overtime: h => `Overtime ${h}h`, options: n => `Options ${n}`,
         won: n => `₩${Math.round(n * 10000).toLocaleString('en-US')}`,
         sh_key: 'Current selection · tap a cell to apply it to the quote',
@@ -348,7 +348,7 @@ function syncMode() {
         els.rowOptions.hidden = false;
 
         // 시간제: 그린하우스만 +4만원/h (백가든은 A 요금에 포함). 전관: 둘 다 정액 30 / 50만원
-        const fee = small ? `+${won(4)}/h` : `+${won(state.personnel <= 30 ? 30 : 50)}`;
+        const fee = small ? `+${won(4)}${t('per_h')}` : `+${won(state.personnel <= 30 ? 30 : 50)}`;
         els.priceGreenhouse.textContent = fee;
         els.priceBackgarden.textContent = fee;
         els.optBackgarden.hidden = small;
@@ -367,6 +367,28 @@ function syncMode() {
     shown.forEach((r, i) => { const n = r.querySelector('.row-n'); if (n) n.textContent = String(i + 1).padStart(2, '0'); });
     const paired = shown.slice(2);
     paired.forEach((r, i) => r.classList.toggle('row-wide', paired.length % 2 === 1 && i === paired.length - 1));
+}
+
+// ─── 슬라이더 눈금 ───────────────────────────────────────
+// 인원 슬라이더: 요금이 바뀌는 구간의 끝(10·20·30명…)에 눈금을 찍는다. 지점마다 구간이 다르다.
+function renderTicks() {
+    const sd = LAYER_MASTER_ENGINE.studios[state.studio];
+    const bands = sd.bands || [...sd.bands_small, ...sd.bands_large];
+    const box = document.getElementById('ticks-personnel');
+    const key = state.studio;
+    if (box.dataset.key === key) return;
+    box.dataset.key = key;
+    // 촘촘한 구간(홍대 4·5·6·7명)은 눈금만 찍고, 숫자는 10명부터 5명 단위에만 적는다
+    box.innerHTML = bands.map(([, hi]) => hi).filter(hi => hi < PERSONNEL_MAX).map(hi =>
+        `<i style="--f:${(hi - 1) / (PERSONNEL_MAX - 1)}">${hi >= 10 && hi % 5 === 0 ? `<b>${hi}</b>` : ''}</i>`).join('');
+}
+
+// 슬라이더 양 끝 표기 — 현재 언어의 단위로 (1명 … 80명, 0시간 … 6시간)
+function renderScales() {
+    const set = (id, a, b) => { const [x, y] = document.getElementById(id).children; x.textContent = a; y.textContent = b; };
+    set('scale-personnel', t('people')(1), t('people')(PERSONNEL_MAX));
+    set('scale-hours', t('hours')(1), t('hours')(12));
+    set('scale-extra', t('hours')(0), t('hours')(6));
 }
 
 // ─── 견적서 ─────────────────────────────────────────────
@@ -388,8 +410,7 @@ function paint() {
     els.vPart.textContent = partName(state.part);
     els.vType.textContent = typeName;
     els.vTime.textContent = small ? t('hours')(state.hours) : t(state.time === 'day' ? 'day9' : 'half4');
-    // 슬라이더 끝(80명)은 눈금 표기와 맞춰 MAX로 보여준다. 견적서에는 실제 인원을 적는다.
-    els.vPersonnel.textContent = state.personnel >= PERSONNEL_MAX ? 'MAX' : t('people')(state.personnel);
+    els.vPersonnel.textContent = t('people')(state.personnel);
     els.vExtra.textContent = t('hours')(state.extraHours);
 
     // 견적 번호의 파트 표기도 현재 언어를 따른다 (영어 화면에서 한글이 섞이지 않게)
@@ -437,6 +458,7 @@ function paint() {
 }
 
 function render() {
+    renderTicks();
     syncMode();
     syncToggles();
     syncPartStates();
@@ -738,10 +760,12 @@ function applyLang() {
     document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
     document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
     document.querySelectorAll('button[data-set="studio"]').forEach(b => { b.textContent = studioName(b.dataset.v); });
-    // 아주 좁은 화면에서는 짧은 라벨(EN/KO)만 보인다
+    // 언어 전환은 KR / EN 두 글자로 — 지금 언어가 검정, 누르면 반대 언어로 바뀐다
     const langBtn = document.getElementById('lang-btn');
-    langBtn.innerHTML = `<span class="lang-l">${t('lang_btn')}</span><span class="lang-s">${t('lang_btn_s')}</span>`;
+    const ko = state.lang === 'ko';
+    langBtn.innerHTML = `<span class="${ko ? 'on' : ''}">KR</span><i>/</i><span class="${ko ? '' : 'on'}">EN</span>`;
     langBtn.setAttribute('aria-label', t('lang_btn'));
+    renderScales();
 }
 
 function setLang(lang) {

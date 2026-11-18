@@ -29,7 +29,7 @@
             <!-- 계산기 ↔ 요금표 전환. 요금표는 같은 지점·선택을 공유한다 -->
             <nav class="mh-nav" aria-label="화면 전환">
                 <!-- 언어 전환. 누르면 반대 언어로 바뀌고, 라벨은 바꿀 대상 언어를 보여준다 -->
-                <button class="mh-lang" id="lang-btn" data-lang-toggle aria-label="English"><span class="lang-l">English</span><span class="lang-s">EN</span></button>
+                <button class="mh-lang" id="lang-btn" data-lang-toggle aria-label="English"><span class="on">KR</span><i>/</i><span>EN</span></button>
                 <button data-view="calc" class="on" aria-pressed="true" data-i18n="nav_calc">견적 산출</button>
                 <button data-view="sheet" aria-pressed="false" data-i18n="nav_sheet">요금표</button>
                 <button data-view="info" aria-pressed="false" data-i18n="nav_info">안내</button>
@@ -71,22 +71,26 @@
             <div class="row">
                 <div class="row-h"><span class="row-n">04</span>Personnel<em id="v-personnel">10명</em></div>
                 <div class="slider">
-                    <input type="range" data-rng="personnel" id="rng-personnel" min="1" max="80" value="10" step="1"
-                        aria-label="촬영 인원">
-                    <div class="scale"><span>01</span><span>MAX</span></div>
+                    <div class="track">
+                        <input type="range" data-rng="personnel" id="rng-personnel" min="1" max="80" value="10" step="1"
+                            aria-label="촬영 인원">
+                        <!-- 요금이 바뀌는 인원 구간의 끝. app.js renderTicks가 지점별로 채운다 -->
+                        <div class="ticks" id="ticks-personnel" aria-hidden="true"></div>
+                    </div>
+                    <div class="scale" id="scale-personnel"><span>1명</span><span>80명</span></div>
                 </div>
             </div>
 
             <div class="row" id="row-time">
-                <div class="row-h"><span class="row-n">05</span>Time<em id="v-time">Day 9h</em></div>
+                <div class="row-h"><span class="row-n">05</span>Time<em id="v-time">Day 9시간</em></div>
                 <div class="opts" id="time-dayhalf">
-                    <button data-set="time" data-v="day" class="on">DAY 9H</button>
-                    <button data-set="time" data-v="half">HALF 4H</button>
+                    <button data-set="time" data-v="day" class="on" data-i18n="day9">Day 9시간</button>
+                    <button data-set="time" data-v="half" data-i18n="half4">Half 4시간</button>
                 </div>
                 <div class="slider" id="time-hourly" hidden>
                     <input type="range" data-rng="hours" id="rng-hours" min="1" max="12" value="1" step="1"
                         aria-label="이용 시간">
-                    <div class="scale"><span>1H</span><span>12H</span></div>
+                    <div class="scale" id="scale-hours"><span>1시간</span><span>12시간</span></div>
                 </div>
             </div>
 
@@ -95,7 +99,7 @@
                 <div class="slider">
                     <input type="range" data-rng="extraHours" id="rng-extra" min="0" max="6" value="0" step="1"
                         aria-label="연장 시간">
-                    <div class="scale"><span>0H</span><span>6H</span></div>
+                    <div class="scale" id="scale-extra"><span>0시간</span><span>6시간</span></div>
                 </div>
                 <p class="note" data-i18n="note_extra">연장료 = 풀데이 기본요금의 10% / 시간</p>
             </div>
@@ -103,7 +107,7 @@
             <div class="row" id="row-options" hidden>
                 <div class="row-h"><span class="row-n">07</span>Options<em class="tag" data-i18n="tag_hongdae">홍대 전용</em></div>
                 <div class="opts opts-check">
-                    <button data-opt="GREENHOUSE"><span data-i18n="opt_greenhouse">그린하우스</span> <b id="p-greenhouse">+4만원/h</b></button>
+                    <button data-opt="GREENHOUSE"><span data-i18n="opt_greenhouse">그린하우스</span> <b id="p-greenhouse">+4만원/시간</b></button>
                     <!-- 백가든은 전관(16인 이상)에서만 추가 옵션. 시간제 A 는 백가든이 포함된 요금이다 -->
                     <button data-opt="BACKGARDEN" hidden><span data-i18n="opt_backgarden">백가든</span> <b id="p-backgarden"></b></button>
                 </div>
