@@ -19,7 +19,8 @@ const I18N = {
         type_photo: '사진', type_video: '영상',
         note_extra: '연장료 = 풀데이 기본요금의 10% / 시간',
         tag_hongdae: '홍대 전용', opt_greenhouse: '그린하우스', opt_backgarden: '백가든',
-        rc_foot: '본 견적은 참고용이며 실제 요금과 다를 수 있습니다.<br>정확한 금액은 지점에 문의하세요.',
+        vat: 'VAT 별도',
+        rc_foot: '모든 금액은 부가세(VAT 10%) 별도입니다.<br>본 견적은 참고용이며 실제 요금과 다를 수 있습니다.<br>정확한 금액은 지점에 문의하세요.',
         peek_cue: '견적서', peek_why: '사유', na: '산출 불가',
         studio: { HANNAM: '한남', LAYER7: '레이어 7', LAYER20: '레이어 20', LAYER11: '레이어 11',
                   LAYER27: '레이어 27', LAYER26: '레이어 26', LAYER41: '레이어 41', HONGDAE: '홍대' },
@@ -66,7 +67,8 @@ const I18N = {
         type_photo: 'Photo', type_video: 'Video',
         note_extra: 'Overtime = 10% of the full-day base rate per hour',
         tag_hongdae: 'Hongdae only', opt_greenhouse: 'Greenhouse', opt_backgarden: 'Back garden',
-        rc_foot: 'This quote is for reference and may differ from the actual fee.<br>Contact the studio for an exact price.',
+        vat: 'VAT excluded',
+        rc_foot: 'All prices exclude VAT (10%).<br>This quote is for reference and may differ from the actual fee.<br>Contact the studio for an exact price.',
         peek_cue: 'Quote', peek_why: 'Why', na: 'Unavailable',
         studio: { HANNAM: 'Hannam', LAYER7: 'Layer 7', LAYER20: 'Layer 20', LAYER11: 'Layer 11',
                   LAYER27: 'Layer 27', LAYER26: 'Layer 26', LAYER41: 'Layer 41', HONGDAE: 'Hongdae' },
@@ -393,7 +395,7 @@ function paint() {
     }
     els.rcCharges.innerHTML = charges;
     els.rcTotal.innerHTML = `<div class="rc-total">
-    <span class="rc-total-k">TOTAL</span><span class="rc-total-v">${won(r.total)}</span></div>`;
+    <span class="rc-total-k">TOTAL</span><span class="rc-total-v">${won(r.total)}<span class="rc-vat">(${t('vat')})</span></span></div>`;
     els.rcStamp.className = 'rc-stamp';
     els.rcStamp.textContent = '';
 
