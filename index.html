@@ -15,6 +15,7 @@
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <!-- Pretendard v1.3.9 자체 호스팅 (fonts/). 외부 CDN 의존 없음.
          동적 서브셋이라 브라우저는 화면에 실제 쓰인 글자의 조각만 내려받는다. -->
+    <link rel="stylesheet" href="fonts/inter-tight.css">
     <link rel="stylesheet" href="fonts/pretendard.css">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -173,7 +174,14 @@
             <button data-doc-close data-i18n="doc_close">닫기</button>
             <button class="doc-go" id="doc-print" data-doc-print data-i18n="doc_print">PDF로 저장 / 인쇄</button>
         </div>
-        <article class="doc-page" id="doc-page"></article>
+        <!-- 좁은 화면에서만 보이는 입력 칸. 아래 종이는 축소된 미리보기라 여기서 적는다 -->
+        <form class="doc-form" id="doc-form" onsubmit="return false">
+            <label><span data-i18n="doc_to">수신</span><input data-doc="to" autocomplete="off"></label>
+            <label><span data-i18n="doc_shoot">촬영 예정일</span><input data-doc="shoot" autocomplete="off"></label>
+            <label><span data-i18n="doc_memo">비고</span><textarea data-doc="memo" rows="1"></textarea></label>
+        </form>
+        <!-- 종이는 늘 A4 폭(794px)으로 짜고, 화면이 좁으면 통째로 축소한다 (app.js fitDoc) -->
+        <div class="doc-fit" id="doc-fit"><article class="doc-page" id="doc-page"></article></div>
     </div>
 
     <script src="engine.js"></script>

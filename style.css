@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════
    LAYER STUDIOS — 견적 산출기
    홈페이지(layerdemo2)의 디자인 언어를 그대로 따른다.
-   흰 바탕 · 검정 · 회색 세 색, Helvetica Neue(한글은 Pretendard),
+   흰 바탕 · 검정 · 회색 세 색, Inter Tight(한글은 Pretendard),
    상자 없는 텍스트 탭, 1px 검정 실선, 32px 거터, 64px 고정 헤더.
    모바일 우선. 900px 이상에서 2단(조작 패널 | 견적서).
    ═══════════════════════════════════════════════════ */
@@ -12,7 +12,8 @@
     --grey: #6b6b6b;   /* 흰 바탕 대비 5.3:1 — 12px 주석도 읽히는 가장 옅은 회색 */
     --grey-off: #b0b0b0; /* 고를 수 없는 항목 */
     --line: #e5e5e5;
-    --sans: "Helvetica Neue", Helvetica, Arial, "Pretendard Variable", Pretendard, sans-serif;
+    /* 영문·숫자는 Inter Tight, 한글은 Pretendard — 둘 다 사이트에 들어 있어 어느 기기에서나 같은 모양 */
+    --sans: "Inter Tight", "Pretendard Variable", Pretendard, "Helvetica Neue", Helvetica, Arial, sans-serif;
 
     --fs-ui: 13px;
     --fs-body: 14px;   /* 안내 본문 */
@@ -511,7 +512,7 @@ input:focus-visible {
 
 .sh-t th,
 .sh-t td {
-    padding: 8px 4px;
+    padding: 8px 3px;
     text-align: center;
     white-space: nowrap;
     font-weight: 400;
@@ -554,7 +555,7 @@ input:focus-visible {
     background: var(--white);
     text-align: left;
     padding-left: 0;
-    padding-right: 12px;
+    padding-right: 10px;
     font-weight: 700;
     letter-spacing: -0.01em;
     color: var(--black);
@@ -1257,7 +1258,7 @@ body.doc-open {
     z-index: 300;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    background: #f2f2f2;
+    background: #eae9e5;   /* 종이가 떠 보이는 따뜻한 회색 */
     padding-bottom: var(--sp-2xl);
 }
 
@@ -1288,55 +1289,71 @@ body.doc-open {
     font-weight: 700;
 }
 
-/* 종이 — A4 비율의 폭(794px = 210mm)에서 멈춘다 */
+/* 종이 — A4 비율(794 × 1123px = 210 × 297mm). 넓은 여백, 가는 선, 큰 제목 하나.
+
+   세로: 모든 줄 높이와 간격이 한 단위 --u(본문 한 줄 = 18px)의 배수다. 글줄이 같은 눈금 위에 놓인다.
+         0.5u 표의 줄 사이 · 1u 한 줄 · 1.5u 묶음 사이 · 2u 구역 사이
+   가로: 왼쪽 51% | 오른쪽 49%(이름표 52% + 값). 정보 블록 · 제목 · 표 · 합계가 이 세로선에 맞는다 */
 .doc-page {
-    max-width: 794px;
-    margin: var(--sp-l) auto 0;
-    padding: 56px 64px 64px;
+    --u: 18px;
+    --dc-col: 51%;
+    display: flex;
+    flex-direction: column;
+    width: 794px;
+    min-height: 1123px;
+    padding: calc(var(--u) * 3) calc(var(--u) * 3) calc(var(--u) * 2);
     background: var(--white);
-    font-size: 13px;
-    line-height: 1.6;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 12px 40px rgba(0, 0, 0, .07);
+    color: #1c1c1c;
+    font-size: 12.5px;
+    line-height: var(--u);
     word-break: keep-all;
+    --grey: #5f5f5f;
 }
 
-.dc-head {
+/* 위: 로고·부제 | 정보 블록 */
+.dc-top {
     display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: var(--sp-m);
-    padding-bottom: var(--sp-m);
-    border-bottom: 2px solid var(--black);
+    align-items: flex-start;
 }
 
-.dc-head h1 {
-    font-size: 32px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1;
+/* 로고와 부제는 각각 1.5u 높이의 줄. 로고 윗선은 오른쪽 첫 글줄의 대문자 높이에 맞춘다 */
+.dc-id {
+    flex: 0 0 var(--dc-col);
+    font-size: 19px;
+    line-height: calc(var(--u) * 1.5);
+    letter-spacing: -0.01em;
 }
 
-.dc-head img {
-    height: 13px;
+.dc-id img {
+    display: block;
+    height: 15px;
     width: auto;
-    margin-bottom: 4px;
+    margin: 4px 0 calc(var(--u) * 1.5 - 19px);
 }
 
-/* 수신 | 공급자 두 단 */
+.dc-id span {
+    display: block;
+    color: var(--grey);
+}
+
 .dc-meta {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--sp-xl);
-    margin-top: var(--sp-l);
+    flex: 1;
+    min-width: 0;
 }
 
-.dc-meta dl > div {
+.dc-meta > div + div {
+    margin-top: calc(var(--u) * 1.5);
+}
+
+.dc-meta > div:not(.dc-dates),
+.dc-dates > div {
     display: flex;
-    gap: var(--sp-s);
-    padding: 5px 0;
 }
 
 .dc-meta dt {
-    flex: 0 0 72px;
+    flex: 0 0 52%;
     color: var(--grey);
 }
 
@@ -1347,196 +1364,232 @@ body.doc-open {
 
 .dc-to {
     display: flex;
-    align-items: baseline;
     gap: 6px;
-    font-weight: 700;
 }
 
-/* 입력 칸 — 밑줄만. 인쇄하면 밑줄도 사라져 글자만 남는다 */
+/* 입력 칸 — 글줄과 같은 높이(1u). 밑줄은 높이를 차지하지 않게 그림자로 긋고, 인쇄하면 사라진다 */
 .doc-page input,
 .doc-page textarea {
+    display: block;
     width: 100%;
     min-width: 0;
+    height: var(--u);
     font: inherit;
+    line-height: var(--u);
     color: inherit;
     background: none;
     border: none;
-    border-bottom: 1px solid var(--line);
     border-radius: 0;
-    padding: 0 0 2px;
+    box-shadow: inset 0 -1px 0 var(--line);
+    padding: 0;
+    margin: 0;
     outline: none;
     resize: none;
+    overflow: hidden;
 }
 
 .doc-page input:focus,
 .doc-page textarea:focus {
-    border-bottom-color: var(--black);
+    box-shadow: inset 0 -1px 0 var(--black);
 }
 
 .doc-page ::placeholder {
     color: var(--grey-off);
-    font-weight: 400;
 }
 
+/* 큰 제목 — 오른쪽 단에, 구분선 1u 위에 앉는다 */
+.dc-title {
+    margin: calc(var(--u) * 12) 0 0;
+    padding: 0 0 var(--u) var(--dc-col);
+    border-bottom: 1px solid var(--line);
+    font-size: 99px;   /* Inter Tight로 'Estimate'가 오른쪽 단 폭에 꽉 차는 크기 */
+    font-weight: 500;
+    letter-spacing: -0.055em;
+    line-height: calc(var(--u) * 5);
+    text-indent: -0.06em;   /* 큰 글자의 옆 여백만큼 당겨 세로선에 맞춘다 */
+    white-space: nowrap;
+}
+
+/* 표 — 줄마다 1.5u (글줄 1u + 위아래 0.25u) */
 .dc-items {
     width: 100%;
-    margin-top: var(--sp-xl);
+    margin-top: calc(var(--u) * 2 - var(--u) / 4 - 1px);   /* 구분선 1px만큼 덜어 눈금을 지킨다 */
     border-collapse: collapse;
-    border-top: 1px solid var(--black);
 }
 
 .dc-items th,
 .dc-items td {
-    padding: 10px 0;
+    padding: calc(var(--u) / 4) 0;
     text-align: left;
     vertical-align: top;
-    border-bottom: 1px solid var(--line);
+    font-weight: 400;
 }
 
 .dc-items th {
-    font-weight: 400;
-    color: var(--grey);
-    border-bottom-color: var(--black);
-}
-
-.dc-items td:first-child {
-    width: 28%;
     font-weight: 700;
 }
 
+.dc-items th:first-child,
+.dc-items td:first-child {
+    width: var(--dc-col);
+}
+
 .dc-items .num {
-    width: 24%;
     text-align: right;
     white-space: nowrap;
 }
 
-.dc-items td.num {
-    font-weight: 700;
-}
-
-/* 공급가액 · 부가세 · 합계 — 오른쪽 절반 */
+/* 공급가액 · 부가세 · 합계 — 오른쪽 단의 값 자리(이름표 52% 뒤)에 맞춘다 */
 .dc-sum {
-    width: 50%;
-    margin: var(--sp-m) 0 0 auto;
+    width: calc((100% - var(--dc-col)) * .48);
+    margin: calc(var(--u) - var(--u) / 4) 0 0 auto;
 }
 
 .dc-sum > div {
     display: flex;
     justify-content: space-between;
     gap: var(--sp-m);
-    padding: 5px 0;
-}
-
-.dc-sum > div span:first-child {
-    color: var(--grey);
 }
 
 .dc-sum .dc-total {
-    margin-top: var(--sp-xs);
-    padding: var(--sp-s) 0;
-    border-top: 1px solid var(--black);
-    border-bottom: 1px solid var(--black);
-    align-items: baseline;
-}
-
-.dc-sum .dc-total span:first-child {
-    color: var(--black);
-    font-weight: 700;
-}
-
-.dc-sum .dc-total span:last-child {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    margin-top: calc(var(--u) / 2);
+    font-size: 17px;
+    line-height: calc(var(--u) * 1.5);
+    letter-spacing: -0.01em;
     white-space: nowrap;
 }
 
-.dc-block {
-    margin-top: var(--sp-xl);
-}
-
-.dc-block h2 {
-    font-size: 13px;
-    font-weight: 700;
-    margin-bottom: var(--sp-xs);
-}
-
-.dc-block ul {
-    list-style: none;
-    color: var(--grey);
-}
-
-.dc-block li::before {
-    content: "· ";
-}
-
-.dc-block li b {
-    font-weight: 700;
-    color: var(--black);
-}
-
-.dc-foot {
-    margin-top: var(--sp-xl);
-    padding-top: var(--sp-m);
+/* 대관 내용 — 굵은 제목 아래 이름 · 값 목록 (값은 왼쪽 단의 절반 지점에서 시작) */
+.dc-spec {
+    margin-top: calc(var(--u) * 2);
+    padding-top: calc(var(--u) * 2 - 1px);
     border-top: 1px solid var(--line);
-    font-size: 12px;
+}
+
+.dc-spec h2 {
+    margin-bottom: calc(var(--u) / 2);
+    font-size: inherit;
+    font-weight: 700;
+}
+
+.dc-spec dl > div {
+    display: flex;
+}
+
+.dc-spec dt {
+    flex: 0 0 calc(var(--dc-col) / 2);
+}
+
+.dc-spec dd {
+    flex: 1;
+    min-width: 0;
+}
+
+/* 바닥글 — 종이 맨 아래에 붙는다: 작은 안내 문단(줄 높이 8/9u), 1u 아래 한 줄 */
+.dc-foot {
+    margin-top: auto;
+    padding-top: calc(var(--u) * 2);
+    font-size: 10.5px;
+    line-height: calc(var(--u) * 8 / 9);
+}
+
+.dc-foot p {
+    margin-bottom: var(--u);
+}
+
+.dc-foot div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-m);
+}
+
+/* 종이를 담는 틀 — 가운데에 두고, 좁은 화면에서는 app.js fitDoc이 정한 비율(--s)로 종이를 축소한다 */
+.doc-fit {
+    margin: var(--sp-l) auto 0;
+}
+
+.doc.is-fit .doc-fit {
+    margin-top: var(--sp-s);
+}
+
+.doc.is-fit .doc-page {
+    transform: scale(var(--s));
+    transform-origin: 0 0;
+    border-radius: calc(6px / var(--s));
+}
+
+/* 축소된 종이는 미리보기 — 여기서는 적지 않고, 인쇄될 모습 그대로 보인다(빈 선택 항목과 밑줄은 빠진다) */
+.doc.is-fit .doc-page input,
+.doc.is-fit .doc-page textarea {
+    pointer-events: none;
+    box-shadow: none;
+}
+
+.doc.is-fit .doc-page ::placeholder {
+    color: transparent;
+}
+
+.doc.is-fit .doc-page .is-empty[data-opt-field],
+.doc.is-fit .dc-to.is-empty span {
+    display: none;
+}
+
+/* 좁은 화면의 입력 칸 — 이름 왼쪽, 입력 오른쪽. 글자는 16px(아이폰이 화면을 확대하지 않는 크기) */
+.doc-form {
+    display: none;
+    background: var(--white);
+    border-bottom: 1px solid var(--line);
+    padding: var(--sp-xs) var(--gutter);
+}
+
+.doc.is-fit .doc-form {
+    display: block;
+}
+
+.doc-form label {
+    display: flex;
+    align-items: baseline;
+    gap: var(--sp-m);
+    min-height: 44px;
+    padding: 11px 0;
+    font-size: var(--fs-ui);
+}
+
+.doc-form label + label {
+    border-top: 1px solid var(--line);
+}
+
+.doc-form label span {
+    flex: 0 0 84px;
     color: var(--grey);
 }
 
-@media (max-width: 767px) {
-    .doc-page {
-        margin-top: 0;
-        padding: var(--sp-l) var(--gutter) var(--sp-xl);
-    }
+.doc-form input,
+.doc-form textarea {
+    flex: 1;
+    min-width: 0;
+    font: inherit;
+    font-size: 16px;
+    line-height: 22px;
+    color: var(--black);
+    background: none;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    outline: none;
+    resize: none;
+    overflow: hidden;
+}
 
-    .dc-head h1 {
-        font-size: 26px;
-    }
-
-    .dc-head img {
-        height: 11px;
-    }
-
-    .dc-meta {
-        grid-template-columns: 1fr;
-        gap: var(--sp-m);
-    }
-
-    .dc-meta dl + dl {
-        padding-top: var(--sp-m);
-        border-top: 1px solid var(--line);
-    }
-
-    .dc-sum {
-        width: 100%;
-    }
-
-    /* 좁은 화면에서는 내용을 항목 아래로 내린다 */
-    .dc-items thead th:nth-child(2) {
-        display: none;
-    }
-
-    .dc-items td:nth-child(2) {
-        display: none;
-    }
-
-    .dc-items td:first-child {
-        width: auto;
-    }
-
-    .dc-items td:first-child[data-detail]::after {
-        content: attr(data-detail);
-        display: block;
-        font-weight: 400;
-        color: var(--grey);
-    }
+.doc-form ::placeholder {
+    color: var(--grey-off);
 }
 
 /* 인쇄 — 종이만 남긴다. 휴대폰에서 뽑아도 A4 두 단 배치로 나온다 */
 @media print {
     @page {
         size: A4;
-        margin: 18mm 16mm;
+        margin: 15mm;
     }
 
     html,
@@ -1558,20 +1611,35 @@ body.doc-open {
         padding: 0;
     }
 
-    .doc-bar {
-        display: none;
+    .doc-bar,
+    .doc-form {
+        display: none !important;
     }
 
+    .doc-fit {
+        width: auto !important;
+        height: auto !important;
+        margin: 0;
+    }
+
+    /* 한 장을 꽉 채워 바닥글이 종이 아래에 오게 한다 (297mm − 여백 30mm, 넘침 방지로 조금 덜).
+       줄 단위만 pt로 바꾸면 간격이 모두 따라온다 */
     .doc-page {
-        max-width: none;
+        --u: 13.5pt;
+        --dc-col: 51%;
+        width: auto;
+        min-height: 262mm;
         margin: 0;
         padding: 0;
-        font-size: 10.5pt;
+        transform: none !important;
+        border-radius: 0;
+        box-shadow: none;
+        font-size: 9.5pt;
     }
 
     .doc-page input,
     .doc-page textarea {
-        border-bottom: none;
+        box-shadow: none;
     }
 
     .doc-page ::placeholder {
@@ -1584,32 +1652,59 @@ body.doc-open {
         display: none;
     }
 
-    .dc-meta {
-        grid-template-columns: 1fr 1fr;
-        gap: 32px;
+    .dc-top {
+        display: flex;
     }
 
-    .dc-meta dl + dl {
-        padding-top: 0;
-        border-top: none;
+    .dc-id {
+        margin-bottom: 0;
+        font-size: 14pt;
+    }
+
+    .dc-id img {
+        height: 11pt;
+        margin: 3pt 0 calc(var(--u) * 1.5 - 14pt);
+    }
+
+    .dc-meta dt {
+        flex-basis: 52%;
+    }
+
+    .dc-spec dt {
+        flex-basis: calc(var(--dc-col) / 2);
+    }
+
+    .dc-meta > div + div {
+        margin-top: calc(var(--u) * 1.5);
+    }
+
+    .dc-title {
+        margin-top: calc(var(--u) * 12);
+        font-size: 75pt;
+        line-height: calc(var(--u) * 5);
+    }
+
+    .dc-items th:first-child,
+    .dc-items td:first-child {
+        width: var(--dc-col);
+        padding-right: 0;
     }
 
     .dc-sum {
-        width: 50%;
+        width: calc((100% - var(--dc-col)) * .48);
+        margin-left: auto;
     }
 
-    .dc-items thead th:nth-child(2),
-    .dc-items td:nth-child(2) {
-        display: table-cell;
-    }
-
-    .dc-items td:first-child[data-detail]::after {
-        content: none;
+    .dc-foot {
+        margin-top: auto;
+        border-top: none;
+        font-size: 8pt;
     }
 
     .dc-items,
     .dc-sum,
-    .dc-block {
+    .dc-spec,
+    .dc-foot {
         break-inside: avoid;
     }
 }

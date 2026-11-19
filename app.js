@@ -25,14 +25,14 @@ const I18N = {
         peek_cue: '견적서', peek_why: '사유', peek_close: '닫기', na: '산출 불가',
         rc_title: '견적서', rc_copy: '견적 복사',
         // 가견적서
-        doc_open: '가견적서 만들기', doc_title: '가견적서', doc_print: 'PDF로 저장 / 인쇄', doc_close: '닫기',
+        doc_open: '가견적서 만들기', doc_title: 'Estimate', doc_sub: n => `${n} 가견적서`, doc_base: (s, p) => `${s} ${p} 대관`, doc_qty: '수량 × 단가', doc_spec: '대관 내용', doc_print: 'PDF로 저장 / 인쇄', doc_close: '닫기',
         doc_date: '견적일', doc_to: '수신', doc_to_ph: '회사명 / 성함', doc_to_suffix: '귀하',
         doc_shoot: '촬영 예정일', doc_shoot_ph: '예: 2026.12.03', doc_from: '공급자', doc_studio: '지점', doc_addr: '주소', doc_contact: '문의',
-        doc_item: '항목', doc_detail: '내용', doc_amount: '금액', doc_rental: '대관료',
-        doc_supply: '공급가액', doc_vat: '부가세 (10%)', doc_sum: '합계 (VAT 포함)',
-        doc_memo: '비고', doc_memo_ph: '요청 사항이 있으면 적어 주세요', doc_notes: '안내',
+        doc_item: '항목', doc_detail: '내용', doc_amount: '금액 (원)', doc_rental: '대관료',
+        doc_supply: '공급가액', doc_vat: '부가세 (10%)', doc_sum: '합계 (원)',
+        doc_memo: '비고', doc_memo_ph: '요청 사항이 있으면 적어 주세요', doc_notes: '안내.',
         doc_disclaimer: '본 문서는 가견적서이며 확정 견적이 아닙니다. 실제 요금은 상세 협의 후 달라질 수 있습니다.',
-        doc_won: n => `${Math.round(n).toLocaleString('ko-KR')}원`,
+        doc_won: n => Math.round(n).toLocaleString('ko-KR'),
         rc_text_head: d => `[LAYER STUDIOS 견적] ${d}`, rc_text_foot: '※ 참고용 견적이며 실제 요금과 다를 수 있습니다.',
         studio: { HANNAM: '한남', LAYER7: '레이어 7', LAYER20: '레이어 20', LAYER11: '레이어 11',
                   LAYER27: '레이어 27', LAYER26: '레이어 26', LAYER41: '레이어 41', HONGDAE: '홍대' },
@@ -86,14 +86,14 @@ const I18N = {
         rc_foot: 'All prices exclude VAT (10%).<br>This quote is for reference and may differ from the actual fee.<br>Contact the studio for an exact price.',
         peek_cue: 'Quote', peek_why: 'Why', peek_close: 'Close', na: 'Unavailable',
         rc_title: 'Quotation', rc_copy: 'Copy quote',
-        doc_open: 'Create provisional quote', doc_title: 'Provisional Quotation', doc_print: 'Save as PDF / Print', doc_close: 'Close',
+        doc_open: 'Create provisional quote', doc_title: 'Estimate', doc_sub: n => `${n}, provisional quote`, doc_base: (s, p) => `${s} ${p} rental`, doc_qty: 'Quantity × rate', doc_spec: 'Booking details', doc_print: 'Save as PDF / Print', doc_close: 'Close',
         doc_date: 'Date', doc_to: 'To', doc_to_ph: 'Company / Name', doc_to_suffix: '',
         doc_shoot: 'Shoot date', doc_shoot_ph: 'e.g. 2026.12.03', doc_from: 'From', doc_studio: 'Studio', doc_addr: 'Address', doc_contact: 'Contact',
-        doc_item: 'Item', doc_detail: 'Details', doc_amount: 'Amount', doc_rental: 'Rental fee',
-        doc_supply: 'Subtotal', doc_vat: 'VAT (10%)', doc_sum: 'Total (VAT included)',
-        doc_memo: 'Notes', doc_memo_ph: 'Add any requests here', doc_notes: 'Terms',
+        doc_item: 'Item', doc_detail: 'Details', doc_amount: 'Amount KRW', doc_rental: 'Rental fee',
+        doc_supply: 'Subtotal', doc_vat: 'VAT (10%)', doc_sum: 'Total KRW',
+        doc_memo: 'Notes', doc_memo_ph: 'Add any requests here', doc_notes: 'Terms.',
         doc_disclaimer: 'This is a provisional quotation, not a confirmed quote. The actual fee may change after detailed consultation.',
-        doc_won: n => `₩${Math.round(n).toLocaleString('en-US')}`,
+        doc_won: n => Math.round(n).toLocaleString('en-US'),
         rc_text_head: d => `[LAYER STUDIOS quote] ${d}`, rc_text_foot: '* For reference only; the actual fee may differ.',
         studio: { HANNAM: 'Hannam', LAYER7: 'Layer 7', LAYER20: 'Layer 20', LAYER11: 'Layer 11',
                   LAYER27: 'Layer 27', LAYER26: 'Layer 26', LAYER41: 'Layer 41', HONGDAE: 'Hongdae' },
@@ -218,6 +218,8 @@ const els = {
     docOpen: document.getElementById('doc-open'),
     doc: document.getElementById('doc'),
     docPage: document.getElementById('doc-page'),
+    docFit: document.getElementById('doc-fit'),
+    docForm: document.getElementById('doc-form'),
     rcSpec: document.getElementById('rc-spec'),
     rcCharges: document.getElementById('rc-charges'),
     rcTotal: document.getElementById('rc-total'),
@@ -449,9 +451,9 @@ function paint() {
     const text = [t('rc_text_head')(today)];
     // 가견적서가 쓰는 같은 내용: 사양 [이름, 값] · 금액 [이름, 만원]
     lastQuote = { date: today, spec: [], charges: [], total: null };
-    const row = (k, v, charge, amount) => {
+    const row = (k, v, charge, amount, kind) => {
         text.push(`${k}: ${v}`);
-        if (charge) lastQuote.charges.push([k, amount]); else lastQuote.spec.push([k, v]);
+        if (charge) lastQuote.charges.push([k, amount, kind]); else lastQuote.spec.push([k, v]);
         return li(k, v, charge);
     };
     let spec = row(t('spec_studio'), studioName(state.studio)) + row(t('spec_part'), partName(state.part));
@@ -477,13 +479,13 @@ function paint() {
     let charges = '';
     if (r.base === undefined) {
         charges = li(t('sum'), won(r.total), true);
-        lastQuote.charges.push([t('doc_rental'), r.total]);
+        lastQuote.charges.push([t('sum'), r.total, 'base']);
     } else {
-        charges = row(t('base'), won(r.base), true, r.base);
-        if (r.extraFee > 0) charges += row(t('overtime')(state.extraHours), '+' + won(r.extraFee), true, r.extraFee);
+        charges = row(t('base'), won(r.base), true, r.base, 'base');
+        if (r.extraFee > 0) charges += row(t('overtime')(state.extraHours), '+' + won(r.extraFee), true, r.extraFee, 'extra');
         if (r.optionFee > 0) {
             const names = state.options.map(optionName).join(' · ');
-            charges += row(t('options')(names), '+' + won(r.optionFee), true, r.optionFee);
+            charges += row(t('options')(names), '+' + won(r.optionFee), true, r.optionFee, 'option');
         }
     }
     lastQuote.total = r.total;
@@ -521,38 +523,38 @@ function renderDoc() {
     const W = t('doc_won'), hd = isHongdae();
     const supply = Math.round(q.total * 10000), vat = Math.round(supply * 0.1);
     const address = LAYER_INFO[state.studio].address[state.lang === 'en' ? 1 : 0];
-    // 대관료 줄의 '내용': 지점을 뺀 사양을 한 줄로 (1F · 사진 · 10명 · Day 9시간)
-    const detail = q.spec.slice(1).map(([, v]) => v).join(' · ');
-    const items = q.charges.map(([k, amt], i) =>
-        `<tr><td${i === 0 ? ` data-detail="${esc(detail)}"` : ''}>${i === 0 ? t('doc_rental') : esc(k)}</td><td>${i === 0 ? esc(detail) : ''}</td><td class="num">${W(amt * 10000)}</td></tr>`).join('');
+    // 항목 | 수량 × 단가 | 금액. 시간으로 매기는 줄(시간제·연장)은 시간 × 시간당 단가로 적는다
+    const small = isHongdaeSmall();
+    const items = q.charges.map(([k, amt, kind]) => {
+        const hours = kind === 'extra' ? state.extraHours : (small ? state.hours : 0);
+        const count = hours || (kind === 'option' ? state.options.length : 1);
+        const name = kind === 'base' ? t('doc_base')(studioName(state.studio), partName(state.part)) : k;
+        return `<tr><td>${esc(name)}</td><td>${hours ? t('hours')(hours) : count} × ${W(amt * 10000 / count)}</td><td class="num">${W(amt * 10000)}</td></tr>`;
+    }).join('');
     // 안내문 — 요금표에 적힌 것과 같은 문장
     const strip = x => x.replace(/^\*/, '');
     const notes = (hd ? (isHongdaeSmall() ? [t('n_furn'), t('n_change')] : [t('n_h_over'), t('n_furn'), t('n_change')])
         : [t('n_over'), t('n_furn'), t('n_exh'), t('n_change')]).map(strip);
     const field = (key, ph, tag = 'input') => tag === 'input'
         ? `<input data-doc="${key}" value="${esc(docForm[key])}" placeholder="${esc(ph)}" autocomplete="off">`
-        : `<textarea data-doc="${key}" rows="2" placeholder="${esc(ph)}">${esc(docForm[key])}</textarea>`;
+        : `<textarea data-doc="${key}" rows="1" placeholder="${esc(ph)}">${esc(docForm[key])}</textarea>`;
 
+    // 구성: 왼쪽 위 상호·부제 | 오른쪽 위 정보 블록 → 큰 제목 → 항목 표와 합계 → 대관 내용 → 맨 아래 안내 문단
     els.docPage.innerHTML = `
-    <header class="dc-head">
-        <h1>${t('doc_title')}</h1>
-        <img src="logo.png" alt="LAYER STUDIOS">
-    </header>
-    <div class="dc-meta">
-        <dl>
+    <header class="dc-top">
+        <div class="dc-id"><img src="logo.png" alt="LAYER STUDIOS"><span>${esc(t('doc_sub')(studioName(state.studio)))}</span></div>
+        <dl class="dc-meta">
+            <div><dt>${t('doc_from')}</dt><dd>LAYER STUDIOS ${esc(studioName(state.studio))}<br>contact@plusjun.com<br>${esc(address)}</dd></div>
             <div><dt>${t('doc_to')}</dt><dd class="dc-to">${field('to', t('doc_to_ph'))}<span>${t('doc_to_suffix')}</span></dd></div>
-            <div data-opt-field="shoot"><dt>${t('doc_shoot')}</dt><dd>${field('shoot', t('doc_shoot_ph'))}</dd></div>
-            <div><dt>${t('doc_date')}</dt><dd>${q.date}</dd></div>
+            <div class="dc-dates">
+                <div><dt>${t('doc_date')}</dt><dd>${q.date}</dd></div>
+                <div data-opt-field="shoot"><dt>${t('doc_shoot')}</dt><dd>${field('shoot', t('doc_shoot_ph'))}</dd></div>
+            </div>
         </dl>
-        <dl>
-            <div><dt>${t('doc_from')}</dt><dd>LAYER STUDIOS</dd></div>
-            <div><dt>${t('doc_studio')}</dt><dd>${esc(studioName(state.studio))}</dd></div>
-            <div><dt>${t('doc_addr')}</dt><dd>${esc(address)}</dd></div>
-            <div><dt>${t('doc_contact')}</dt><dd>contact@plusjun.com</dd></div>
-        </dl>
-    </div>
+    </header>
+    <h1 class="dc-title">${t('doc_title')}</h1>
     <table class="dc-items">
-        <thead><tr><th>${t('doc_item')}</th><th>${t('doc_detail')}</th><th class="num">${t('doc_amount')}</th></tr></thead>
+        <thead><tr><th>${t('doc_item')}</th><th>${t('doc_qty')}</th><th class="num">${t('doc_amount')}</th></tr></thead>
         <tbody>${items}</tbody>
     </table>
     <div class="dc-sum">
@@ -560,13 +562,37 @@ function renderDoc() {
         <div><span>${t('doc_vat')}</span><span>${W(vat)}</span></div>
         <div class="dc-total"><span>${t('doc_sum')}</span><span>${W(supply + vat)}</span></div>
     </div>
-    <section class="dc-block" data-opt-field="memo"><h2>${t('doc_memo')}</h2>${field('memo', t('doc_memo_ph'), 'textarea')}</section>
-    <section class="dc-block"><h2>${t('doc_notes')}</h2>
-        <ul>${notes.map(n => `<li>${esc(n)}</li>`).join('')}<li>${t('n_contact')}</li></ul>
+    <section class="dc-spec">
+        <h2>${t('doc_spec')}</h2>
+        <dl>
+            ${q.spec.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}
+            <div data-opt-field="memo"><dt>${t('doc_memo')}</dt><dd>${field('memo', t('doc_memo_ph'), 'textarea')}</dd></div>
+        </dl>
     </section>
-    <p class="dc-foot">${t('doc_disclaimer')}</p>`;
+    <footer class="dc-foot">
+        <p><b>${t('doc_notes')}</b> ${notes.map(n => esc(n.replace(/\.$/, ''))).join(' / ')}. ${t('doc_disclaimer')}</p>
+        <div><span>contact@plusjun.com</span><span>LAYER STUDIOS, ${esc(studioName(state.studio))}</span></div>
+    </footer>`;
+    // 좁은 화면용 입력 칸에도 같은 값과 안내 글자를 넣는다
+    const ph = { to: 'doc_to_ph', shoot: 'doc_shoot_ph', memo: 'doc_memo_ph' };
+    els.docForm.querySelectorAll('[data-doc]').forEach(f => { f.value = docForm[f.dataset.doc]; f.placeholder = t(ph[f.dataset.doc]); });
     syncDocEmpty();
 }
+
+// 종이는 A4 폭(794px)으로 고정해 짜고, 화면이 그보다 좁으면 통째로 축소한다.
+// 휴대폰에서도 줄·열이 A4와 똑같이 맞고, 보이는 그대로 인쇄된다.
+const DOC_W = 794;
+function fitDoc() {
+    if (els.doc.hidden) return;
+    // 종이 좌우 끝을 위쪽 띠·입력 칸의 여백(거터)과 같은 선에 둔다
+    const gutter = parseFloat(getComputedStyle(els.doc).getPropertyValue('--gutter')) || 20;
+    const s = Math.min(1, (els.doc.clientWidth - gutter * 2) / DOC_W);
+    els.doc.classList.toggle('is-fit', s < 1);
+    els.docFit.style.setProperty('--s', s);
+    els.docFit.style.width = DOC_W * s + 'px';
+    els.docFit.style.height = els.docPage.offsetHeight * s + 'px';
+}
+window.addEventListener('resize', fitDoc);
 
 // 비워 둔 선택 항목(촬영 예정일·비고)은 인쇄에서 빠진다
 function syncDocEmpty() {
@@ -580,7 +606,7 @@ function toggleDoc(open) {
     if (open) renderDoc();
     els.doc.hidden = !open;
     document.body.classList.toggle('doc-open', open);
-    if (open) els.doc.scrollTop = 0;
+    if (open) { els.doc.scrollTop = 0; fitDoc(); }
 }
 
 // 오늘 날짜 2026.11.18
@@ -890,9 +916,13 @@ document.addEventListener('input', e => {
     const f = e.target.closest('[data-doc]');
     if (f) {
         docForm[f.dataset.doc] = f.value;
-        // 비고는 적는 만큼 늘어난다 — 인쇄에서 잘리지 않게
-        if (f.tagName === 'TEXTAREA') { f.style.height = 'auto'; f.style.height = f.scrollHeight + 'px'; }
+        // 같은 항목의 다른 칸(위쪽 입력 칸 ↔ 종이)에도 옮기고, 비고는 적는 만큼 늘린다 — 인쇄에서 잘리지 않게
+        els.doc.querySelectorAll(`[data-doc="${f.dataset.doc}"]`).forEach(o => {
+            if (o !== f) o.value = f.value;
+            if (o.tagName === 'TEXTAREA') { o.style.height = 'auto'; o.style.height = o.scrollHeight + 'px'; }
+        });
         syncDocEmpty();
+        fitDoc();
         return;
     }
     const r = e.target.closest('input[data-rng]');
