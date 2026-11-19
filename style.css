@@ -1401,7 +1401,7 @@ body.doc-open {
 
 /* 큰 제목 — 오른쪽 단에, 구분선 1u 위에 앉는다 */
 .dc-title {
-    margin: calc(var(--u) * 12) 0 0;
+    margin: calc(var(--u) * 10) 0 0;
     padding: 0 0 var(--u) var(--dc-col);
     border-bottom: 1px solid var(--line);
     font-size: 99px;   /* Inter Tight로 'Estimate'가 오른쪽 단 폭에 꽉 차는 크기 */
@@ -1441,24 +1441,40 @@ body.doc-open {
     white-space: nowrap;
 }
 
-/* 공급가액 · 부가세 · 합계 — 오른쪽 단의 값 자리(이름표 52% 뒤)에 맞춘다 */
+/* 공급가액 · 부가세 · 합계 — 오른쪽 단의 값 자리(이름표 52% 뒤)에 맞춘다.
+   세 단계의 간격으로 묶음을 나눈다: 항목 줄에서 2u 띄우고, 소계 두 줄은 1u로 붙이고, 합계는 1u 더 띄운다.
+   소계의 이름은 회색으로 물리고 합계만 크고 굵게 — 눈이 합계에 먼저 간다 */
 .dc-sum {
     width: calc((100% - var(--dc-col)) * .48);
-    margin: calc(var(--u) - var(--u) / 4) 0 0 auto;
+    margin: calc(var(--u) * 2 - var(--u) / 4) 0 0 auto;
 }
 
 .dc-sum > div {
     display: flex;
     justify-content: space-between;
+    align-items: baseline;
     gap: var(--sp-m);
 }
 
+.dc-sum > div span:first-child {
+    color: var(--grey);
+}
+
 .dc-sum .dc-total {
-    margin-top: calc(var(--u) / 2);
-    font-size: 17px;
-    line-height: calc(var(--u) * 1.5);
-    letter-spacing: -0.01em;
+    margin-top: var(--u);
+    font-size: 18px;
+    font-weight: 500;
+    line-height: var(--u);
+    letter-spacing: -0.015em;
     white-space: nowrap;
+}
+
+/* 합계의 이름은 본문 크기 그대로 — 큰 숫자 옆에서 숫자를 받쳐 준다 */
+.dc-sum .dc-total span:first-child {
+    font-size: 12.5px;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: inherit;
 }
 
 /* 대관 내용 — 굵은 제목 아래 이름 · 값 목록 (값은 왼쪽 단의 절반 지점에서 시작) */
@@ -1681,7 +1697,7 @@ body.doc-open {
     }
 
     .dc-title {
-        margin-top: calc(var(--u) * 12);
+        margin-top: calc(var(--u) * 10);
         font-size: 75pt;
         line-height: calc(var(--u) * 5);
     }
