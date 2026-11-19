@@ -15,12 +15,20 @@
     /* 영문·숫자는 Inter Tight, 한글은 Pretendard — 둘 다 사이트에 들어 있어 어느 기기에서나 같은 모양 */
     --sans: "Inter Tight", "Pretendard Variable", Pretendard, "Helvetica Neue", Helvetica, Arial, sans-serif;
 
+    /* 글씨 단계: 본문 13 · 선택지 16 · 제목 21 · 선택값 28 · 큰 숫자 52(휴대폰 32~40).
+       단계 사이를 넉넉히 벌려, 작은 글씨는 물러나고 고른 값과 합계가 먼저 보이게 한다 */
     --fs-ui: 13px;
-    --fs-body: 14px;   /* 안내 본문 */
-    --fs-tab: 15px;
+    --fs-body: 13px;   /* 안내 본문 */
+    --fs-tab: 16px;
     --fs-sub: 16px;    /* 안내 묶음 제목 */
-    --fs-table: 14px;  /* 요금표 숫자 — 좁은 화면에서 다섯 열이 들어가는 크기 */
-    --fs-menu: 12px;   /* 헤더 메뉴 */
+    --fs-value: 28px;  /* 행 머리의 선택값 */
+    --fs-table: 13px;  /* 요금표 숫자 — 좁은 화면에서 다섯 열이 들어가는 크기 */
+    --fs-menu: 12px;   /* 헤더 메뉴 — 좁은 화면에서 자리가 없어 한 단계 작다 */
+    /* 줄 단위 — 본문 한 줄. 주석·견적서·안내의 줄 높이는 모두 이 값의 배수(1 · 1.25) */
+    --u: 20px;
+    /* 강조 굵기 — 가장 굵은 700 대신 한 단계 가볍게. Inter Tight에서는 600이 또렷하면서 덜 무겁다 */
+    --w: 600;
+    --w-mid: 500;   /* 선택지·견적서 값 — 굵기가 아니라 크기와 색으로 구분한다 */
     --thumb-w: 12px;   /* 슬라이더 손잡이 폭. 눈금 위치 계산에도 쓴다 */
     --fs-nav: 21px;
     --fs-title: 52px;
@@ -66,7 +74,7 @@ body {
     color: var(--black);
     font-family: var(--sans);
     font-size: var(--fs-ui);
-    line-height: 1.33;
+    line-height: var(--u);
     /* 숫자 폭을 고정해 슬라이더를 끌 때 금액이 흔들리지 않게 한다 */
     font-variant-numeric: tabular-nums;
     -webkit-font-smoothing: antialiased;
@@ -175,7 +183,7 @@ input:focus-visible {
 
 .mh-lang .on {
     color: var(--black);
-    font-weight: 700;
+    font-weight: var(--w);
 }
 
 .mh-lang i {
@@ -222,9 +230,10 @@ input:focus-visible {
 }
 
 /* ─── Row — 홈페이지 정보 블록(.sinfo__block)과 같은 어법 ── */
+/* 세로 간격은 줄 단위(--u)로: 선 아래 1u · 머리와 선택지 사이 1u · 행 아래 2u */
 .row {
     border-top: 1px solid var(--black);
-    padding: var(--sp-s) 0 var(--sp-xl);
+    padding: var(--u) 0 calc(var(--u) * 2);
 }
 
 .row-h {
@@ -234,20 +243,20 @@ input:focus-visible {
     font-size: var(--fs-ui);
     text-transform: uppercase;
     color: var(--grey);
-    margin-bottom: var(--sp-m);
+    margin-bottom: var(--u);
 }
 
 .row-n {
     color: var(--black);
 }
 
-/* 현재값 — 스튜디오 이름과 같은 21px 볼드 */
+/* 현재값 — 행의 주인공. 이름표(13px)의 두 배가 넘는 크기로 한눈에 들어온다 */
 .row-h em {
     margin-left: auto;
     font-style: normal;
-    font-size: var(--fs-nav);
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-size: var(--fs-value);
+    font-weight: var(--w);
+    letter-spacing: -0.03em;
     line-height: 1;
     text-transform: none;
     color: var(--black);
@@ -264,13 +273,13 @@ input:focus-visible {
 .opts {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px 22px;
+    gap: 8px 24px;
 }
 
 .opts button {
     position: relative;
     font-size: var(--fs-tab);
-    font-weight: 700;
+    font-weight: var(--w-mid);
     letter-spacing: -0.01em;
     padding: 10px 8px 8px;
     margin: -4px -8px;
@@ -434,7 +443,7 @@ input:focus-visible {
 .note {
     margin-top: var(--sp-s);
     font-size: var(--fs-ui);
-    line-height: 1.5;
+    line-height: var(--u);
     color: var(--grey);
     word-break: keep-all;
 }
@@ -456,7 +465,7 @@ input:focus-visible {
    한 줄에 들어가도록 화면 폭에 맞춰 줄인다 */
 .sh-title {
     font-size: min(var(--fs-title-m), 7.4vw);
-    font-weight: 700;
+    font-weight: var(--w);
     letter-spacing: -0.02em;
     line-height: .9;
     text-transform: uppercase;
@@ -507,7 +516,7 @@ input:focus-visible {
     width: 100%;
     border-collapse: collapse;
     font-size: var(--fs-table);
-    line-height: 1.3;
+    line-height: var(--u);
 }
 
 .sh-t th,
@@ -556,7 +565,7 @@ input:focus-visible {
     text-align: left;
     padding-left: 0;
     padding-right: 10px;
-    font-weight: 700;
+    font-weight: var(--w);
     letter-spacing: -0.01em;
     color: var(--black);
     border-right: 1px solid var(--line);
@@ -594,12 +603,12 @@ input:focus-visible {
 .sh-t td.hit {
     background: var(--black);
     color: var(--white);
-    font-weight: 700;
+    font-weight: var(--w);
 }
 
 .sh-t th.hit {
     color: var(--black);
-    font-weight: 700;
+    font-weight: var(--w);
 }
 
 /* 행사 12h — 두 칸짜리 */
@@ -608,7 +617,7 @@ input:focus-visible {
 }
 
 .sh-t-event td {
-    font-weight: 700;
+    font-weight: var(--w);
 }
 
 /* 주석 묶음 — 항목은 한 줄에 이어지되, 줄바꿈은 항목 단위로만 */
@@ -676,13 +685,13 @@ input:focus-visible {
     padding: 9px 0 10px;
     border-bottom: 1px solid var(--line);
     font-size: var(--fs-body);
-    line-height: 1.9;
+    line-height: calc(var(--u) * 1.25);
     word-break: keep-all;
 }
 
 .gd-item h4 {
     font-size: var(--fs-body);
-    font-weight: 700;
+    font-weight: var(--w);
     color: var(--black);
 }
 
@@ -786,7 +795,7 @@ input:focus-visible {
 .peek-v {
     white-space: nowrap;
     font-size: var(--fs-nav);
-    font-weight: 700;
+    font-weight: var(--w);
     letter-spacing: -0.02em;
     margin-left: auto;
 }
@@ -855,7 +864,7 @@ input:focus-visible {
 
 .rc-title {
     font-size: var(--fs-nav);
-    font-weight: 700;
+    font-weight: var(--w);
     letter-spacing: -0.02em;
     line-height: 1;
     text-transform: uppercase;
@@ -866,7 +875,7 @@ input:focus-visible {
     letter-spacing: .04em;
     text-transform: uppercase;
     color: var(--grey);
-    margin: var(--sp-s) 0 var(--sp-l);
+    margin: calc(var(--u) / 2) 0 calc(var(--u) * 1.5);
 }
 
 .li {
@@ -874,7 +883,7 @@ input:focus-visible {
     justify-content: space-between;
     align-items: baseline;
     gap: var(--sp-m);
-    line-height: 2;
+    line-height: calc(var(--u) * 1.25);
 }
 
 .li span:first-child {
@@ -883,11 +892,11 @@ input:focus-visible {
 }
 
 .li span:last-child {
-    font-weight: 700;
+    font-weight: var(--w-mid);
     text-align: right;
 }
 
-/* 금액 줄 — 점 리더로 좌우를 잇는다 */
+/* 금액 줄 — 가견적서처럼 점선 없이 이름 왼쪽, 금액 오른쪽 */
 .li-charge span:first-child {
     flex: 1;
     min-width: 0;
@@ -895,16 +904,10 @@ input:focus-visible {
     white-space: nowrap;
 }
 
-.li-charge span:first-child::after {
-    content: ' ' attr(data-dots);
-    color: var(--line);
-    letter-spacing: .1em;
-}
-
-/* 사양과 금액 사이 — 검정 실선은 TOTAL에만 두고 여기는 연회색 */
+/* 사양과 금액 사이 — 검정 실선은 TOTAL에만 두고 여기는 연회색. 위아래 1u */
 .rc-rule {
     border-top: 1px solid var(--line);
-    margin: var(--sp-m) 0;
+    margin: var(--u) 0;
 }
 
 /* TOTAL — 파트 제목과 같은 52px */
@@ -915,8 +918,8 @@ input:focus-visible {
     gap: var(--sp-m);
     border-top: 1px solid var(--black);
     border-bottom: 1px solid var(--black);
-    padding: var(--sp-m) 0;
-    margin-top: var(--sp-m);
+    padding: var(--u) 0;
+    margin-top: var(--u);
 }
 
 .rc-total-k {
@@ -926,16 +929,16 @@ input:focus-visible {
 }
 
 .rc-vat {
-    margin-left: .2em;
+    margin-left: .3em;
     font-size: var(--fs-ui);
-    font-weight: 700;
+    font-weight: var(--w-mid);
     letter-spacing: 0;
 }
 
 .rc-total-v {
     font-size: var(--fs-title-m);
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-weight: var(--w);
+    letter-spacing: -0.035em;
     line-height: .9;
     white-space: nowrap;
 }
@@ -945,7 +948,7 @@ input:focus-visible {
     margin: var(--sp-m) 0 0;
     border: 1px solid var(--black);
     font-size: var(--fs-ui);
-    line-height: 1.5;
+    line-height: var(--u);
     padding: 10px 12px;
     word-break: keep-all;
 }
@@ -955,9 +958,9 @@ input:focus-visible {
 }
 
 .rc-foot {
-    margin-top: var(--sp-m);
+    margin-top: var(--u);
     font-size: var(--fs-ui);
-    line-height: 1.6;
+    line-height: var(--u);
     color: var(--grey);
     word-break: keep-all;
 }
@@ -984,9 +987,12 @@ input:focus-visible {
 @media (min-width: 768px) and (max-width: 1179px) {
     :root {
         --fs-ui: 12px;
-        --fs-body: 13px;
-        --fs-tab: 14px;
+        --fs-body: 12px;
+        --fs-tab: 15px;
         --fs-sub: 15px;
+        --fs-value: 24px;
+        --fs-table: 14px;
+        --u: 18px;
     }
 }
 
@@ -995,6 +1001,16 @@ input:focus-visible {
         --gutter: var(--gutter-m);
         --header-h: 56px;
         --thumb-w: 16px;
+        --fs-value: 26px;
+    }
+
+    /* 휴대폰은 한 화면에 행이 더 보이도록 행 간격을 한 단계 줄인다 (선 아래 16 · 머리 아래 16 · 행 아래 32) */
+    .row {
+        padding: 16px 0 32px;
+    }
+
+    .row-h {
+        margin-bottom: 16px;
     }
 
     /* 손가락으로 잡는 손잡이 — 선택값(21px)과 어울리게 조금 키운다 */
@@ -1048,7 +1064,7 @@ input:focus-visible {
 
     .gd-item {
         padding: 10px 0 12px;
-        line-height: 1.6;
+        line-height: var(--u);
     }
 
     .gd-item h4 {
@@ -1236,10 +1252,10 @@ input:focus-visible {
     display: block;
     width: 100%;
     min-height: 44px;
-    margin-top: var(--sp-m);
+    margin-top: var(--u);
     border: 1px solid var(--black);
     font-size: var(--fs-ui);
-    font-weight: 700;
+    font-weight: var(--w);
     transition: background .2s var(--ease), color .2s var(--ease);
 }
 
@@ -1286,7 +1302,7 @@ body.doc-open {
     padding: 0 var(--sp-m);
     background: var(--black);
     color: var(--white);
-    font-weight: 700;
+    font-weight: var(--w);
 }
 
 /* 종이 — A4 비율(794 × 1123px = 210 × 297mm). 넓은 여백, 가는 선, 큰 제목 하나.
