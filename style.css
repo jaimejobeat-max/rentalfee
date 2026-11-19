@@ -1301,7 +1301,7 @@ body.doc-open {
     flex-direction: column;
     width: 794px;
     min-height: 1123px;
-    padding: calc(var(--u) * 3) calc(var(--u) * 3) calc(var(--u) * 2);
+    padding: calc(var(--u) * 2);   /* 종이 폭의 4.5% — 여백을 좁혀 내용이 종이를 넉넉히 채운다 */
     background: var(--white);
     border-radius: 10px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 12px 40px rgba(0, 0, 0, .07);
@@ -1401,10 +1401,10 @@ body.doc-open {
 
 /* 큰 제목 — 오른쪽 단에, 구분선 1u 위에 앉는다 */
 .dc-title {
-    margin: calc(var(--u) * 10) 0 0;
+    margin: calc(var(--u) * 11) 0 0;   /* 제목 아래 구분선이 종이 높이의 절반 조금 위에 온다 */
     padding: 0 0 var(--u) var(--dc-col);
     border-bottom: 1px solid var(--line);
-    font-size: 99px;   /* Inter Tight로 'Estimate'가 오른쪽 단 폭에 꽉 차는 크기 */
+    font-size: 104px;   /* Inter Tight로 'Estimate'가 오른쪽 단 폭에 꽉 차는 크기 */
     font-weight: 500;
     letter-spacing: -0.055em;
     line-height: calc(var(--u) * 5);
@@ -1619,7 +1619,7 @@ body.doc-open {
 @media print {
     @page {
         size: A4;
-        margin: 15mm;
+        margin: 10mm;
     }
 
     html,
@@ -1652,13 +1652,13 @@ body.doc-open {
         margin: 0;
     }
 
-    /* 한 장을 꽉 채워 바닥글이 종이 아래에 오게 한다 (297mm − 여백 30mm, 넘침 방지로 조금 덜).
+    /* 한 장을 꽉 채워 바닥글이 종이 아래에 오게 한다 (297mm − 여백 20mm, 넘침 방지로 조금 덜).
        줄 단위만 pt로 바꾸면 간격이 모두 따라온다 */
     .doc-page {
         --u: 13.5pt;
         --dc-col: 51%;
         width: auto;
-        min-height: 262mm;
+        min-height: 272mm;
         margin: 0;
         padding: 0;
         transform: none !important;
@@ -1709,8 +1709,8 @@ body.doc-open {
     }
 
     .dc-title {
-        margin-top: calc(var(--u) * 10);
-        font-size: 75pt;
+        margin-top: calc(var(--u) * 11);
+        font-size: 78pt;
         line-height: calc(var(--u) * 5);
     }
 
