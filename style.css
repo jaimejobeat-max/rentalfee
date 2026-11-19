@@ -1318,9 +1318,9 @@ body.doc-open {
     align-items: flex-start;
 }
 
-/* 로고(1.5u 줄) 아래 부제(1u 줄). 한글은 같은 크기의 영문 대문자보다 크게 보이므로,
-   부제를 로고 글자 높이(약 12px)에 맞는 15px로 두어 로고가 주인공이 되게 한다.
-   로고 윗선은 오른쪽 첫 글줄의 대문자 높이에 맞춘다 */
+/* 왼쪽 로고·부제도 오른쪽 정보 블록과 같은 줄 눈금에 놓는다.
+   로고는 첫째 줄(공급자)의 한가운데, 부제는 셋째 줄(주소 첫 줄)과 같은 높이 — 좌우 글줄이 가로로 맞는다.
+   한글은 같은 크기의 영문 대문자보다 크게 보이므로 부제는 15px로 두어 로고가 주인공이 되게 한다 */
 .dc-id {
     flex: 0 0 var(--dc-col);
     font-size: 15px;
@@ -1332,7 +1332,7 @@ body.doc-open {
     display: block;
     height: 16px;
     width: auto;
-    margin: 4px 0 calc(var(--u) * 1.75 - 20px);   /* 로고 아래 숨: 로고 높이의 절반쯤 */
+    margin: calc((var(--u) - 16px) / 2) 0 calc(var(--u) + (var(--u) - 16px) / 2);
 }
 
 .dc-id span {
@@ -1693,7 +1693,7 @@ body.doc-open {
 
     .dc-id img {
         height: 12pt;
-        margin: 3pt 0 calc(var(--u) * 1.75 - 15pt);
+        margin: calc((var(--u) - 12pt) / 2) 0 calc(var(--u) + (var(--u) - 12pt) / 2);
     }
 
     .dc-meta dt {
