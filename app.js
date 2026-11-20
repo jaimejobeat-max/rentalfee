@@ -9,9 +9,11 @@ const I18N = {
     ko: {
         title: 'LAYER STUDIOS — 견적 산출기',
         lang_btn: 'English', lang_btn_s: 'EN',
-        nav_calc: '견적 산출', nav_sheet: '요금표', nav_info: '안내',
+        // 메뉴 — '안내'만으로는 주차 정보가 있는 줄 모른다. '견적 산출'을 줄여 생긴 자리에 '주차'를 넣었다
+        nav_calc: '견적', nav_sheet: '요금표', nav_info: '주차·안내',
+        info_link: n => `${n} 주차 · 오시는 길`,
         info_title: 'Information', info_pdf: '기본 안내 (PDF)', info_fee: '요금표 보기',
-        info_g1: n => `${n} 기본 안내사항`, info_g2: '전력 · 발전차 안내',
+        info_g1: n => `${n} 오시는 길 · 주차`, info_g2: '전력 · 발전차 안내',
         info_h: { address: '주소', access: '찾아오시는 길', parking: '주차 가능 대수', paid: '유료 주차장', generator: '발전차', power: '전력' },
         info_power: (t, u, approx) => `총 전력 ${t}kW` + (u ? ` / 가용 전력 ${approx ? '약 ' : ''}${u}kW` : ''),
         info_paid_note: '', copy: '복사', copied: '복사됨',
@@ -71,9 +73,10 @@ const I18N = {
     en: {
         title: 'LAYER STUDIOS — Rental Quote',
         lang_btn: '한국어', lang_btn_s: 'KO',
-        nav_calc: 'Quote', nav_sheet: 'Rates', nav_info: 'Info',
+        nav_calc: 'Quote', nav_sheet: 'Rates', nav_info: 'Visit',   // 'Access'·'Parking'은 좁은 폰 헤더에 안 들어간다
+        info_link: n => `${n} parking & directions`,
         info_title: 'Information', info_pdf: 'Main Information (PDF)', info_fee: 'View rates',
-        info_g1: n => `${n} — basic information`, info_g2: 'Power & generator truck',
+        info_g1: n => `${n} — directions & parking`, info_g2: 'Power & generator truck',
         info_h: { address: 'Address', access: 'Getting here', parking: 'Parking', paid: 'Paid parking nearby', generator: 'Generator truck', power: 'Power' },
         info_power: (t, u, approx) => `Total ${t}kW` + (u ? ` / usable ${approx ? 'approx. ' : ''}${u}kW` : ''),
         info_paid_note: '*Names and addresses are kept in Korean so you can paste them into a map app.', copy: 'Copy', copied: 'Copied',
@@ -213,6 +216,7 @@ const els = {
     priceGreenhouse: document.getElementById('p-greenhouse'),
     priceBackgarden: document.getElementById('p-backgarden'),
     optBackgarden: document.querySelector('button[data-opt="BACKGARDEN"]'),
+    infoLink: document.getElementById('info-link'),
     rcMeta: document.getElementById('rc-meta'),
     rcCopy: document.getElementById('rc-copy'),
     docOpen: document.getElementById('doc-open'),
@@ -265,6 +269,17 @@ function partRange(part) {
         hi = p;
     }
     return lo ? [lo, hi] : null;
+}
+
+// 지점에 들어설 때. 홍대는 소규모 시간제 대관이 대부분이라, 다른 지점에서 넘어오면
+// 인원을 4명(단독 룸의 가장 낮은 요금 구간)에서 시작한다. 홍대 안에서 다시 누를 때는 건드리지 않는다
+const HONGDAE_START_PERSONNEL = 4;
+function enterStudio(studio) {
+    if (studio === 'HONGDAE' && state.studio !== 'HONGDAE') {
+        state.personnel = HONGDAE_START_PERSONNEL;
+        document.getElementById('rng-personnel').value = state.personnel;
+    }
+    state.studio = studio;
 }
 
 // 지점을 바꿨을 때: 지금 파트가 그 지점에 없거나 현재 인원을 못 받으면, 받을 수 있는 첫 파트로 옮긴다
@@ -437,6 +452,9 @@ function paint() {
     // 행 머리의 현재값
     const typeName = t(state.type === 'photo' ? 'type_photo' : 'type_video');
     els.vStudio.textContent = studioName(state.studio);
+    // 지점 목록 아래의 링크 — 고른 지점의 주차·오시는 길(안내 화면)로 간다
+    els.infoLink.textContent = `${t('info_link')(studioName(state.studio))} →`;
+    els.infoLink.href = `/${STUDIO_SLUGS[state.studio]}/info`;
     els.vPart.textContent = partName(state.part);
     els.vType.textContent = typeName;
     els.vTime.textContent = small ? t('hours')(state.hours) : t(state.time === 'day' ? 'day9' : 'half4');
@@ -883,7 +901,13 @@ document.addEventListener('click', e => {
     if (cp) { copyText(cp.dataset.copy, cp); return; }
 
     const go = e.target.closest('a[data-goto]');
-    if (go) { e.preventDefault(); setView(go.dataset.goto); return; }
+    if (go) {
+        e.preventDefault();
+        setView(go.dataset.goto);
+        // 견적 화면 중간에서 넘어온 경우 새 화면의 맨 위부터 보이게
+        window.scrollTo(0, 0);
+        return;
+    }
 
     if (e.target.closest('[data-lang-toggle]')) { setLang(state.lang === 'ko' ? 'en' : 'ko'); return; }
 
@@ -907,7 +931,7 @@ document.addEventListener('click', e => {
     if (!btn || btn.disabled) return;
     const { set, v } = btn.dataset;
     if (set === 'studio') {
-        state.studio = v;
+        enterStudio(v);
         pickPart();
         renderParts();
         if (state.view !== 'calc') syncUrl();
@@ -1012,7 +1036,7 @@ render();
 const [seg0, seg1] = location.pathname.replace(/^\/|\/$/g, '').toLowerCase().split('/');
 const slugStudio = studioFromSlug(seg0);
 if (slugStudio) {
-    state.studio = slugStudio;
+    enterStudio(slugStudio);
     state.part = partsOf(slugStudio)[0];
     pickPart();
     renderParts();

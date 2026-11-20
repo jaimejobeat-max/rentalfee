@@ -474,6 +474,22 @@ input:focus-visible {
     color: var(--grey);
 }
 
+/* 행 아래의 링크 — 밑줄 글씨. 글자 둘레로 누르는 영역을 넓힌다 */
+.row-link {
+    display: inline-block;
+    margin: calc(var(--u) / 2 - 8px) 0 -8px -8px;
+    padding: 8px;
+    font-size: var(--fs-ui);
+    line-height: var(--u);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color .2s var(--ease);
+}
+
+.row-link:hover {
+    color: var(--grey);
+}
+
 .note {
     margin-top: var(--sp-s);
     font-size: var(--fs-ui);
