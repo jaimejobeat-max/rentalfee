@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════
    LAYER STUDIOS — 견적 산출기
    홈페이지(layerdemo2)의 디자인 언어를 그대로 따른다.
-   흰 바탕 · 검정 · 회색 세 색, Inter Tight(한글은 Pretendard),
+   종이색 바탕 · 검정 · 회색, 견적서만 흰 종이. Inter Tight(한글은 Pretendard),
    상자 없는 텍스트 탭, 1px 검정 실선, 32px 거터, 64px 고정 헤더.
    모바일 우선. 900px 이상에서 2단(조작 패널 | 견적서).
    ═══════════════════════════════════════════════════ */
@@ -9,9 +9,12 @@
 :root {
     --black: #000;
     --white: #fff;
-    --grey: #6b6b6b;   /* 흰 바탕 대비 5.3:1 — 12px 주석도 읽히는 가장 옅은 회색 */
-    --grey-off: #b0b0b0; /* 고를 수 없는 항목 */
-    --line: #e5e5e5;
+    /* 바탕은 순백이 아니라 옅은 종이색. 그 위에 견적서·가견적서만 흰 종이로 올라간다
+       (책상 위의 종이). 회색과 선도 같은 온도로 맞춘다 */
+    --page: #f6f5f1;
+    --grey: #6a6761;     /* 종이색 바탕 대비 5.1:1 — 작은 주석도 읽히는 가장 옅은 회색 */
+    --grey-off: #b0ada5; /* 고를 수 없는 항목 */
+    --line: #dddbd3;     /* 종이색 위에서도 보이는 연한 선 */
     /* 영문·숫자는 Inter Tight, 한글은 Pretendard — 둘 다 사이트에 들어 있어 어느 기기에서나 같은 모양 */
     --sans: "Inter Tight", "Pretendard Variable", Pretendard, "Helvetica Neue", Helvetica, Arial, sans-serif;
 
@@ -70,7 +73,7 @@ html {
 }
 
 body {
-    background: var(--white);
+    background: var(--page);
     color: var(--black);
     font-family: var(--sans);
     font-size: var(--fs-ui);
@@ -113,7 +116,7 @@ input:focus-visible {
     right: 0;
     height: var(--header-h);
     z-index: 200;
-    background: var(--white);
+    background: var(--page);
     border-bottom: 1px solid var(--black);
 }
 
@@ -617,7 +620,7 @@ input:focus-visible {
     position: sticky;
     left: 0;
     z-index: 1;
-    background: var(--white);
+    background: var(--page);
     text-align: left;
     padding-left: 0;
     padding-right: 10px;
@@ -644,7 +647,7 @@ input:focus-visible {
 }
 
 .sh-t td[data-row]:hover {
-    background: #f2f2f2;
+    background: #eceae4;
 }
 
 .sh-t td.dead {
@@ -1175,9 +1178,11 @@ input:focus-visible {
         padding-bottom: 0;
     }
 
-    /* 안내는 한 단이라 지점 여덟 곳이 한 줄에 들어간다 */
+    /* 안내는 한 단이라 지점 여덟 곳이 한 줄에 들어간다. 폭이 아주 넓어 양 끝으로 벌리면
+       이름 사이가 너무 멀어지므로 왼쪽에서부터 붙여 놓는다 */
     .info [id^="opts-studio"] {
         display: flex;
+        justify-content: flex-start;
         gap: 8px 24px;
     }
 
@@ -1247,13 +1252,21 @@ input:focus-visible {
 
     .paper {
         overflow: visible;
-        padding: 0;
     }
 
-    /* 왼쪽 행들처럼 검정 실선으로 시작해 두 단의 윗선을 맞춘다 */
+    /* 견적서는 종이색 바탕 위의 흰 종이 한 장 — 선 없이 면으로 구분하고, 안쪽 여백 24px.
+       종이 윗변은 왼쪽 첫 행의 선과 같은 높이에서 시작한다 */
+    .dock {
+        background: var(--white);
+    }
+
+    .paper {
+        background: none;
+        padding: 0 var(--sp-l) var(--sp-l);
+    }
+
     .paper-in {
-        border-top: 1px solid var(--black);
-        padding-top: var(--sp-s);
+        padding-top: var(--sp-l);
     }
 
     .rc-total-v {
