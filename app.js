@@ -668,9 +668,16 @@ function section(n, label, tag, body) {
     return `<div class="row"><div class="row-h"><span class="row-n">${n}</span>${label}${t}</div>${body}</div>`;
 }
 
+// 화면 제목 — 'HANNAM RENTAL FEE'를 지점 이름과 나머지 두 덩이로 나눈다.
+// 넓은 화면에서는 한 줄, 좁은 화면에서는 두 줄로 크게 쌓인다 (CSS)
+function titleHtml(title) {
+    const m = String(title).match(/^(.*?)\s+(RENTAL FEE|INFORMATION)$/);
+    return m ? `<span>${esc(m[1])}</span> <span>${m[2]}</span>` : esc(title);
+}
+
 function sheetHead(meta) {
     const ver = meta.version ? `<span class="sh-ver">${meta.version} ver.</span>` : '';
-    return `<div class="sh-head"><h2 class="sh-title">${esc(meta.title)}</h2>${ver}</div>
+    return `<div class="sh-head"><h2 class="sh-title">${titleHtml(meta.title)}</h2>${ver}</div>
     <p class="sh-key"><i></i>${t('sh_key')}</p>`;
 }
 
@@ -817,10 +824,12 @@ function renderInfo() {
         + (info.power ? item('power', lines([t('info_power')(info.power.total, info.power.usable, info.power.approx), ...info.power.lines])) : '');
 
     const pdf = info.pdf ? `<a href="${info.pdf}" target="_blank" rel="noopener">${t('info_pdf')} ↗</a>` : '';
-    els.infoBody.innerHTML = `<div class="gd-head"><h2>${t('info_title')}</h2>
-        <span class="info-links">${pdf}<a href="/${STUDIO_SLUGS[state.studio]}" data-goto="sheet">${t('info_fee')} →</a></span></div>
-        <h3 class="gd-group">${esc(t('info_g1')(studioName(state.studio)))}</h3><div class="gd-list">${g1}</div>
-        <h3 class="gd-group">${esc(t('info_g2'))}</h3><div class="gd-list">${g2}</div>`;
+    // 요금표와 같은 짜임: 큰 제목(HANNAM INFORMATION) + 오른쪽 링크, 그 아래 번호 붙은 구역
+    const title = LAYER_MASTER_ENGINE.studios[state.studio].sheet.title.replace(/RENTAL FEE$/, 'INFORMATION');
+    els.infoBody.innerHTML = `<div class="sh-head"><h2 class="sh-title">${titleHtml(title)}</h2>
+        <span class="info-links">${pdf}<a href="/${STUDIO_SLUGS[state.studio]}" data-goto="sheet">${t('info_fee')} →</a></span></div>`
+        + section('02', esc(t('info_g1')(studioName(state.studio))), '', `<div class="gd-list">${g1}</div>`)
+        + section('03', esc(t('info_g2')), '', `<div class="gd-list">${g2}</div>`);
 }
 
 // ─── 주소 ───────────────────────────────────────────────

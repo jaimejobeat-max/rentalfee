@@ -451,24 +451,30 @@ input:focus-visible {
 /* ═══════════════════════════════════════════
    요금표
    ═══════════════════════════════════════════ */
+/* 화면 제목 — 요금표·안내가 같은 머리를 쓴다: 큰 제목 왼쪽, 버전·링크 오른쪽.
+   지점 행 아래 2u(행의 아래 여백)에서 시작해, 아래로 1u 띄우고 다음 구역으로 이어진다 */
 .sh-head {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: var(--sp-xs) var(--sp-l);
-    margin-top: var(--sp-xs);
-    padding-bottom: var(--sp-m);
+    gap: var(--sp-s) var(--sp-l);
+    padding-bottom: var(--u);
 }
 
-/* 파트 제목(.part__title)과 같은 52px. 폰에서는 가장 긴 제목(HONGDAE RENTAL FEE)도
-   한 줄에 들어가도록 화면 폭에 맞춰 줄인다 */
+/* 가견적서의 'Estimate'와 같은 말투: 중간 굵기, 좁은 자간.
+   폰에서는 지점 이름 / RENTAL FEE 두 줄로 쌓아 화면 폭을 채운다 — 한 줄에 넣으려 줄이면
+   바로 위의 선택값(26px)과 크기가 비슷해져 제목이 묻힌다 */
 .sh-title {
-    font-size: min(var(--fs-title-m), 7.4vw);
-    font-weight: var(--w);
-    letter-spacing: -0.02em;
-    line-height: .9;
+    font-size: min(48px, 12.8vw);
+    font-weight: var(--w-mid);
+    letter-spacing: -0.045em;
+    line-height: .95;
     text-transform: uppercase;
+}
+
+.sh-title span {
+    display: block;
 }
 
 .sh-ver {
@@ -483,7 +489,7 @@ input:focus-visible {
     display: flex;
     align-items: center;
     gap: var(--sp-xs);
-    margin-bottom: var(--sp-xl);
+    margin-bottom: calc(var(--u) * 2);
     font-size: var(--fs-ui);
     color: var(--grey);
 }
@@ -644,49 +650,43 @@ input:focus-visible {
    안내 — 기존 홈페이지의 지점 안내(Guide) 시트를 따른다.
    작은 제목 + 굵은 검정 선 / 묶음 제목 / 검정 라벨 · 회색 본문 / 연회색 실선. 한 단.
    ═══════════════════════════════════════════ */
-.gd-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: var(--sp-xs) var(--sp-l);
-    margin-top: var(--sp-xl);
-    padding-bottom: var(--sp-m);
-    border-bottom: 2px solid var(--black);
-}
-
-.gd-head h2 {
-    font-size: var(--fs-nav);
-    font-weight: 400;
-    letter-spacing: -0.01em;
-    line-height: 1;
-}
-
 .info-links {
     display: flex;
     flex-wrap: wrap;
     gap: 6px 22px;
-    font-size: var(--fs-body);
+    font-size: var(--fs-ui);
+}
+
+.info-links a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
 }
 
 .info-links a:hover {
     color: var(--grey);
 }
 
-/* 묶음 제목 — 머리 아래 첫 묶음과 묶음 사이의 간격을 같게 둔다 */
-.gd-group {
-    margin: var(--sp-2xl) 0 var(--sp-s);
-    font-size: var(--fs-sub);
-    font-weight: 400;
-    letter-spacing: -0.01em;
+/* 안내의 머리 아래는 범례가 없으니 다음 구역까지 한 줄 더 띄운다 */
+.info .sh-head {
+    padding-bottom: calc(var(--u) * 2);
 }
 
+/* 항목 — 굵은 이름 아래 본문, 항목 사이는 연회색 실선. 위아래 0.75u */
 .gd-item {
-    padding: 9px 0 10px;
+    padding: calc(var(--u) * .75) 0;
     border-bottom: 1px solid var(--line);
     font-size: var(--fs-body);
     line-height: calc(var(--u) * 1.25);
     word-break: keep-all;
+}
+
+.gd-item:first-child {
+    padding-top: 0;
+}
+
+.gd-item:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
 }
 
 .gd-item h4 {
@@ -1052,18 +1052,8 @@ input:focus-visible {
         margin: 0 2px;
     }
 
-    /* 안내: 좁은 화면에서는 줄 간격과 여백을 줄여 한 화면에 더 담는다 */
-    .gd-head {
-        margin-top: var(--sp-l);
-        padding-bottom: var(--sp-s);
-    }
-
-    .gd-group {
-        margin: var(--sp-xl) 0 var(--sp-xs);
-    }
-
+    /* 안내: 좁은 화면에서는 줄 간격을 줄여 한 화면에 더 담는다 */
     .gd-item {
-        padding: 10px 0 12px;
         line-height: var(--u);
     }
 
@@ -1130,8 +1120,13 @@ input:focus-visible {
         padding-bottom: 0;
     }
 
+    /* 넓은 화면: 제목은 한 줄, 합계와 같은 52px */
     .sh-title {
         font-size: var(--fs-title);
+    }
+
+    .sh-title span {
+        display: inline;
     }
 
     .sh-desk {
@@ -1145,10 +1140,6 @@ input:focus-visible {
     /* 안내: 견적서 없이 한 단. 주소처럼 짧은 항목은 라벨과 값을 한 줄에 둔다 */
     .workbench.is-info {
         grid-template-columns: 1fr;
-    }
-
-    .gd-head {
-        margin-top: var(--sp-2xl);
     }
 
     /* 넓은 화면에서 본문 줄이 끝까지 늘어지지 않게 읽기 좋은 폭에서 끊는다 */
