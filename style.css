@@ -1496,7 +1496,7 @@ body.doc-open {
     gap: var(--sp-m);
     height: var(--header-h);
     padding: 0 var(--gutter);
-    background: var(--white);
+    background: var(--page);   /* 사이트 헤더와 같은 종이색 */
     border-bottom: 1px solid var(--black);
     font-size: var(--fs-ui);
 }

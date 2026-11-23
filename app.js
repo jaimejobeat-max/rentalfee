@@ -521,7 +521,7 @@ function paint() {
     els.rcCopy.hidden = false;
     els.rcCharges.innerHTML = charges;
     els.rcTotal.innerHTML = `<div class="rc-total">
-    <span class="rc-total-k">TOTAL</span><span class="rc-total-v">${won(r.total)}<span class="rc-vat">(${t('vat')})</span></span></div>`;
+    <span class="rc-total-k">${t('sum')}</span><span class="rc-total-v">${won(r.total)}<span class="rc-vat">(${t('vat')})</span></span></div>`;
     els.rcStamp.className = 'rc-stamp';
     els.rcStamp.textContent = '';
 
