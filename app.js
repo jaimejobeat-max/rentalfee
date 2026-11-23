@@ -24,6 +24,7 @@ const I18N = {
         cap_max: n => `~${n}명`, cap_min: n => `${n}명~`,
         vat: 'VAT 별도', vat_s: 'VAT 별도',
         rc_foot: '모든 금액은 부가세(VAT 10%) 별도입니다.<br>본 견적은 참고용이며 실제 요금과 다를 수 있습니다.<br>정확한 금액은 지점에 문의하세요.',
+        chat: '채널톡 문의',
         peek_cue: '견적서', peek_why: '사유', peek_close: '닫기', na: '산출 불가',
         rc_title: '견적서', rc_copy: '견적 복사',
         // 가견적서
@@ -87,6 +88,7 @@ const I18N = {
         cap_max: n => `up to ${n}`, cap_min: n => `${n}+`,
         vat: 'VAT excluded', vat_s: '+VAT',   // 하단 바는 좁아서 짧게
         rc_foot: 'All prices exclude VAT (10%).<br>This quote is for reference and may differ from the actual fee.<br>Contact the studio for an exact price.',
+        chat: 'Chat with us',
         peek_cue: 'Quote', peek_why: 'Why', peek_close: 'Close', na: 'Unavailable',
         rc_title: 'Quotation', rc_copy: 'Copy quote',
         doc_open: 'Create provisional quote', doc_title: 'Estimate', doc_sub: n => `${n}, provisional quote`, doc_base: (s, p) => `${s} ${p} rental`, doc_qty: 'Quantity × rate', doc_spec: 'Booking details', doc_print: 'Save as PDF / Print', doc_close: 'Close',
@@ -976,6 +978,7 @@ function applyLang() {
     const ko = state.lang === 'ko';
     langBtn.innerHTML = `<span class="${ko ? 'on' : ''}">KR</span><i>/</i><span class="${ko ? '' : 'on'}">EN</span>`;
     langBtn.setAttribute('aria-label', t('lang_btn'));
+    document.getElementById('chat-btn').setAttribute('aria-label', t('chat'));
     renderScales();
 }
 
@@ -989,6 +992,7 @@ function setLang(lang) {
     applyLang();
     renderParts();
     render();
+    if (window.ChannelIO) window.ChannelIO('updateUser', { language: lang });
 }
 
 // 주소 복사. 클립보드 API 가 막힌 환경(구형 브라우저, http)은 textarea 로 대신한다.
@@ -1045,3 +1049,38 @@ if (slugStudio) {
     setView('sheet');
 }
 
+// ─── 채널톡 ─────────────────────────────────────────────
+// 메인 사이트(plusjun.com)와 같은 채널로 연결한다. 채널톡 기본 버튼은 휴대폰에서
+// 하단 견적 바와 겹치므로 숨기고, 이 사이트 모양의 버튼(#chat-btn)을 바 위에 띄운다.
+// 채널톡을 불러오지 못하면(차단·오프라인) 버튼은 숨은 채로 남는다.
+(function () {
+    const w = window;
+    if (w.ChannelIO) return;
+    const ch = function () { ch.c(arguments); };
+    ch.q = []; ch.c = function (args) { ch.q.push(args); };
+    w.ChannelIO = ch;
+    function load() {
+        if (w.ChannelIOInitialized) return;
+        w.ChannelIOInitialized = true;
+        const s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://cdn.channel.io/plugin/ch-plugin-web.js';
+        document.head.appendChild(s);
+    }
+    if (document.readyState === 'complete') load();
+    else w.addEventListener('load', load);
+})();
+
+const chatBtn = document.getElementById('chat-btn');
+window.ChannelIO('boot', {
+    pluginKey: 'f9f11a62-2c12-4602-9199-e92a77d4354c',
+    customLauncherSelector: '#chat-btn',
+    hideChannelButtonOnBoot: true,
+    language: state.lang,
+}, function (error) {
+    if (!error) chatBtn.hidden = false;
+});
+// 안 읽은 답장이 있으면 버튼에 점을 찍는다
+window.ChannelIO('onBadgeChanged', function (unread) {
+    chatBtn.classList.toggle('has-unread', unread > 0);
+});

@@ -1315,6 +1315,59 @@ input:focus-visible {
 }
 
 /* ═══════════════════════════════════════════
+   채널톡 문의 버튼 — 오른쪽 아래. 이 사이트의 손잡이·하단 바와 같은 검정 네모.
+   휴대폰에서는 하단 견적 바 바로 위, 견적서를 펼치면 그 뒤로 가려진다.
+   ═══════════════════════════════════════════ */
+.chat {
+    position: fixed;
+    right: var(--gutter);
+    bottom: calc(var(--peek-h) + var(--sp-m) + env(safe-area-inset-bottom, 0px));
+    z-index: 140;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    background: var(--black);
+    color: var(--white);
+    transition: transform .2s var(--ease);
+}
+
+.chat:hover {
+    transform: translateY(-2px);
+}
+
+/* 안 읽은 답장 */
+.chat.has-unread::after {
+    content: "";
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #e5392a;
+    border: 2px solid var(--page);
+}
+
+/* 안내 화면에는 하단 바가 없다 — 화면 아래 여백에 맞춘다 */
+.workbench.is-info ~ .chat {
+    bottom: calc(var(--sp-m) + env(safe-area-inset-bottom, 0px));
+}
+
+/* 가견적서를 여는 동안에는 숨긴다 */
+body.doc-open .chat {
+    display: none;
+}
+
+@media (min-width: 900px) {
+    .chat,
+    .workbench.is-info ~ .chat {
+        right: var(--gutter);
+        bottom: var(--gutter);
+    }
+}
+
+/* ═══════════════════════════════════════════
    가견적서 — 견적서의 버튼, 화면을 덮는 A4 문서, 인쇄
    ═══════════════════════════════════════════ */
 
