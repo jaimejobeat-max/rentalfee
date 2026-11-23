@@ -1315,7 +1315,8 @@ input:focus-visible {
 }
 
 /* ═══════════════════════════════════════════
-   채널톡 문의 버튼 — 오른쪽 아래. 이 사이트의 손잡이·하단 바와 같은 검정 네모.
+   채널톡 문의 버튼 — 오른쪽 아래. 링크트리 사이트의 채널톡 버튼과 같은 모양:
+   검정 둥근 네모(모서리 30%) 안에 선으로 그린 말풍선.
    휴대폰에서는 하단 견적 바 바로 위, 견적서를 펼치면 그 뒤로 가려진다.
    ═══════════════════════════════════════════ */
 .chat {
@@ -1327,9 +1328,17 @@ input:focus-visible {
     place-items: center;
     width: 48px;
     height: 48px;
+    border-radius: 30%;
     background: var(--black);
     color: var(--white);
     transition: transform .2s var(--ease);
+}
+
+/* 그림은 버튼의 46.7% — 원본(360px 안의 168px)과 같은 비율 */
+.chat svg {
+    width: 46.7%;
+    height: 46.7%;
+    display: block;
 }
 
 .chat:hover {

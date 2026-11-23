@@ -172,7 +172,11 @@
 
     <!-- 채널톡 문의 — 메인 사이트(plusjun.com)와 같은 채널. 채널톡이 준비되면 나타난다 (app.js) -->
     <button class="chat" id="chat-btn" hidden aria-label="채널톡 문의">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 3C6.9 3 2.8 6.6 2.8 11c0 2.5 1.3 4.700 3.400 6.200L5.400 21l4.200-2.300c.800.200 1.600.300 2.400.300 5.100 0 9.200-3.600 9.200-8S17.100 3 12 3z"/></svg>
+        <!-- 링크트리 사이트(layer-site/channel-button)의 채널톡 버튼과 같은 그림: 선으로 그린 말풍선 + 점 -->
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+            <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h9M20 9.5v5a1.5 1.5 0 0 1-1.5 1.5H11l-4.5 4v-4h-1A1.5 1.5 0 0 1 4 14.5v-9"/>
+            <circle cx="19" cy="5" r="1.6" fill="currentColor" stroke="none"/>
+        </svg>
     </button>
 
     <!-- ── 가견적서 — 화면 전체를 덮는 A4 문서. 인쇄하면 이 종이만 나온다 ── -->
