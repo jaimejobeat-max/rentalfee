@@ -1530,7 +1530,51 @@ body.doc-open {
     text-underline-offset: 3px;
 }
 
-/* PDF로 뜰 때(app.js downloadPdf) — 인쇄본과 같게: 그림자·둥근 모서리 없이, 입력 칸은 글자로,
+/* PDF 미리보기 — 가견적서 위를 덮는다. 같은 띠(돌아가기 · 다운로드), 같은 회색 바탕 위에
+   저장될 그림 한 장 */
+.pdf-prev {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    background: #eae9e5;
+    padding-bottom: var(--sp-2xl);
+}
+
+.pdf-prev-body {
+    max-width: calc(794px + var(--gutter) * 2);
+    margin: var(--sp-l) auto 0;
+    padding: 0 var(--gutter);
+}
+
+.pdf-prev-body img {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: var(--white);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 12px 40px rgba(0, 0, 0, .07);
+}
+
+.prev-note {
+    margin-right: var(--sp-s);
+    color: var(--grey);
+}
+
+@media (max-width: 767px) {
+    .pdf-prev-body {
+        margin-top: var(--sp-s);
+    }
+}
+
+/* 아주 좁은 화면에서는 안내 문구를 뺀다 */
+@media (max-width: 480px) {
+    .prev-note {
+        display: none;
+    }
+}
+
+/* PDF로 뜰 때(app.js renderPdfCanvas) — 인쇄본과 같게: 그림자·둥근 모서리 없이, 입력 칸은 글자로,
    비워 둔 선택 항목(촬영 예정일·비고)과 수신이 빌 때의 '귀하'는 뺀다 */
 .doc-page.pdf-render {
     margin: 0;
@@ -1910,7 +1954,8 @@ body.doc-open {
     }
 
     .doc-bar,
-    .doc-form {
+    .doc-form,
+    .pdf-prev {
         display: none !important;
     }
 

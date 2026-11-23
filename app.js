@@ -28,7 +28,8 @@ const I18N = {
         peek_cue: '견적서', peek_why: '사유', peek_close: '닫기', na: '산출 불가',
         rc_title: '견적서', rc_copy: '견적 복사',
         // 가견적서
-        doc_open: '가견적서 만들기', doc_title: 'Estimate', doc_sub: n => `${n} 가견적서`, doc_base: (s, p) => `${s} ${p} 대관`, doc_qty: '수량 × 단가', doc_spec: '대관 내용', doc_print: '인쇄', doc_pdf: 'PDF 다운로드', doc_making: 'PDF 만드는 중…', doc_close: '닫기',
+        doc_open: '가견적서 만들기', doc_title: 'Estimate', doc_sub: n => `${n} 가견적서`, doc_base: (s, p) => `${s} ${p} 대관`, doc_qty: '수량 × 단가', doc_spec: '대관 내용', doc_print: '인쇄', doc_pdf: 'PDF 미리보기', doc_making: 'PDF 만드는 중…',
+        prev_title: 'PDF 미리보기', prev_back: '← 수정하기', prev_note: '이 모양 그대로 저장됩니다', prev_save: '다운로드', prev_saved: '저장했습니다', doc_close: '닫기',
         doc_date: '견적일', doc_to: '수신', doc_to_ph: '회사명 / 성함', doc_to_suffix: '귀하',
         doc_shoot: '촬영 예정일', doc_shoot_ph: '예: 2026.12.03', doc_from: '공급자', doc_studio: '지점', doc_addr: '주소', doc_contact: '문의',
         doc_item: '항목', doc_detail: '내용', doc_amount: '금액 (원)', doc_rental: '대관료',
@@ -92,7 +93,8 @@ const I18N = {
         chat: 'Chat with us', chat_close: 'Close chat',
         peek_cue: 'Quote', peek_why: 'Why', peek_close: 'Close', na: 'Unavailable',
         rc_title: 'Quotation', rc_copy: 'Copy quote',
-        doc_open: 'Create provisional quote', doc_title: 'Estimate', doc_sub: n => `${n}, provisional quote`, doc_base: (s, p) => `${s} ${p} rental`, doc_qty: 'Quantity × rate', doc_spec: 'Booking details', doc_print: 'Print', doc_pdf: 'Download PDF', doc_making: 'Creating PDF…', doc_close: 'Close',
+        doc_open: 'Create provisional quote', doc_title: 'Estimate', doc_sub: n => `${n}, provisional quote`, doc_base: (s, p) => `${s} ${p} rental`, doc_qty: 'Quantity × rate', doc_spec: 'Booking details', doc_print: 'Print', doc_pdf: 'Preview PDF', doc_making: 'Creating PDF…',
+        prev_title: 'PDF preview', prev_back: '← Edit', prev_note: 'Saved exactly as shown', prev_save: 'Download', prev_saved: 'Saved', doc_close: 'Close',
         doc_date: 'Date', doc_to: 'To', doc_to_ph: 'Company / Name', doc_to_suffix: '',
         doc_shoot: 'Shoot date', doc_shoot_ph: 'e.g. 2026.12.03', doc_from: 'From', doc_studio: 'Studio', doc_addr: 'Address', doc_contact: 'Contact',
         doc_item: 'Item', doc_detail: 'Details', doc_amount: 'Amount KRW', doc_rental: 'Rental fee',
@@ -228,6 +230,8 @@ const els = {
     docPage: document.getElementById('doc-page'),
     docFit: document.getElementById('doc-fit'),
     docForm: document.getElementById('doc-form'),
+    pdfPrev: document.getElementById('pdf-prev'),
+    pdfPrevBody: document.getElementById('pdf-prev-body'),
     rcSpec: document.getElementById('rc-spec'),
     rcCharges: document.getElementById('rc-charges'),
     rcTotal: document.getElementById('rc-total'),
@@ -637,6 +641,7 @@ function syncDocEmpty() {
 }
 
 function toggleDoc(open) {
+    if (!open) closePdfPreview();
     if (open) renderDoc();
     els.doc.hidden = !open;
     document.body.classList.toggle('doc-open', open);
@@ -683,40 +688,49 @@ function loadPdfLibs() {
     return pdfLibs;
 }
 
-async function downloadPdf(btn) {
+// 종이를 PDF에 붙일 그림으로 뜬다. 3배로 떠서 인쇄해도 선명하게 (A4 794px → 2382px ≈ 290dpi)
+async function renderPdfCanvas() {
+    await loadPdfLibs();
+    await document.fonts.ready;
+    return window.html2canvas(els.docPage, {
+        scale: 3,
+        backgroundColor: '#ffffff',
+        logging: false,
+        onclone: doc => {
+            const page = doc.getElementById('doc-page');
+            page.classList.add('pdf-render');
+            // 입력 칸은 적힌 글자로 바꾼다 (밑줄·안내 글자 없이)
+            page.querySelectorAll('[data-doc]').forEach(f => {
+                const v = doc.createElement('span');
+                v.className = 'pdf-val';
+                v.textContent = f.value;
+                f.replaceWith(v);
+            });
+            // 화면 축소(휴대폰)·덮개 없이 종이만 남긴다
+            doc.body.className = '';
+            doc.body.replaceChildren(page);
+        },
+    });
+}
+
+// PDF 미리보기 — 실제로 저장될 그림을 그대로 띄운다. 확인하고 '다운로드'를 누르면 그 그림으로 PDF를 만든다
+let pdfCanvas = null;
+async function openPdfPreview(btn) {
     if (btn.disabled || !lastQuote) return;
     btn.disabled = true;
     btn.textContent = t('doc_making');
     try {
-        await loadPdfLibs();
-        await document.fonts.ready;
-        // 3배로 떠서 인쇄해도 선명하게 (A4 794px → 2382px ≈ 290dpi)
-        const canvas = await window.html2canvas(els.docPage, {
-            scale: 3,
-            backgroundColor: '#ffffff',
-            logging: false,
-            onclone: doc => {
-                const page = doc.getElementById('doc-page');
-                page.classList.add('pdf-render');
-                // 입력 칸은 적힌 글자로 바꾼다 (밑줄·안내 글자 없이)
-                page.querySelectorAll('[data-doc]').forEach(f => {
-                    const v = doc.createElement('span');
-                    v.className = 'pdf-val';
-                    v.textContent = f.value;
-                    f.replaceWith(v);
-                });
-                // 화면 축소(휴대폰)·덮개 없이 종이만 남긴다
-                doc.body.className = '';
-                doc.body.replaceChildren(page);
-            },
-        });
-        const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', compress: true });
-        // 종이는 A4 비율이지만, 비고가 길어 넘치면 한 장에 들어오게 줄인다
-        let w = 210, h = canvas.height * w / canvas.width;
-        if (h > 297) { w = w * 297 / h; h = 297; }
-        pdf.addImage(canvas, 'PNG', (210 - w) / 2, 0, w, h, undefined, 'FAST');
-        pdf.setProperties({ title: docFileName() });
-        pdf.save(docFileName() + '.pdf');
+        pdfCanvas = await renderPdfCanvas();
+        // 화면에는 캔버스 대신 이미지로 띄운다 — 브라우저가 이미지는 곱게 줄여 휴대폰에서도 작은 글씨가 깨지지 않는다
+        const blob = await new Promise(ok => pdfCanvas.toBlob(ok, 'image/png'));
+        const img = new Image();
+        img.alt = t('prev_title');
+        img.src = URL.createObjectURL(blob);
+        els.pdfPrevBody.replaceChildren(img);
+        els.pdfPrev.setAttribute('aria-label', t('prev_title'));
+        els.pdfPrev.hidden = false;
+        els.pdfPrev.scrollTop = 0;
+        document.getElementById('pdf-save').focus();
     } catch (err) {
         // 도구를 못 불러오면(차단·오프라인) 인쇄 창으로 대신한다
         window.print();
@@ -724,6 +738,28 @@ async function downloadPdf(btn) {
         btn.disabled = false;
         btn.textContent = t('doc_pdf');
     }
+}
+
+function closePdfPreview() {
+    els.pdfPrev.hidden = true;
+    const img = els.pdfPrevBody.querySelector('img');
+    if (img) URL.revokeObjectURL(img.src);
+    els.pdfPrevBody.replaceChildren();
+    pdfCanvas = null;
+}
+
+function savePdf(btn) {
+    if (!pdfCanvas) return;
+    const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', compress: true });
+    // 종이는 A4 비율이지만, 비고가 길어 넘치면 한 장에 들어오게 줄인다
+    let w = 210, h = pdfCanvas.height * w / pdfCanvas.width;
+    if (h > 297) { w = w * 297 / h; h = 297; }
+    pdf.addImage(pdfCanvas, 'PNG', (210 - w) / 2, 0, w, h, undefined, 'FAST');
+    pdf.setProperties({ title: docFileName() });
+    pdf.save(docFileName() + '.pdf');
+    btn.textContent = t('prev_saved');
+    clearTimeout(btn._t);
+    btn._t = setTimeout(() => { btn.textContent = t('prev_save'); }, 1600);
 }
 
 // 오늘 날짜 2026.11.18
@@ -996,7 +1032,10 @@ document.addEventListener('click', e => {
     if (e.target.closest('[data-doc-close]')) { toggleDoc(false); return; }
     if (e.target.closest('[data-doc-print]')) { window.print(); return; }   // 제목은 beforeprint에서
     const pdfBtn = e.target.closest('[data-doc-pdf]');
-    if (pdfBtn) { downloadPdf(pdfBtn); return; }
+    if (pdfBtn) { openPdfPreview(pdfBtn); return; }
+    if (e.target.closest('[data-prev-close]')) { closePdfPreview(); return; }
+    const saveBtn = e.target.closest('[data-pdf-save]');
+    if (saveBtn) { savePdf(saveBtn); return; }
 
     const cp = e.target.closest('button.copy');
     if (cp) { copyText(cp.dataset.copy, cp); return; }
@@ -1043,7 +1082,10 @@ document.addEventListener('click', e => {
 });
 
 document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && !els.doc.hidden) toggleDoc(false);
+    if (e.key !== 'Escape') return;
+    // 미리보기가 떠 있으면 미리보기만 닫고 가견적서로 돌아간다
+    if (!els.pdfPrev.hidden) closePdfPreview();
+    else if (!els.doc.hidden) toggleDoc(false);
 });
 
 document.addEventListener('input', e => {
