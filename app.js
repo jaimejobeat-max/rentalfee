@@ -24,7 +24,7 @@ const I18N = {
         cap_max: n => `~${n}명`, cap_min: n => `${n}명~`,
         vat: 'VAT 별도', vat_s: 'VAT 별도',
         rc_foot: '모든 금액은 부가세(VAT 10%) 별도입니다.<br>본 견적은 참고용이며 실제 요금과 다를 수 있습니다.<br>정확한 금액은 지점에 문의하세요.',
-        chat: '채널톡 문의',
+        chat: '채널톡 문의', chat_close: '채널톡 닫기',
         peek_cue: '견적서', peek_why: '사유', peek_close: '닫기', na: '산출 불가',
         rc_title: '견적서', rc_copy: '견적 복사',
         // 가견적서
@@ -88,7 +88,7 @@ const I18N = {
         cap_max: n => `up to ${n}`, cap_min: n => `${n}+`,
         vat: 'VAT excluded', vat_s: '+VAT',   // 하단 바는 좁아서 짧게
         rc_foot: 'All prices exclude VAT (10%).<br>This quote is for reference and may differ from the actual fee.<br>Contact the studio for an exact price.',
-        chat: 'Chat with us',
+        chat: 'Chat with us', chat_close: 'Close chat',
         peek_cue: 'Quote', peek_why: 'Why', peek_close: 'Close', na: 'Unavailable',
         rc_title: 'Quotation', rc_copy: 'Copy quote',
         doc_open: 'Create provisional quote', doc_title: 'Estimate', doc_sub: n => `${n}, provisional quote`, doc_base: (s, p) => `${s} ${p} rental`, doc_qty: 'Quantity × rate', doc_spec: 'Booking details', doc_print: 'Save as PDF / Print', doc_close: 'Close',
@@ -978,7 +978,8 @@ function applyLang() {
     const ko = state.lang === 'ko';
     langBtn.innerHTML = `<span class="${ko ? 'on' : ''}">KR</span><i>/</i><span class="${ko ? '' : 'on'}">EN</span>`;
     langBtn.setAttribute('aria-label', t('lang_btn'));
-    document.getElementById('chat-btn').setAttribute('aria-label', t('chat'));
+    const cb = document.getElementById('chat-btn');
+    cb.setAttribute('aria-label', t(cb.classList.contains('is-open') ? 'chat_close' : 'chat'));
     renderScales();
 }
 
@@ -1072,15 +1073,27 @@ if (slugStudio) {
 })();
 
 const chatBtn = document.getElementById('chat-btn');
+let chatOpen = false;
 window.ChannelIO('boot', {
     pluginKey: 'f9f11a62-2c12-4602-9199-e92a77d4354c',
-    customLauncherSelector: '#chat-btn',
     hideChannelButtonOnBoot: true,
     language: state.lang,
 }, function (error) {
     if (!error) chatBtn.hidden = false;
 });
-// 안 읽은 답장이 있으면 버튼에 점을 찍는다
+// 메인 사이트처럼 버튼 하나로 열고 닫는다. 열려 있는 동안은 검정 바탕에 X
+chatBtn.addEventListener('click', function () {
+    window.ChannelIO(chatOpen ? 'hideMessenger' : 'showMessenger');
+});
+function syncChat(open) {
+    chatOpen = open;
+    chatBtn.classList.toggle('is-open', open);
+    chatBtn.setAttribute('aria-label', open ? t('chat_close') : t('chat'));
+}
+window.ChannelIO('onShowMessenger', function () { syncChat(true); });
+window.ChannelIO('onHideMessenger', function () { syncChat(false); });
+// 안 읽은 답장 수를 배지로
 window.ChannelIO('onBadgeChanged', function (unread) {
     chatBtn.classList.toggle('has-unread', unread > 0);
+    chatBtn.querySelector('.chat-badge').textContent = unread > 9 ? '9+' : String(unread);
 });

@@ -1315,8 +1315,9 @@ input:focus-visible {
 }
 
 /* ═══════════════════════════════════════════
-   채널톡 문의 버튼 — 오른쪽 아래. 링크트리 사이트의 채널톡 버튼과 같은 모양:
-   검정 둥근 네모(모서리 30%) 안에 선으로 그린 말풍선.
+   채널톡 문의 버튼 — 메인 사이트(plusjun.com)의 .layer-chat-btn과 같은 모양:
+   반투명 흰 네모 + 흐림 효과 + 1px 테두리, 검정 선 아이콘(말풍선 · 퍼지는 점).
+   올리면 검정으로 뒤집히고, 상담창이 열려 있으면 검정 바탕에 X.
    휴대폰에서는 하단 견적 바 바로 위, 견적서를 펼치면 그 뒤로 가려진다.
    ═══════════════════════════════════════════ */
 .chat {
@@ -1324,38 +1325,111 @@ input:focus-visible {
     right: var(--gutter);
     bottom: calc(var(--peek-h) + var(--sp-m) + env(safe-area-inset-bottom, 0px));
     z-index: 140;
-    display: grid;
-    place-items: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 30%;
-    background: var(--black);
-    color: var(--white);
-    transition: transform .2s var(--ease);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: rgba(255, 255, 255, .72);
+    color: var(--black);
+    -webkit-backdrop-filter: blur(12px) saturate(1.4);
+    backdrop-filter: blur(12px) saturate(1.4);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .12);
+    transition: background .2s, color .2s, box-shadow .2s;
 }
 
-/* 그림은 버튼의 46.7% — 원본(360px 안의 168px)과 같은 비율 */
+.chat:hover,
+.chat:focus-visible,
+.chat.is-open {
+    background: var(--black);
+    color: var(--white);
+    box-shadow: inset 0 0 0 1px var(--black);
+    outline: none;
+}
+
 .chat svg {
-    width: 46.7%;
-    height: 46.7%;
+    display: block;
+    width: 22px;
+    height: 22px;
+}
+
+.chat .chat-x,
+.chat.is-open .chat-bubble {
+    display: none;
+}
+
+.chat.is-open .chat-x {
     display: block;
 }
 
-.chat:hover {
-    transform: translateY(-2px);
+/* 채널톡 자체 버튼은 쓰지 않는다 — 상담창을 열면 둥근 회색 X로 나타나 위 버튼을 덮으므로
+   메인 사이트처럼 통째로 숨긴다 */
+#ch-plugin-entry {
+    display: none !important;
 }
 
-/* 안 읽은 답장 */
-.chat.has-unread::after {
-    content: "";
+/* 말풍선 오른쪽 위의 점이 천천히 퍼진다 */
+.chat .chat-ring {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: chat-pulse 1.8s ease-out infinite;
+}
+
+@keyframes chat-pulse {
+    0% {
+        transform: scale(1);
+        opacity: .9;
+    }
+
+    70%,
+    100% {
+        transform: scale(2.6);
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chat .chat-ring {
+        animation: none;
+        opacity: 0;
+    }
+}
+
+/* 휴대폰 — 메인 사이트 휴대폰 크기와 같게 한 단계 작게 */
+@media (max-width: 767px) {
+    .chat {
+        width: 42px;
+        height: 42px;
+    }
+
+    .chat svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* 안 읽은 답장 수 — 검정 네모 배지 */
+.chat .chat-badge {
     position: absolute;
-    top: -4px;
-    right: -4px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #e5392a;
-    border: 2px solid var(--page);
+    top: -7px;
+    right: -7px;
+    display: none;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    background: var(--black);
+    color: var(--white);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 18px;
+    text-align: center;
+}
+
+.chat.has-unread .chat-badge {
+    display: block;
 }
 
 /* 안내 화면에는 하단 바가 없다 — 화면 아래 여백에 맞춘다 */

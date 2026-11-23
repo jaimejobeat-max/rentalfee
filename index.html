@@ -170,13 +170,16 @@
 
     <div class="dock-scrim" id="dock-scrim"></div>
 
-    <!-- 채널톡 문의 — 메인 사이트(plusjun.com)와 같은 채널. 채널톡이 준비되면 나타난다 (app.js) -->
-    <button class="chat" id="chat-btn" hidden aria-label="채널톡 문의">
-        <!-- 링크트리 사이트(layer-site/channel-button)의 채널톡 버튼과 같은 그림: 선으로 그린 말풍선 + 점 -->
-        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+    <!-- 채널톡 문의 — 메인 사이트(plusjun.com) 오른쪽 아래 버튼(.layer-chat-btn)과 같은 모양·같은 채널.
+         채널톡이 준비되면 나타난다 (app.js) -->
+    <button type="button" class="chat" id="chat-btn" hidden aria-label="채널톡 문의">
+        <svg class="chat-bubble" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">
             <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h9M20 9.5v5a1.5 1.5 0 0 1-1.5 1.5H11l-4.5 4v-4h-1A1.5 1.5 0 0 1 4 14.5v-9"/>
             <circle cx="19" cy="5" r="1.6" fill="currentColor" stroke="none"/>
+            <circle class="chat-ring" cx="19" cy="5" r="1.6" stroke-width="1"/>
         </svg>
+        <svg class="chat-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        <span class="chat-badge"></span>
     </button>
 
     <!-- ── 가견적서 — 화면 전체를 덮는 A4 문서. 인쇄하면 이 종이만 나온다 ── -->
