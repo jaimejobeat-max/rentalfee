@@ -1512,6 +1512,48 @@ body.doc-open {
     font-weight: var(--w);
 }
 
+.doc-bar .doc-go:disabled {
+    opacity: .6;
+    cursor: progress;
+}
+
+/* 인쇄(글자) · PDF 다운로드(검정 버튼) */
+.doc-acts {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-xs);
+}
+
+.doc-bar .doc-print {
+    padding: 0 var(--sp-s);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* PDF로 뜰 때(app.js downloadPdf) — 인쇄본과 같게: 그림자·둥근 모서리 없이, 입력 칸은 글자로,
+   비워 둔 선택 항목(촬영 예정일·비고)과 수신이 빌 때의 '귀하'는 뺀다 */
+.doc-page.pdf-render {
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    /* 화면은 숫자 폭을 고정(tabular-nums)하는데, 그림으로 뜨는 도구는 이를 못 그려 숫자 뒤마다
+       틈이 생긴다('10 %') — PDF에서는 보통 숫자로 짠다 */
+    font-variant-numeric: normal;
+}
+
+.pdf-render .is-empty[data-opt-field],
+.pdf-render .dc-to.is-empty span {
+    display: none;
+}
+
+.pdf-render .pdf-val {
+    white-space: pre-wrap;
+}
+
+.pdf-render .dc-to .pdf-val {
+    flex: 1;
+}
+
 /* 종이 — A4 비율(794 × 1123px = 210 × 297mm). 넓은 여백, 가는 선, 큰 제목 하나.
 
    세로: 모든 줄 높이와 간격이 한 단위 --u(본문 한 줄 = 18px)의 배수다. 글줄이 같은 눈금 위에 놓인다.
@@ -1840,13 +1882,16 @@ body.doc-open {
 
 /* 인쇄 — 종이만 남긴다. 휴대폰에서 뽑아도 A4 두 단 배치로 나온다 */
 @media print {
+    /* 브라우저는 인쇄 여백 자리에 제목·주소·쪽 번호·날짜를 찍는다. 여백을 0으로 두면 찍을 자리가
+       없어 나오지 않는다 — 대신 종이 안쪽 여백(.doc-page padding 10mm)으로 같은 여백을 만든다 */
     @page {
         size: A4;
-        margin: 10mm;
+        margin: 0;
     }
 
     html,
     body {
+        margin: 0;
         background: #fff;
         padding: 0 !important;
         min-height: 0;
@@ -1875,15 +1920,15 @@ body.doc-open {
         margin: 0;
     }
 
-    /* 한 장을 꽉 채워 바닥글이 종이 아래에 오게 한다 (297mm − 여백 20mm, 넘침 방지로 조금 덜).
-       줄 단위만 pt로 바꾸면 간격이 모두 따라온다 */
+    /* 한 장을 꽉 채워 바닥글이 종이 아래에 오게 한다 (297mm, 넘침 방지로 5mm 덜).
+       안쪽 여백 10mm가 종이 여백이다. 줄 단위만 pt로 바꾸면 간격이 모두 따라온다 */
     .doc-page {
         --u: 13.5pt;
         --dc-col: 51%;
         width: auto;
-        min-height: 272mm;
+        min-height: 292mm;
         margin: 0;
-        padding: 0;
+        padding: 10mm;
         transform: none !important;
         border-radius: 0;
         box-shadow: none;

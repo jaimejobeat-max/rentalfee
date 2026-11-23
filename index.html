@@ -183,10 +183,14 @@
     </button>
 
     <!-- ── 가견적서 — 화면 전체를 덮는 A4 문서. 인쇄하면 이 종이만 나온다 ── -->
-    <div class="doc" id="doc" hidden role="dialog" aria-modal="true" aria-labelledby="doc-print">
+    <div class="doc" id="doc" hidden role="dialog" aria-modal="true" aria-labelledby="doc-pdf">
         <div class="doc-bar">
             <button data-doc-close data-i18n="doc_close">닫기</button>
-            <button class="doc-go" id="doc-print" data-doc-print data-i18n="doc_print">PDF로 저장 / 인쇄</button>
+            <span class="doc-acts">
+                <button class="doc-print" data-doc-print data-i18n="doc_print">인쇄</button>
+                <!-- 인쇄 창을 거치지 않고 PDF 파일을 바로 받는다 — 브라우저가 찍는 머리글·바닥글이 없다 (app.js downloadPdf) -->
+                <button class="doc-go" id="doc-pdf" data-doc-pdf data-i18n="doc_pdf">PDF 다운로드</button>
+            </span>
         </div>
         <!-- 좁은 화면에서만 보이는 입력 칸. 아래 종이는 축소된 미리보기라 여기서 적는다 -->
         <form class="doc-form" id="doc-form" onsubmit="return false">
