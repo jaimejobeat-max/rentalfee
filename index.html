@@ -75,8 +75,9 @@
                 <div class="row-h"><span class="row-n">04</span><span data-i18n="row_personnel">인원</span><em id="v-personnel">10명</em></div>
                 <div class="slider">
                     <div class="track">
-                        <input type="range" data-rng="personnel" id="rng-personnel" min="1" max="80" value="10" step="1"
-                            aria-label="촬영 인원">
+                        <input type="range" data-rng="personnel" id="rng-personnel" min="0" max="1000" value="185" step="1"
+                            aria-label="촬영 인원" aria-valuemin="1" aria-valuemax="80" aria-valuenow="10" aria-valuetext="10명">
+                        <!-- 위치 0–1000 ↔ 인원 1–80명: 앞 80%가 1–40명 (app.js personnelFrac). value 185 = 10명 -->
                         <!-- 요금이 바뀌는 인원 구간의 끝. app.js renderTicks가 지점별로 채운다 -->
                         <div class="ticks" id="ticks-personnel" aria-hidden="true"></div>
                     </div>

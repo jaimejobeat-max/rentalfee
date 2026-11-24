@@ -70,7 +70,9 @@ const I18N = {
         n_h_single: '*단독 룸(A·B·D)은 최대 7명', n_h_combo: '*8명 이상은 복합 파트(A+B / B+D / A+B+D)',
         n_h_bg: '*A 파트는 백가든 이용이 포함된 요금입니다', n_h_opt: '*그린하우스 옵션 +4만원/시간', n_h_over: '*추가 시간 당 Day 요금의 10%',
         n_h_opt2: '*그린하우스·백가든 옵션 각 +30만원(16~30명) / +50만원(31명 이상) · 시간 무관 정액',
-        band: ([lo, hi], i, n) => (i === 0 && lo === 1) ? `~${hi}명` : (i === n - 1 && hi >= PERSONNEL_MAX) ? `${lo}명~` : lo === hi ? `${lo}명` : `${lo}~${hi}명`,
+        // 요금표 인원 구간 머리. '명'은 왼쪽 위 칸(band_unit)에 한 번만 — 칸마다 붙이면 휴대폰(360–375px)에서 표가 넘친다
+        band: ([lo, hi], i, n) => (i === 0 && lo === 1) ? `~${hi}` : (i === n - 1 && hi >= PERSONNEL_MAX) ? `${lo}~` : lo === hi ? `${lo}` : `${lo}~${hi}`,
+        band_unit: '인원',
         partName: k => k,
     },
     en: {
@@ -123,7 +125,8 @@ const I18N = {
         status: 'Status', sum: 'Total', base: 'Base rate', overtime: h => `Overtime ${h}h`, options: n => `Options ${n}`,
         won: n => `₩${Math.round(n * 10000).toLocaleString('en-US')}`,
         sh_key: 'Current selection · tap a cell to apply it to the quote',
-        sec_day: 'Day 9h · Photo / Video', sec_half: 'Half 4h · Photo / Video', sec_event: 'Event 12h',
+        // 요금표 구역 제목은 대문자로 표시된다 — '9h'는 '9H'가 되므로 단위를 풀어 쓴다 (DAY 9 HOURS)
+        sec_day: 'Day 9 hours · Photo / Video', sec_half: 'Half 4 hours · Photo / Video', sec_event: 'Event 12 hours',
         sec_plan: 'Floor plan · Original rate sheet', sec_hourly: 'Hourly · up to 15 people', sec_whole: 'Whole space A+B+D · 16 or more',
         unit: 'Unit ₩10,000', unit_h: 'Unit ₩10,000 / hour', g_photo: 'Photo', g_video: 'Video', g_hourly: 'Hourly',
         n_over: '*Overtime: 10% of the rental fee per hour (based on the Day rate)', n_furn: '*Furniture shoots or vehicle access are priced separately',
@@ -134,6 +137,7 @@ const I18N = {
         n_h_bg: '*Part A includes use of the back garden', n_h_opt: '*Greenhouse option: +₩40,000 per hour', n_h_over: '*Overtime: 10% of the Day rate per hour',
         n_h_opt2: '*Greenhouse / Back garden option: +₩300,000 (16–30) / +₩500,000 (31 or more) each, flat regardless of hours',
         band: ([lo, hi], i, n) => (i === 0 && lo === 1) ? `≤${hi}` : (i === n - 1 && hi >= PERSONNEL_MAX) ? `${lo}+` : lo === hi ? `${lo}` : `${lo}–${hi}`,
+        band_unit: 'People',
         // 엔진의 파트 이름에 섞인 한국어를 영어로
         partName: k => k.replace('백가든', 'Back Garden').replace('카페', 'CAFE').replace('+가든', '+Garden').replace('1F+철제난간', '1F + railing').replace('2F오피스 포함', 'incl. 2F office'),
     },
@@ -285,7 +289,7 @@ const HONGDAE_START_PERSONNEL = 4;
 function enterStudio(studio) {
     if (studio === 'HONGDAE' && state.studio !== 'HONGDAE') {
         state.personnel = HONGDAE_START_PERSONNEL;
-        document.getElementById('rng-personnel').value = state.personnel;
+        setPersonnelSlider(state.personnel);
     }
     state.studio = studio;
 }
@@ -366,6 +370,8 @@ function syncPartStates() {
     els.optsPart.querySelectorAll('button').forEach(b => {
         const key = b.dataset.v;
         b.classList.toggle('on', key === state.part);
+        // 선택 상태를 화면낭독기에도 알린다 (.on은 눈에만 보인다)
+        b.setAttribute('aria-pressed', String(key === state.part));
         b.disabled = !partFits(key) && key !== state.part;
         // 못 고르는 파트에는 받을 수 있는 인원을 적는다: 지금 인원이 많으면 '~7명', 적으면 '16명~'
         const range = b.disabled && partRange(key);
@@ -379,9 +385,12 @@ function syncToggles() {
         const { set, v } = b.dataset;
         if (set === 'part') return; // 파트는 syncPartStates가 담당
         b.classList.toggle('on', state[set] === v);
+        b.setAttribute('aria-pressed', String(state[set] === v));
     });
     document.querySelectorAll('.opts button[data-opt]').forEach(b => {
-        b.classList.toggle('on', state.options.includes(b.dataset.opt));
+        const on = state.options.includes(b.dataset.opt);
+        b.classList.toggle('on', on);
+        b.setAttribute('aria-pressed', String(on));
     });
 }
 
@@ -433,7 +442,7 @@ function renderTicks() {
     box.dataset.key = key;
     // 촘촘한 구간(홍대 4·5·6·7명)은 눈금만 찍고, 숫자는 10명부터 5명 단위에만 적는다
     box.innerHTML = bands.map(([, hi]) => hi).filter(hi => hi < PERSONNEL_MAX).map(hi =>
-        `<i style="--f:${(hi - 1) / (PERSONNEL_MAX - 1)}">${hi >= 10 && hi % 5 === 0 ? `<b>${hi}</b>` : ''}</i>`).join('');
+        `<i style="--f:${personnelFrac(hi)}">${hi >= 10 && hi % 5 === 0 ? `<b>${hi}</b>` : ''}</i>`).join('');
 }
 
 // 슬라이더 양 끝 표기 — 현재 언어의 단위로 (1명 … 80명, 0시간 … 6시간)
@@ -784,8 +793,33 @@ function render() {
 // ═══════════════════════════════════════════════════════
 const esc = str => String(str).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-// [최소, 최대] → '~10인' / '11~20인' / '41인~' (슬라이더 최대까지 열린 구간)
+// [최소, 최대] → '~10' / '11~20' / '41~' (슬라이더 최대까지 열린 구간). 단위는 왼쪽 위 칸에 '인원'으로
 const PERSONNEL_MAX = 80;
+
+// ─── 인원 슬라이더의 눈금 간격 ───────────────────────────
+// 요금이 바뀌는 구간은 모든 지점에서 40명 안쪽이다. 1–80명을 같은 간격으로 두면 그 구간이
+// 슬라이더 왼쪽 1/3에 몰리고, 나머지(31–80명, 요금 같음)가 대부분을 차지했다.
+// 그래서 앞 80%를 1–40명에, 뒤 20%를 41–80명에 준다. 입력 칸은 0–1000 위치를 쓰고,
+// 손잡이는 늘 인원 자리에 맞춰 놓는다 (setPersonnelSlider).
+const KNEE_P = 40, KNEE_F = 0.8, RNG_RES = 1000;
+const personnelFrac = p => p <= KNEE_P
+    ? (p - 1) / (KNEE_P - 1) * KNEE_F
+    : KNEE_F + (p - KNEE_P) / (PERSONNEL_MAX - KNEE_P) * (1 - KNEE_F);
+const fracPersonnel = f => Math.round(f <= KNEE_F
+    ? 1 + f / KNEE_F * (KNEE_P - 1)
+    : KNEE_P + (f - KNEE_F) / (1 - KNEE_F) * (PERSONNEL_MAX - KNEE_P));
+const personnelPos = p => Math.round(personnelFrac(p) * RNG_RES);
+function setPersonnelSlider(p) {
+    const r = document.getElementById('rng-personnel');
+    r.value = personnelPos(p);
+    // 보조기기에는 위치(0–1000)가 아니라 인원을 알려 준다
+    r.setAttribute('aria-valuenow', p);
+    r.setAttribute('aria-valuetext', t('people')(p));
+}
+// 끄는 중인지 — 끌 때는 손가락 위치대로, 아닐 때(화살표 키·보조기기의 한 단계)는 한 명씩
+let personnelDragging = false;
+document.addEventListener('pointerdown', e => { if (e.target.id === 'rng-personnel') personnelDragging = true; });
+['pointerup', 'pointercancel'].forEach(ev => document.addEventListener(ev, () => { personnelDragging = false; }));
 const bandLabel = (b, i, bands) => t('band')(b, i, bands.length);
 const bandIndex = (bands, p) => bands.findIndex(([lo, hi]) => p >= lo && p <= hi);
 const cell = v => (v === null || v === 0) ? '<span class="sh-na">–</span>' : fmt(v);
@@ -805,13 +839,14 @@ function table(bands, rows, groups, attrs) {
             const dead = v === null || v === 0;
             // 요금이 없는 칸은 선택 중이어도 강조하지 않는다 (견적서가 이미 산출 불가를 알린다)
             const on = !dead && g.hit && g.hit.row === r.key && g.hit.col === i;
-            const data = dead ? '' : ` data-row="${esc(r.key)}" data-col="${i}"${g.attrs || ''}`;
+            // 요금 있는 칸은 키보드로도 누를 수 있게 (Tab으로 오고 Enter·Space로 견적에 반영 — keydown 처리)
+            const data = dead ? '' : ` data-row="${esc(r.key)}" data-col="${i}"${g.attrs || ''} tabindex="0" role="button" aria-pressed="${on}"`;
             return `<td class="${on ? 'hit' : ''}${dead ? ' dead' : ''}${sep(gi, i)}"${data}>${cell(v)}</td>`;
         }).join('')).join('');
         return `<tr><th class="${rowHit ? 'hit' : ''}">${esc(partName(r.label))}</th>${tds}</tr>`;
     }).join('');
     return `<div class="sh-wrap"><table class="sh-t sh-g${groups.length}"${attrs || ''}>
-    <thead><tr><th class="sh-corner" rowspan="2"></th>${gHead}</tr><tr>${bHead}</tr></thead>
+    <thead><tr><th class="sh-corner" rowspan="2">${t('band_unit')}</th>${gHead}</tr><tr>${bHead}</tr></thead>
     <tbody>${body}</tbody></table></div>`;
 }
 
@@ -932,7 +967,7 @@ function applySheetCell(td) {
     const snap = bands => {
         const [lo, hi] = bands[col];
         if (state.personnel < lo || state.personnel > hi) state.personnel = lo;
-        document.getElementById('rng-personnel').value = state.personnel;
+        setPersonnelSlider(state.personnel);
     };
 
     if (t.dataset.mode === 'hourly') {
@@ -1081,6 +1116,24 @@ document.addEventListener('click', e => {
     render();
 });
 
+// 요금표 칸 — 버튼처럼 Enter·Space로 누른다
+document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const td = e.target.closest && e.target.closest('.sh-t td[data-row]');
+    if (!td) return;
+    e.preventDefault();
+    // 반영하면 요금표가 다시 그려져 포커스가 사라진다 — 같은 칸을 찾아 포커스를 돌려준다
+    const t = td.closest('table'), d = td.dataset;
+    const sel = '.sh-t'
+        + (t.dataset.time ? `[data-time="${t.dataset.time}"]` : '')
+        + (t.dataset.mode ? `[data-mode="${t.dataset.mode}"]` : '')
+        + ` td[data-row="${CSS.escape(d.row)}"][data-col="${d.col}"]`
+        + (d.type ? `[data-type="${d.type}"]` : '');
+    applySheetCell(td);
+    const again = [...document.querySelectorAll(sel)].find(c => c.offsetParent);
+    if (again) again.focus();
+});
+
 document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
     // 미리보기가 떠 있으면 미리보기만 닫고 가견적서로 돌아간다
@@ -1100,7 +1153,18 @@ document.addEventListener('input', e => {
     }
     const r = e.target.closest('input[data-rng]');
     if (!r) return;
-    state[r.dataset.rng] = +r.value;
+    if (r.dataset.rng === 'personnel') {
+        const raw = +r.value;
+        let p = fracPersonnel(raw / RNG_RES);
+        // 화살표 키·보조기기의 '한 단계'는 위치를 1/1000만 옮겨 같은 인원에 머문다 — 그 방향으로 한 명 옮긴다
+        if (!personnelDragging && p === state.personnel && raw !== personnelPos(p)) {
+            p = Math.min(PERSONNEL_MAX, Math.max(1, p + Math.sign(raw - personnelPos(p))));
+        }
+        state.personnel = p;
+        setPersonnelSlider(p);
+    } else {
+        state[r.dataset.rng] = +r.value;
+    }
     render();
 });
 
@@ -1119,6 +1183,7 @@ function applyLang() {
     const cb = document.getElementById('chat-btn');
     cb.setAttribute('aria-label', t(cb.classList.contains('is-open') ? 'chat_close' : 'chat'));
     renderScales();
+    setPersonnelSlider(state.personnel); // 보조기기용 인원 표기(10명 / 10 ppl)도 언어에 맞춘다
 }
 
 function setLang(lang) {
@@ -1230,6 +1295,17 @@ function syncChat(open) {
 }
 window.ChannelIO('onShowMessenger', function () { syncChat(true); });
 window.ChannelIO('onHideMessenger', function () { syncChat(false); });
+
+// 아래로 스크롤하는 동안은 채팅 버튼을 숨기고(.is-away), 위로 올리거나 맨 위·맨 아래에서는 보인다.
+// 숨기는 효과는 CSS가 899px 이하에서만 준다 (데스크톱에서는 버튼이 본문을 덮지 않는다)
+let chatLastY = window.scrollY;
+window.addEventListener('scroll', function () {
+    const y = window.scrollY;
+    const atEnd = y + window.innerHeight >= document.documentElement.scrollHeight - 24;
+    if (Math.abs(y - chatLastY) < 6 && !atEnd) return; // 손떨림 정도의 움직임은 무시
+    chatBtn.classList.toggle('is-away', y > chatLastY && y > 0 && !atEnd && !chatOpen);
+    chatLastY = y;
+}, { passive: true });
 // 안 읽은 답장 수를 배지로
 window.ChannelIO('onBadgeChanged', function (unread) {
     chatBtn.classList.toggle('has-unread', unread > 0);

@@ -108,6 +108,34 @@ input:focus-visible {
     outline-offset: 3px;
 }
 
+/* 키보드 포커스가 안 보이던 곳들 */
+/* 슬라이더 — .slider input의 outline:none이 위 규칙을 이겨 포커스 표시가 없었다 */
+.slider input[type=range]:focus-visible {
+    outline: 2px solid var(--black);
+    outline-offset: 2px;
+}
+
+/* 검정 버튼 — 링이 글자색(흰색)을 따라가 흰 종이·종이색 위에서 보이지 않았다 */
+.rc-doc:focus-visible,
+.doc-bar .doc-go:focus-visible {
+    outline-color: var(--black);
+}
+
+/* 하단 바는 화면 끝에 붙어 바깥 링이 안 보인다 — 바 안쪽에 흰 링 */
+.peek:focus-visible {
+    outline-offset: -4px;
+}
+
+/* 요금표 칸 (Tab으로 오는 칸) — 칸 안쪽에 링. 선택된 검정 칸에서는 흰 링 */
+.sh-t td[data-row]:focus-visible {
+    outline: 2px solid var(--black);
+    outline-offset: -3px;
+}
+
+.sh-t td.hit:focus-visible {
+    outline-color: var(--white);
+}
+
 /* ─── Header (홈페이지와 같은 64px 고정 헤더) ───────── */
 .masthead {
     position: fixed;
@@ -220,6 +248,12 @@ input:focus-visible {
 .mh-nav button.on::after,
 .opts button.on::after {
     transform: scaleX(1);
+}
+
+/* 언어 전환의 세로 실선은 위 호버 규칙에서 빼낸다 — scaleX(1)이 translateY(-50%)를 덮어써
+   마우스를 올리면(터치 기기는 탭한 뒤에도) 실선이 8px 아래로 내려갔다 */
+.mh-nav .mh-lang:hover::after {
+    transform: translateY(-50%);
 }
 
 /* ─── Workbench ────────────────────────────── */
@@ -473,7 +507,7 @@ input:focus-visible {
     justify-content: space-between;
     margin-top: var(--sp-xs);
     font-size: var(--fs-ui);
-    text-transform: uppercase;
+    /* 대문자로 바꾸지 않는다 — 영어 단위(1 ppl, 6h)가 '1 PPL', '6H'가 되어 바로 위 현재값('10 ppl')과 달라졌다 */
     color: var(--grey);
 }
 
@@ -630,9 +664,16 @@ input:focus-visible {
     border-right: 1px solid var(--line);
 }
 
-/* 머리 아래 검정 줄이 파트 열까지 이어지게 */
+/* 머리 아래 검정 줄이 파트 열까지 이어지게.
+   왼쪽 위 칸의 '인원'은 인원 구간 머리 줄의 이름 — 그 줄과 같은 높이·크기·색으로 바닥에 붙인다 */
 .sh-t .sh-corner {
     border-bottom: 1px solid var(--black);
+    vertical-align: bottom;
+    padding-bottom: 10px;
+    font-size: var(--fs-ui);
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--grey);
 }
 
 /* 두 그룹이 한 표에 있을 때 — 사이에 세로 실선 */
@@ -646,7 +687,9 @@ input:focus-visible {
     transition: background .2s var(--ease);
 }
 
-.sh-t td[data-row]:hover {
+/* 선택 칸(.hit)은 빼야 한다 — 이 규칙이 .hit보다 우선이라, 검정 칸 위에 마우스를 올리면
+   바탕만 연회색이 되고 흰 숫자가 사라졌다 */
+.sh-t td[data-row]:not(.hit):hover {
     background: #eceae4;
 }
 
@@ -839,10 +882,11 @@ input:focus-visible {
     text-align: left;
 }
 
+/* 검정 바 위 라벨 — 종이용 --grey는 검정 위에서 3.7:1이라 옅은 회색(9.4:1)을 쓴다 */
 .peek-k {
     font-size: var(--fs-ui);
     text-transform: uppercase;
-    color: var(--grey);
+    color: var(--grey-off);
 }
 
 .peek-v {
@@ -903,8 +947,10 @@ input:focus-visible {
     padding: 0 var(--gutter) calc(var(--sp-xl) + env(safe-area-inset-bottom, 0px));
 }
 
+/* 합계 글자 크기의 기준 폭 (.rc-total-v의 cqi) */
 .paper-in {
     padding-top: var(--sp-l);
+    container-type: inline-size;
 }
 
 /* 제목 왼쪽, '견적 복사' 오른쪽 */
@@ -981,19 +1027,34 @@ input:focus-visible {
     color: var(--grey);
 }
 
+/* VAT 표기는 모든 폭에서 금액 아래 줄 — 금액 옆에 두면 영어 여덟 자리(₩12,000,000)가
+   좁은 폰과 데스크톱 견적서에서 오른쪽으로 넘쳤다 */
 .rc-vat {
-    margin-left: .3em;
+    display: block;
+    margin-top: 10px;
     font-size: var(--fs-ui);
     font-weight: var(--w-mid);
     letter-spacing: 0;
+    line-height: 1;
+    text-align: right;
 }
 
+/* 합계 글자 크기는 견적서 폭(.paper-in, container)에 맞춘다 — 가장 긴 금액이 라벨 옆에
+   들어가는 크기에서, 휴대폰·태블릿은 40px, 데스크톱은 52px(--total-max)에서 멈춘다.
+   한국어 '9,999만원'은 4.3em + 라벨 '합계'와 간격 44px,
+   영어 '₩12,000,000'은 6.1em(숫자 고정폭) + 'TOTAL'과 간격 56px */
 .rc-total-v {
-    font-size: var(--fs-title-m);
+    --total-max: 40px;
+    font-size: var(--total-max);
+    font-size: min(var(--total-max), calc((100cqi - 44px) / 4.3));
     font-weight: var(--w);
     letter-spacing: -0.035em;
     line-height: .9;
     white-space: nowrap;
+}
+
+:lang(en) .rc-total-v {
+    font-size: min(var(--total-max), calc((100cqi - 56px) / 6.1));
 }
 
 /* 산출 불가일 때만 사유를 보여준다. 평소에는 비어 있고 숨긴다. */
@@ -1049,6 +1110,22 @@ input:focus-visible {
     }
 }
 
+/* 아이패드 세로·가로 폰(768–899px) — 배치는 휴대폰(한 단 + 하단 시트)인데 휴대폰 규칙(≤767)이
+   닿지 않아 빠진 것들을 채운다 */
+@media (min-width: 768px) and (max-width: 899px) {
+    /* 첫 행의 선이 헤더 선에 붙어 두꺼운 이중선이 되지 않게 (휴대폰과 같은 숨) */
+    .workbench {
+        padding-top: var(--sp-l);
+    }
+
+    /* 시트가 화면 폭 전체로 펼쳐지면 항목 이름과 값이 700px 넘게 떨어진다 —
+       데스크톱 견적서(최대 420px)와 비슷한 폭에서 멈추고 가운데에 둔다 */
+    .paper-in {
+        max-width: 480px;
+        margin: 0 auto;
+    }
+}
+
 @media (max-width: 767px) {
     :root {
         --gutter: var(--gutter-m);
@@ -1075,14 +1152,6 @@ input:focus-visible {
         height: 26px;
     }
 
-    /* 견적서 합계 — 화면 폭에 맞춰 키운다. 영어 금액(₩11,200,000)은 길어서 한 단계 작게 */
-    .rc-total-v {
-        font-size: min(40px, 10.5vw);
-    }
-
-    :lang(en) .rc-total-v {
-        font-size: min(30px, 8vw);
-    }
 
     .mh-logo img {
         height: 11px;
@@ -1152,6 +1221,18 @@ input:focus-visible {
     .mh-lang i {
         display: none;
     }
+
+    /* 하단 바: 영어 여덟 자리 합계(₩15,600,000 (+VAT))면 오른쪽 'QUOTE ↑'가 화면 밖으로 밀린다 —
+       영어 금액만 한 단계 줄인다 */
+    :lang(en) .peek-v {
+        font-size: 18px;
+    }
+
+    /* 요금표 파트 이름이 긴 지점(레이어41 'ABC (1+2+3F)')은 표가 20px 넘친다 —
+       괄호 앞에서 두 줄로 내려 파트 열을 좁힌다 */
+    .sh-t tbody th {
+        white-space: normal;
+    }
 }
 
 /* ═══════════════════════════════════════════
@@ -1195,13 +1276,8 @@ input:focus-visible {
         display: inline;
     }
 
-    .sh-desk {
-        display: block;
-    }
-
-    .sh-mob {
-        display: none;
-    }
+    /* 사진 | 영상 한 표(.sh-desk)는 1180px부터 — 900–1179px에서는 왼쪽 단이 450–620px라
+       열한 칸짜리 한 표가 최대 140px 넘쳐 영상 열이 잘렸다. 그 폭에서는 따로 쌓은 표를 쓴다 */
 
     /* 안내: 견적서 없이 한 단. 주소처럼 짧은 항목은 라벨과 값을 한 줄에 둔다 */
     .workbench.is-info {
@@ -1265,31 +1341,14 @@ input:focus-visible {
         padding: 0 var(--sp-l) var(--sp-l);
     }
 
-    /* 견적서 폭(.paper-in)을 기준 삼아 합계 글자 크기를 맞춘다 */
     .paper-in {
         padding-top: var(--sp-l);
-        container-type: inline-size;
     }
 
-    /* 견적서는 320–420px 사이로 변해서, 52px 합계 옆에 '(VAT 별도)'까지 한 줄에 두면
-       오른쪽으로 넘친다. VAT 표기는 금액 아래 줄로 내리고, 금액은 가장 긴 금액이
-       라벨 옆에 들어가도록 종이 폭에 맞춰 줄인다 — 넓으면 52px에서 멈춘다.
-       한국어 '9,999만원'은 4.3em, 라벨 '합계'와 간격 44px → 320px 종이에서도 52px 그대로.
-       영어 '₩12,000,000'은 6.1em(숫자 고정폭), 'TOTAL'과 간격 56px → 좁은 종이에서 줄어든다 */
+    /* 데스크톱 견적서(320–420px)의 합계는 52px까지 — 한국어는 늘 52px,
+       영어 여덟 자리는 좁은 종이에서 줄어든다 (계산은 기본 .rc-total-v) */
     .rc-total-v {
-        font-size: var(--fs-title);
-        font-size: min(var(--fs-title), calc((100cqi - 44px) / 4.3));
-    }
-
-    :lang(en) .rc-total-v {
-        font-size: min(var(--fs-title), calc((100cqi - 56px) / 6.1));
-    }
-
-    .rc-vat {
-        display: block;
-        margin: 10px 0 0;
-        line-height: 1;
-        text-align: right;
+        --total-max: var(--fs-title);
     }
 
     .dock-scrim {
@@ -1303,6 +1362,15 @@ input:focus-visible {
     :root {
         --fs-table: 15px;
         --fs-menu: 13px;
+    }
+
+    /* 요금표: 왼쪽 단이 충분히 넓어져서 원본처럼 사진 | 영상을 한 표에 */
+    .sh-desk {
+        display: block;
+    }
+
+    .sh-mob {
+        display: none;
     }
 
     .controls {
@@ -1462,6 +1530,27 @@ input:focus-visible {
 /* 가견적서를 여는 동안에는 숨긴다 */
 body.doc-open .chat {
     display: none;
+}
+
+/* 휴대폰·태블릿: 아래로 스크롤하는 동안은 비켜 준다 (.is-away, app.js) — 버튼이 오른쪽 끝에
+   크게 놓인 선택값(한남 · 10명 · Day 9시간)과 같은 자리라 스크롤할 때마다 하나씩 덮었다.
+   위로 올리거나 맨 아래에 닿으면 돌아온다. 데스크톱은 버튼이 본문 밖 여백에 있어 그대로 둔다 */
+@media (max-width: 899px) {
+    .chat {
+        transition: background .2s, color .2s, box-shadow .2s, transform .3s var(--ease), opacity .3s var(--ease);
+    }
+
+    .chat.is-away:not(:focus-visible) {
+        transform: translateY(12px);
+        opacity: 0;
+        pointer-events: none;
+    }
+}
+
+@media (max-width: 899px) and (prefers-reduced-motion: reduce) {
+    .chat.is-away:not(:focus-visible) {
+        transform: none;
+    }
 }
 
 @media (min-width: 900px) {
