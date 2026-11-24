@@ -12,6 +12,8 @@
     /* 바탕은 순백이 아니라 옅은 종이색. 그 위에 견적서·가견적서만 흰 종이로 올라간다
        (책상 위의 종이). 회색과 선도 같은 온도로 맞춘다 */
     --page: #f6f5f1;
+    /* 종이색 바탕 위에 올라간 흰 종이(견적서·가견적서·요금표 원본)의 그림자 — 가까운 접지 + 넓고 옅은 번짐 */
+    --shadow-paper: 0 1px 2px rgba(0, 0, 0, .04), 0 12px 40px rgba(0, 0, 0, .07);
     --grey: #6a6761;     /* 종이색 바탕 대비 5.1:1 — 작은 주석도 읽히는 가장 옅은 회색 */
     --grey-off: #b0ada5; /* 고를 수 없는 항목 */
     --line: #dddbd3;     /* 종이색 위에서도 보이는 연한 선 */
@@ -1331,9 +1333,11 @@ input:focus-visible {
     }
 
     /* 견적서는 종이색 바탕 위의 흰 종이 한 장 — 선 없이 면으로 구분하고, 안쪽 여백 24px.
-       종이 윗변은 왼쪽 첫 행의 선과 같은 높이에서 시작한다 */
+       종이 윗변은 왼쪽 첫 행의 선과 같은 높이에서 시작한다.
+       가견적서 종이와 같은 그림자로 바탕에서 살짝 떠 보이게 한다 */
     .dock {
         background: var(--white);
+        box-shadow: var(--shadow-paper);
     }
 
     .paper {
@@ -1671,7 +1675,7 @@ body.doc-open {
     width: 100%;
     height: auto;
     background: var(--white);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 12px 40px rgba(0, 0, 0, .07);
+    box-shadow: var(--shadow-paper);
 }
 
 .prev-note {
@@ -1731,7 +1735,7 @@ body.doc-open {
     padding: calc(var(--u) * 2);   /* 종이 폭의 4.5% — 여백을 좁혀 내용이 종이를 넉넉히 채운다 */
     background: var(--white);
     border-radius: 10px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 12px 40px rgba(0, 0, 0, .07);
+    box-shadow: var(--shadow-paper);
     color: #1c1c1c;
     font-size: 12.5px;
     line-height: var(--u);
