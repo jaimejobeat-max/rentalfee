@@ -1265,12 +1265,31 @@ input:focus-visible {
         padding: 0 var(--sp-l) var(--sp-l);
     }
 
+    /* 견적서 폭(.paper-in)을 기준 삼아 합계 글자 크기를 맞춘다 */
     .paper-in {
         padding-top: var(--sp-l);
+        container-type: inline-size;
     }
 
+    /* 견적서는 320–420px 사이로 변해서, 52px 합계 옆에 '(VAT 별도)'까지 한 줄에 두면
+       오른쪽으로 넘친다. VAT 표기는 금액 아래 줄로 내리고, 금액은 가장 긴 금액이
+       라벨 옆에 들어가도록 종이 폭에 맞춰 줄인다 — 넓으면 52px에서 멈춘다.
+       한국어 '9,999만원'은 4.3em, 라벨 '합계'와 간격 44px → 320px 종이에서도 52px 그대로.
+       영어 '₩12,000,000'은 6.1em(숫자 고정폭), 'TOTAL'과 간격 56px → 좁은 종이에서 줄어든다 */
     .rc-total-v {
         font-size: var(--fs-title);
+        font-size: min(var(--fs-title), calc((100cqi - 44px) / 4.3));
+    }
+
+    :lang(en) .rc-total-v {
+        font-size: min(var(--fs-title), calc((100cqi - 56px) / 6.1));
+    }
+
+    .rc-vat {
+        display: block;
+        margin: 10px 0 0;
+        line-height: 1;
+        text-align: right;
     }
 
     .dock-scrim {
